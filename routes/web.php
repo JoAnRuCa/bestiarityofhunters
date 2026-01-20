@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SeccionController;
+use App\Http\Controllers\SkillController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,4 +19,5 @@ use App\Http\Controllers\SeccionController;
 */
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-
+Route::get('/skills', [SkillController::class, 'index'])->name('skills.index');
+Route::get('/skills/{slug}', [SkillController::class, 'show'])->name('skills.show');
