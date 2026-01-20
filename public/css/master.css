@@ -1,0 +1,194 @@
+@font-face {
+    font-family: 'Inter';
+    /* nombre que le darás en CSS */
+    src: url('../fuente/Inter-VariableFont_opsz\,wght.ttf') format('truetype');
+    /* ruta a la fuente */
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    font-family: 'Inter';
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    color: #2f2f2f;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
+/* Estilo general del header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* centra verticalmente */
+    padding: 10px 20px;
+    flex-wrap: wrap;
+    /* permite que los elementos bajen en pantallas pequeñas */
+    background-color: #F4EBD0;
+    /* ejemplo */
+}
+
+/* Logo */
+.logo {
+    flex: 0 0 auto;
+    /* no se estira */
+    width: 200px;
+    /* ancho máximo */
+    max-width: 20%;
+    /* opcional, que no supere el 20% del header */
+
+}
+
+.logo img {
+    width: 100%;
+    height: auto;
+    /* mantiene proporción */
+    display: block;
+
+}
+
+/* Navegación */
+nav>ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 20px;
+    flex-wrap: wrap;
+    /* se envuelve en pantallas pequeñas */
+}
+
+nav a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+}
+
+
+.login {
+    color: #6B8E23;
+    background: transparent;
+    border: 2px solid #6B8E23;
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.login:hover {
+    background: #6B8E23;
+    color: #F4EBD0;
+}
+
+.register {
+    background: #6B8E23;
+    color: #F4EBD0;
+    border: 2px solid #6B8E23;
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.register:hover {
+    background: #C67C48;
+    border-color: #C67C48;
+}
+
+
+footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 20px;
+    flex-wrap: wrap;
+    /* permite que los elementos bajen en pantallas pequeñas */
+    background-color: #F4EBD0;
+    /* ejemplo */
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown>a::after {
+    content: " ▼";
+    font-size: 0.8em;
+    margin-left: 5px;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: #F4EBD0;
+    min-width: 200px;
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    list-style: none;
+    /* Reset list style */
+    padding: 0;
+    margin: 0;
+    border-radius: 4px;
+    top: 100%;
+    /* Position below the parent */
+    left: 0;
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-menu li {
+    width: 100%;
+}
+
+.dropdown-menu a {
+    color: #333;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-weight: normal;
+    /* Override bold from nav a if needed */
+}
+
+.dropdown-menu a:hover {
+    background-color: #f1f1f1;
+    color: #6B8E23;
+    /* Match theme highlight */
+}
+
+
+/* Responsive: en pantallas pequeñas */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+
+    }
+
+    nav>ul {
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 10px;
+        align-items: center;
+    }
+
+    .login {
+        margin-top: 10px;
+    }
+
+    .logo {
+        width: 100px;
+        /* se reduce el logo en móviles */
+    }
+}
+
+;
