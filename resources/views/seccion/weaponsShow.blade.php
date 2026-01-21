@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title', $weapon['slug'])
+@section('title', $weapon['name'])
 @section('content')
 <div>
 
