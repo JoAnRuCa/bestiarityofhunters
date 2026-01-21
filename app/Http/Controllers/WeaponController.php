@@ -19,10 +19,10 @@ class WeaponController extends Controller
         });
 
         // 2. Filtrar si hay búsqueda
-    if (request()->has('q')) {
-        $q = strtolower(request()->get('q'));
+        if (request()->has('q')) {
+            $q = strtolower(request()->get('q'));
 
-        $weapons = $weapons->filter(function ($weapon) use ($q) {
+            $weapons = $weapons->filter(function ($weapon) use ($q) {
 
             $nameMatch = str_contains(strtolower($weapon['name']), $q);
 
