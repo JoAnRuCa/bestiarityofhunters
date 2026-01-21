@@ -20,19 +20,11 @@ class CharmController extends Controller
 
         // 2. Filtrar si hay búsqueda
         if (request()->has('q')) {
-            $q = strtolower(request()->get('q'));
-
+            $q = request()->get('q');
             $charm = $charm->filter(function ($charm) use ($q) {
-
-            $nameMatch = str_contains(strtolower($charm['name']), $q);
-
-            $kindMatch = isset($charm['kind']) 
-                ? str_contains(strtolower($charm['kind']), $q)
-                : false;
-
-            return $nameMatch || $kindMatch;
-        });
-    }
+                return str_contains(strtolower($charm['name']), strtolower($q));
+            });
+        }
 
         // 3. Paginar 20 por página
         $page = request()->get('page', 1);
