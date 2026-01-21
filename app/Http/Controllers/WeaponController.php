@@ -19,12 +19,21 @@ class WeaponController extends Controller
         });
 
         // 2. Filtrar si hay búsqueda
-        if (request()->has('q')) {
-            $q = request()->get('q');
-            $weapons = $weapons->filter(function ($weapon) use ($q) {
-                return str_contains(strtolower($weapon['name']), strtolower($q));
-            });
-        }
+    if (request()->has('q')) {
+        $q = strtolower(request()->get('q'));
+
+        $weapons = $weapons->filter(function ($weapon) use ($q) {
+
+            $nameMatch = str_contains(strtolower($weapon['name']), $q);
+
+            $kindMatch = isset($weapon['kind']) 
+                ? str_contains(strtolower($weapon['kind']), $q)
+                : false;
+
+            return $nameMatch || $kindMatch;
+        });
+    }
+
         // 3. Paginar 20 por página
         $page = request()->get('page', 1);
         $perPage = 20;
