@@ -22,18 +22,24 @@
 
         {{-- Specials (elementos, estados, etc.) --}}
     @if(isset($weapon['specials']) && count($weapon['specials']) > 0)
+        <h3>Special Effects</h3>
         @foreach ($weapon['specials'] as $special)
-            <p>
-                {{ ucfirst($special['element']) }}  
-                ({{ $special['kind'] }}) 
-                <p>Raw: {{ $special['damage']['raw'] }}</p>  
-                <p>Display: {{ $special['damage']['display'] }}</p>  
+            <div class="special-block">
+                <p>
+                    {{ ucfirst($special['element'] ?? $special['status'] ?? 'Unknown') }}
+                    ({{ $special['kind'] }})
+                </p>
+
+                <p>Raw: {{ $special['damage']['raw'] }}</p>
+                <p>Display: {{ $special['damage']['display'] }}</p>
+
                 @if($special['hidden'])
                     <p>(Hidden)</p>
                 @endif
-            </p>
+            </div>
         @endforeach
     @endif
+
 
     {{-- Sharpness --}}
     @if(isset($weapon['sharpness']))
