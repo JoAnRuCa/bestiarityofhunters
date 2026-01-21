@@ -10,16 +10,15 @@
     </form>
 
     <ul>
-        @foreach ($paginatedCharm as $charm)
-            <li>
-                @foreach ($charm['ranks'] as $rank)
-                    <a href="{{ route('charms.show', ['slug' => $charm['slug'], 'rank' => $rank['level']]) }}">
-                        {{ $rank['name'] }}
-                    </a><br>
-                @endforeach
-            </li>
-        @endforeach
+    @foreach ($paginatedCharm as $rank)
+        <li>
+            <a href="{{ route('charms.show', $rank['slug']) }}">
+                {{ $rank['name'] }}
+            </a>
+        </li>
+    @endforeach
     </ul>
+
 
     <div> {{-- Centrarlo con css --}}
     {{ $paginatedCharm->links() }}

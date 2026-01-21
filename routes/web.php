@@ -35,7 +35,7 @@ Route::get('/armors', [ArmorController::class, 'index'])->name('armors.index');
 Route::get('/armors/{slug}', [ArmorController::class, 'show'])->name('armors.show');
 
 Route::get('/charms', [CharmController::class, 'index'])->name('charms.index');
-Route::get('/charms/{slug}/{rank}', [CharmController::class, 'show'])->name('charms.show');
+Route::get('/charms/{slug}', [CharmController::class, 'show'])->name('charms.show');
 
 Route::get('/decorations', [DecorationController::class, 'index'])->name('decorations.index');
 Route::get('/decorations/{slug}', [DecorationController::class, 'show'])->name('decorations.show');

@@ -10,70 +10,100 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class CharmController extends Controller
 {
     private function loadCharms()
-    {
-        return collect(json_decode(Storage::get('data/charms.json'), true))
-            ->filter(fn($item) => isset($item['ranks'][0]['name']))
-            ->map(function ($item, $index) {
+{
+    return collect(json_decode(Storage::get('data/charms.json'), true))
+        ->filter(fn($item) => isset($item['ranks'][0]['name']))
+       ->map(function ($item, $index) {
 
-                $fullName = $item['ranks'][0]['name'];
+    $fullName = $item['ranks'][0]['name'];
 
-                $parts = explode(' ', $fullName);
-                $last = end($parts);
+    $parts = explode(' ', $fullName);
+    $last = end($parts);
 
-                $roman = ['I','II','III','IV','V','VI','VII'];
+    $roman = ['I','II','III','IV','V','VI','VII'];
 
-                if (in_array($last, $roman)) {
-                    array_pop($parts);
-                }
-
-                $baseName = implode(' ', $parts);
-
-                $item['id'] = $index;
-                $item['slug'] = Str::slug($baseName);
-
-                return $item;
-            });
+    if (in_array($last, $roman)) {
+        array_pop($parts);
     }
+
+    $baseName = implode(' ', $parts);
+
+    $item['id'] = $index;
+
+    // Generar slug por cada rank
+    foreach ($item['ranks'] as $i => $rank) {
+        $item['ranks'][$i]['slug'] = Str::slug($baseName . '-' . $rank['level']);
+    }
+
+    return $item;
+});
+
+}
+
 
     public function index()
+{
+    $charms = $this->loadCharms();
+
+    // Convertir charms en una lista plana de ranks
+    $ranks = collect();
+
+    foreach ($charms as $charm) {
+        foreach ($charm['ranks'] as $rank) {
+            $rank['parent'] = $charm; // guardar charm original
+            $ranks->push($rank);
+        }
+    }
+
+    // Filtro de búsqueda
+    if (request()->filled('q')) {
+        $q = strtolower(request()->get('q'));
+
+        $ranks = $ranks->filter(function ($rank) use ($q) {
+            return str_contains(strtolower($rank['name']), $q);
+        });
+    }
+
+    // Reindexar
+    $ranks = $ranks->values();
+
+    // Paginación real de ranks
+    $page = request()->get('page', 1);
+    $perPage = 20;
+
+    $paginatedCharm = new LengthAwarePaginator(
+        $ranks->forPage($page, $perPage),
+        $ranks->count(),
+        $perPage,
+        $page,
+        ['path' => request()->url()]
+    );
+
+    return view('seccion.charms', compact('paginatedCharm'));
+}
+
+
+
+    public function show($slug)
     {
         $charms = $this->loadCharms();
 
-        if (request()->filled('q')) {
-            $q = strtolower(request()->get('q'));
-
-            $charms = $charms->filter(function ($charm) use ($q) {
-                return str_contains(strtolower($charm['ranks'][0]['name']), $q);
-            });
+        // Buscar el rank correcto
+        foreach ($charms as $charm) {
+            foreach ($charm['ranks'] as $rank) {
+                if ($rank['slug'] === $slug) {
+                    return view('seccion.charmsShow', [
+                        'charm' => $charm,
+                        'selectedRank' => $rank
+                    ]);
+                }
+            }
         }
 
-        $page = request()->get('page', 1);
-        $perPage = 20;
-
-        $paginatedCharm = new LengthAwarePaginator(
-            $charms->forPage($page, $perPage),
-            $charms->count(),
-            $perPage,
-            $page,
-            ['path' => request()->url()]
-        );
-
-        return view('seccion.charms', compact('paginatedCharm'));
+        abort(404);
     }
 
-    public function show($slug, $rank)
-    {
-        $charms = $this->loadCharms();
 
-        $charm = $charms->firstWhere('slug', $slug);
 
-        if (!$charm) {
-            abort(404);
-        }
-
-        $selectedRank = collect($charm['ranks'])->firstWhere('level', intval($rank));
-
-        return view('seccion.charmsShow', compact('charm', 'selectedRank'));
-    }
 }
 
