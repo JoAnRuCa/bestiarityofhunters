@@ -1,7 +1,7 @@
 @extends('layouts.master')
 @section('title', $weapon['slug'])
 @section('content')
-<div class="weapon-show">
+<div>
 
     {{-- Nombre y descripción --}}
     <h1>{{ $weapon['name'] }}</h1>
@@ -24,7 +24,7 @@
     @if(isset($weapon['specials']) && count($weapon['specials']) > 0)
         <h3>Special Effects</h3>
         @foreach ($weapon['specials'] as $special)
-            <div class="special-block">
+            <div>
                 <p>
                     {{ ucfirst($special['element'] ?? $special['status'] ?? 'Unknown') }}
                     ({{ $special['kind'] }})
