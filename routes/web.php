@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SeccionController;
 use App\Http\Controllers\SkillController;
-
+use App\Http\Controllers\WeaponController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -21,3 +21,6 @@ use App\Http\Controllers\SkillController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/skills', [SkillController::class, 'index'])->name('skills.index');
 Route::get('/skills/{slug}', [SkillController::class, 'show'])->name('skills.show');
+
+Route::get('/weapons', [WeaponController::class, 'index'])->name('weapons.index');
+Route::get('/weapons/{slug}', [WeaponController::class, 'show'])->name('weapons.show');
