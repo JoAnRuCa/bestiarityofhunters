@@ -64,10 +64,10 @@ class CharmController extends Controller
         });
     }
 
-    // Reindexar
+    // Reindexar para que funcione la paginación
     $ranks = $ranks->values();
 
-    // Paginación real de ranks
+    // Paginación
     $page = request()->get('page', 1);
     $perPage = 20;
 
@@ -88,7 +88,7 @@ class CharmController extends Controller
     {
         $charms = $this->loadCharms();
 
-        // Buscar el rank correcto
+        // Buscar el rank correcto para no devolver siempre 1
         foreach ($charms as $charm) {
             foreach ($charm['ranks'] as $rank) {
                 if ($rank['slug'] === $slug) {
