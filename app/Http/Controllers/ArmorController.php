@@ -44,17 +44,17 @@ class ArmorController extends Controller
             $page,
             ['path' => request()->url()]
         );
-        return view('seccion.armor', compact('paginatedArmor'));
+        return view('seccion.armors', compact('paginatedArmor'));
     }
 
     public function show($slug)
     {
-        $armor = collect(json_decode(Storage::get('data/armor.json'), true))->map(function ($item, $index) {
+        $armor = collect(json_decode(Storage::get('data/armors.json'), true))->map(function ($item, $index) {
             $item['id'] = $index;
             $item['slug'] = Str::slug($item['name']);
             return $item;
         });
         $armor = $armor->firstWhere('slug', $slug);
-        return view('seccion.armorShow', compact('armor'));
+        return view('seccion.armorsShow', compact('armor'));
     }
 }

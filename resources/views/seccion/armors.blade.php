@@ -5,14 +5,14 @@
 <div> {{-- Centrarlo con css --}}
     <h1>Armors</h1>
     <form method="GET" action="{{ route('armors.index') }}">
-        <input type="text" name="q" value="{{ request('q') }}" placeholder="Search weapon...">
+        <input type="text" name="q" value="{{ request('q') }}" placeholder="Search armor...">
         <button type="submit">Search</button>
     </form>
 
     <ul>
         @foreach ($paginatedArmor as $armor)
             <li>
-                <a href="{{ route('armor.show', $armor['slug']) }}">
+                <a href="{{ route('armors.show', $armor['slug']) }}">
                     {{ $armor['name'] }}
                 </a>
             </li>
