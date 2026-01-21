@@ -7,11 +7,11 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-class SkillController extends Controller
+class DecorationController extends Controller
 {
-    private function loadSkills()
+    private function loadDecorations()
     {
-        return collect(json_decode(Storage::get('data/skills.json'), true))
+        return collect(json_decode(Storage::get('data/decorations.json'), true))
             ->map(function ($item, $index) {
                 $item['id'] = $index;
                 $item['slug'] = Str::slug($item['name']);
@@ -21,13 +21,13 @@ class SkillController extends Controller
 
     public function index()
     {
-        $skills = $this->loadSkills();
+        $decorations = $this->loadDecorations();
 
         if (request()->filled('q')) {
             $q = request()->get('q');
-            $skills = $skills->filter(function ($skill) use ($q) {
+            $decorations = $decorations->filter(function ($decoration) use ($q) {
                 return str_contains(
-                    strtolower($skill['name']),
+                    strtolower($decoration['name']),
                     strtolower($q)
                 );
             });
@@ -36,26 +36,26 @@ class SkillController extends Controller
         $page = request()->get('page', 1);
         $perPage = 20;
 
-        $paginatedSkills = new LengthAwarePaginator(
-            $skills->forPage($page, $perPage),
-            $skills->count(),
+        $paginatedDecorations = new LengthAwarePaginator(
+            $decorations->forPage($page, $perPage),
+            $decorations->count(),
             $perPage,
             $page,
             ['path' => request()->url()]
         );
 
-        return view('seccion.skills', compact('paginatedSkills'));
+        return view('seccion.decorations', compact('paginatedDecorations'));
     }
 
     public function show($slug)
     {
-        $skills = $this->loadSkills();
-        $skill = $skills->firstWhere('slug', $slug);
+        $decorations = $this->loadDecorations();
+        $decoration = $decorations->firstWhere('slug', $slug);
 
-        if (!$skill) {
+        if (!$decoration) {
             abort(404);
         }
 
-        return view('seccion.skillsShow', compact('skill'));
+        return view('seccion.decorationsShow', compact('decoration'));
     }
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\SkillController;
 use App\Http\Controllers\WeaponController;
 use App\Http\Controllers\ArmorController;
 use App\Http\Controllers\CharmController;
+use App\Http\Controllers\DecorationController;
 
 
 /*
@@ -35,3 +36,6 @@ Route::get('/armors/{slug}', [ArmorController::class, 'show'])->name('armors.sho
 
 Route::get('/charms', [CharmController::class, 'index'])->name('charms.index');
 Route::get('/charms/{slug}/{rank}', [CharmController::class, 'show'])->name('charms.show');
+
+Route::get('/decorations', [DecorationController::class, 'index'])->name('decorations.index');
+Route::get('/decorations/{slug}', [DecorationController::class, 'show'])->name('decorations.show');

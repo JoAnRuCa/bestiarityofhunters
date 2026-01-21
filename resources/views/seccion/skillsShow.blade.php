@@ -20,7 +20,7 @@
     <h3>Ranks</h3>
     @foreach ($skill['ranks'] as $rank)
         <p>
-            Rank {{ $rank['level'] }}: {{ $rank['description'] }}
+            Lv {{ $rank['level'] }}: {{ $rank['description'] }}
         </p>
     @endforeach
 @endif
