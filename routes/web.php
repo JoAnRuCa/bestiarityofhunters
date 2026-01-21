@@ -24,3 +24,6 @@ Route::get('/skills/{slug}', [SkillController::class, 'show'])->name('skills.sho
 
 Route::get('/weapons', [WeaponController::class, 'index'])->name('weapons.index');
 Route::get('/weapons/{slug}', [WeaponController::class, 'show'])->name('weapons.show');
+
+Route::get('/armor', [ArmorController::class, 'index'])->name('armor.index');
+Route::get('/armor/{slug}', [ArmorController::class, 'show'])->name('armor.show');
