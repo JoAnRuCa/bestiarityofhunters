@@ -39,13 +39,14 @@ class CharmController extends Controller
 
 
         // 2. Filtrar si hay búsqueda
-        if (request()->has('q')) {
+               if (request()->has('q')) {
             $q = strtolower(request()->get('q'));
 
             $charms = $charms->filter(function ($charm) use ($q) {
                 return str_contains(strtolower($charm['ranks'][0]['name']), $q);
             });
         }
+
 
         // 3. Paginar
         $page = request()->get('page', 1);
