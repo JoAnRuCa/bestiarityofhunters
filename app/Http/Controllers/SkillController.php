@@ -2,59 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Illuminate\Pagination\LengthAwarePaginator;
+use App\Services\SkillService;
 
 class SkillController extends Controller
 {
-    private function loadSkills()
+    public function index(SkillService $service)
     {
-        return collect(json_decode(Storage::get('data/skills.json'), true))
-            ->map(function ($item, $index) {
-                $item['id'] = $index;
-                $item['slug'] = Str::slug($item['name']);
-                return $item;
-            });
+        return view('seccion.skills', [
+            'paginatedSkills' => $service->getPaginatedSkills()
+        ]);
     }
 
-    public function index()
+    public function show($slug, SkillService $service)
     {
-        $skills = $this->loadSkills();
+        $skill = $service->findBySlug($slug);
 
-        if (request()->filled('q')) {
-            $q = request()->get('q');
-            $skills = $skills->filter(function ($skill) use ($q) {
-                return str_contains(
-                    strtolower($skill['name']),
-                    strtolower($q)
-                );
-            });
-        }
-
-        $page = request()->get('page', 1);
-        $perPage = 20;
-
-        $paginatedSkills = new LengthAwarePaginator(
-            $skills->forPage($page, $perPage),
-            $skills->count(),
-            $perPage,
-            $page,
-            ['path' => request()->url()]
-        );
-
-        return view('seccion.skills', compact('paginatedSkills'));
-    }
-
-    public function show($slug)
-    {
-        $skills = $this->loadSkills();
-        $skill = $skills->firstWhere('slug', $slug);
-
-        if (!$skill) {
-            abort(404);
-        }
+        if (!$skill) abort(404);
 
         return view('seccion.skillsShow', compact('skill'));
     }
