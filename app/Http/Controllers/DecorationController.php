@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Support\SlugHelper;
 use App\Support\JsonLoader;
-use App\Support\SearchHelper;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -28,20 +27,30 @@ class DecorationController extends Controller
     {
         $decorations = $this->loadDecorations();
 
+        // ⭐ Búsqueda por nombre
         if (request()->filled('q')) {
-            $decorations = SearchHelper::text($decorations, 'name', request('q'));
+            $q = strtolower(request('q'));
+
+            $decorations = $decorations->filter(function ($decoration) use ($q) {
+                return str_contains(strtolower($decoration['name']), $q);
+            });
         }
 
         $decorations = $decorations->values();
         $page = request('page', 1);
 
-        return new LengthAwarePaginator(
+        // ⭐ Paginación con parámetros preservados
+        $paginator = new LengthAwarePaginator(
             $decorations->forPage($page, $perPage),
             $decorations->count(),
             $perPage,
             $page,
             ['path' => request()->url()]
         );
+
+        $paginator->appends(request()->query());
+
+        return $paginator;
     }
 
     private function findBySlug(string $slug): ?array

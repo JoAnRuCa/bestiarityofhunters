@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Support\SlugHelper;
 use App\Support\JsonLoader;
-use App\Support\SearchHelper;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -28,20 +27,30 @@ class SkillController extends Controller
     {
         $skills = $this->loadSkills();
 
+        // ⭐ Búsqueda por nombre
         if (request()->filled('q')) {
-            $skills = SearchHelper::text($skills, 'name', request('q'));
+            $q = strtolower(request('q'));
+
+            $skills = $skills->filter(function ($skill) use ($q) {
+                return str_contains(strtolower($skill['name']), $q);
+            });
         }
 
         $skills = $skills->values();
         $page = request('page', 1);
 
-        return new LengthAwarePaginator(
+        // ⭐ Paginación con parámetros preservados
+        $paginator = new LengthAwarePaginator(
             $skills->forPage($page, $perPage),
             $skills->count(),
             $perPage,
             $page,
             ['path' => request()->url()]
         );
+
+        $paginator->appends(request()->query());
+
+        return $paginator;
     }
 
     private function findBySlug(string $slug): ?array

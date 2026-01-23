@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Support\SlugHelper;
 use App\Support\JsonLoader;
-use App\Support\SearchHelper;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -54,20 +53,30 @@ class CharmController extends Controller
     {
         $ranks = $this->getAllRanks();
 
+        // ⭐ Búsqueda por nombre del rank
         if (request()->filled('q')) {
-            $ranks = SearchHelper::text($ranks, 'name', request('q'));
+            $q = strtolower(request('q'));
+
+            $ranks = $ranks->filter(function ($rank) use ($q) {
+                return str_contains(strtolower($rank['name'] ?? ''), $q);
+            });
         }
 
         $ranks = $ranks->values();
         $page = request('page', 1);
 
-        return new LengthAwarePaginator(
+        // ⭐ Paginación con parámetros preservados
+        $paginator = new LengthAwarePaginator(
             $ranks->forPage($page, $perPage),
             $ranks->count(),
             $perPage,
             $page,
             ['path' => request()->url()]
         );
+
+        $paginator->appends(request()->query());
+
+        return $paginator;
     }
 
     private function findRankBySlug(string $slug): ?array

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Support\SlugHelper;
 use App\Support\JsonLoader;
-use App\Support\SearchHelper;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -28,11 +27,14 @@ class ArmorController extends Controller
     {
         $armor = $this->loadArmor();
 
+        // ⭐ Búsqueda por nombre y por tipo (kind)
         if (request()->filled('q')) {
-            $armor = $armor->filter(function ($item) {
-                $q = strtolower(request('q'));
+            $q = strtolower(request('q'));
+
+            $armor = $armor->filter(function ($item) use ($q) {
 
                 $nameMatch = str_contains(strtolower($item['name']), $q);
+
                 $kindMatch = isset($item['kind'])
                     ? str_contains(strtolower($item['kind']), $q)
                     : false;
@@ -44,13 +46,18 @@ class ArmorController extends Controller
         $armor = $armor->values();
         $page = request('page', 1);
 
-        return new LengthAwarePaginator(
+        // ⭐ Paginación con parámetros preservados
+        $paginator = new LengthAwarePaginator(
             $armor->forPage($page, $perPage),
             $armor->count(),
             $perPage,
             $page,
             ['path' => request()->url()]
         );
+
+        $paginator->appends(request()->query());
+
+        return $paginator;
     }
 
     private function findBySlug(string $slug): ?array
@@ -74,3 +81,4 @@ class ArmorController extends Controller
         return view('seccion.armorsShow', compact('armor'));
     }
 }
+
