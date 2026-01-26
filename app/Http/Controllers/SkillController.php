@@ -10,7 +10,7 @@ use Illuminate\Support\Collection;
 
 class SkillController extends Controller
 {
-    private function loadSkills(): Collection
+    public function loadSkills(): Collection
     {
         return Cache::rememberForever('skills_processed', function () {
 

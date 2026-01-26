@@ -12,7 +12,7 @@ class CharmController extends Controller
 {
     private array $roman = ['I','II','III','IV','V','VI','VII'];
 
-    private function loadCharms(): Collection
+    public function loadCharms(): Collection
     {
         return Cache::rememberForever('charms_processed', function () {
 
@@ -39,7 +39,7 @@ class CharmController extends Controller
         });
     }
 
-    private function getAllRanks(): Collection
+    public function getAllRanks(): Collection
     {
         return $this->loadCharms()->flatMap(function ($charm) {
             return collect($charm['ranks'])->map(function ($rank) use ($charm) {

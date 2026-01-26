@@ -10,7 +10,7 @@ use Illuminate\Support\Collection;
 
 class WeaponController extends Controller
 {
-    private function loadWeapons(): Collection
+    public function loadWeapons(): Collection
     {
         return Cache::rememberForever('weapons_processed', function () {
 

@@ -10,7 +10,7 @@ use Illuminate\Support\Collection;
 
 class DecorationController extends Controller
 {
-    private function loadDecorations(): Collection
+    public function loadDecorations(): Collection
     {
         return Cache::rememberForever('decorations_processed', function () {
 
@@ -58,14 +58,14 @@ class DecorationController extends Controller
         return $this->loadDecorations()->firstWhere('slug', $slug);
     }
 
-    public function index()
+    private function index()
     {
         return view('seccion.decorations', [
             'paginatedDecorations' => $this->getPaginatedDecorations()
         ]);
     }
 
-    public function show($slug)
+    private function show($slug)
     {
         $decoration = $this->findBySlug($slug);
 

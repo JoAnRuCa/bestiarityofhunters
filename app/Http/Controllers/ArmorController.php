@@ -10,7 +10,7 @@ use Illuminate\Support\Collection;
 
 class ArmorController extends Controller
 {
-    private function loadArmor(): Collection
+    public function loadArmor(): Collection
     {
         return Cache::rememberForever('armor_processed', function () {
 
