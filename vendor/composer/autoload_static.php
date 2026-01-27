@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitc61ff82cbf0142a401a48a8161e1595a
+class ComposerStaticInitd716bf8bb199b88b49bea28aa891a465
 {
     public static $files = array (
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
@@ -518,9 +518,14 @@ class ComposerStaticInitc61ff82cbf0142a401a48a8161e1595a
     public static $classMap = array (
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
+        'App\\Http\\Controllers\\ArmorController' => __DIR__ . '/../..' . '/app/Http/Controllers/ArmorController.php',
+        'App\\Http\\Controllers\\BuildEditorController' => __DIR__ . '/../..' . '/app/Http/Controllers/BuildEditorController.php',
+        'App\\Http\\Controllers\\CharmController' => __DIR__ . '/../..' . '/app/Http/Controllers/CharmController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
+        'App\\Http\\Controllers\\DecorationController' => __DIR__ . '/../..' . '/app/Http/Controllers/DecorationController.php',
         'App\\Http\\Controllers\\HomeController' => __DIR__ . '/../..' . '/app/Http/Controllers/HomeController.php',
-        'App\\Http\\Controllers\\SeccionController' => __DIR__ . '/../..' . '/app/Http/Controllers/SeccionController.php',
+        'App\\Http\\Controllers\\SkillController' => __DIR__ . '/../..' . '/app/Http/Controllers/SkillController.php',
+        'App\\Http\\Controllers\\WeaponController' => __DIR__ . '/../..' . '/app/Http/Controllers/WeaponController.php',
         'App\\Http\\Kernel' => __DIR__ . '/../..' . '/app/Http/Kernel.php',
         'App\\Http\\Middleware\\Authenticate' => __DIR__ . '/../..' . '/app/Http/Middleware/Authenticate.php',
         'App\\Http\\Middleware\\EncryptCookies' => __DIR__ . '/../..' . '/app/Http/Middleware/EncryptCookies.php',
@@ -530,12 +535,27 @@ class ComposerStaticInitc61ff82cbf0142a401a48a8161e1595a
         'App\\Http\\Middleware\\TrustHosts' => __DIR__ . '/../..' . '/app/Http/Middleware/TrustHosts.php',
         'App\\Http\\Middleware\\TrustProxies' => __DIR__ . '/../..' . '/app/Http/Middleware/TrustProxies.php',
         'App\\Http\\Middleware\\VerifyCsrfToken' => __DIR__ . '/../..' . '/app/Http/Middleware/VerifyCsrfToken.php',
+        'App\\Models\\Build' => __DIR__ . '/../..' . '/app/Models/Build.php',
+        'App\\Models\\BuildsComment' => __DIR__ . '/../..' . '/app/Models/BuildsComment.php',
+        'App\\Models\\BuildsEquipment' => __DIR__ . '/../..' . '/app/Models/BuildsEquipment.php',
+        'App\\Models\\BuildsEquipmentsDecoration' => __DIR__ . '/../..' . '/app/Models/BuildsEquipmentsDecoration.php',
+        'App\\Models\\BuildsVote' => __DIR__ . '/../..' . '/app/Models/BuildsVote.php',
+        'App\\Models\\Guide' => __DIR__ . '/../..' . '/app/Models/Guide.php',
+        'App\\Models\\GuidesComment' => __DIR__ . '/../..' . '/app/Models/GuidesComment.php',
+        'App\\Models\\GuidesVote' => __DIR__ . '/../..' . '/app/Models/GuidesVote.php',
+        'App\\Models\\SavedBuild' => __DIR__ . '/../..' . '/app/Models/SavedBuild.php',
+        'App\\Models\\SavedGuide' => __DIR__ . '/../..' . '/app/Models/SavedGuide.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
+        'App\\Models\\UsersFollower' => __DIR__ . '/../..' . '/app/Models/UsersFollower.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
         'App\\Providers\\AuthServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AuthServiceProvider.php',
         'App\\Providers\\BroadcastServiceProvider' => __DIR__ . '/../..' . '/app/Providers/BroadcastServiceProvider.php',
         'App\\Providers\\EventServiceProvider' => __DIR__ . '/../..' . '/app/Providers/EventServiceProvider.php',
         'App\\Providers\\RouteServiceProvider' => __DIR__ . '/../..' . '/app/Providers/RouteServiceProvider.php',
+        'App\\Support\\JsonLoader' => __DIR__ . '/../..' . '/app/Support/JsonLoader.php',
+        'App\\Support\\PaginationHelper' => __DIR__ . '/../..' . '/app/Support/PaginationHelper.php',
+        'App\\Support\\SearchHelper' => __DIR__ . '/../..' . '/app/Support/SearchHelper.php',
+        'App\\Support\\SlugHelper' => __DIR__ . '/../..' . '/app/Support/SlugHelper.php',
         'Asm89\\Stack\\Cors' => __DIR__ . '/..' . '/asm89/stack-cors/src/Cors.php',
         'Asm89\\Stack\\CorsService' => __DIR__ . '/..' . '/asm89/stack-cors/src/CorsService.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
@@ -5890,9 +5910,9 @@ class ComposerStaticInitc61ff82cbf0142a401a48a8161e1595a
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitc61ff82cbf0142a401a48a8161e1595a::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitc61ff82cbf0142a401a48a8161e1595a::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitc61ff82cbf0142a401a48a8161e1595a::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitd716bf8bb199b88b49bea28aa891a465::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitd716bf8bb199b88b49bea28aa891a465::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitd716bf8bb199b88b49bea28aa891a465::$classMap;
 
         }, null, ClassLoader::class);
     }
