@@ -192,11 +192,21 @@ function updateSelected() {
     renderSkillTotals();
 }
 
-function clearSlot(slot) {
-    build[slot] = null;
-    decorations[slot] = [];
+function clearSlot(slot, index = null) {
+    // Si index es null → limpiar pieza completa
+    if (index === null) {
+        build[slot] = null;
+        decorations[slot] = [];
+        updateSelected();
+        return;
+    }
+
+    // Si index tiene valor → limpiar solo esa decoración
+    decorations[slot][index] = null;
     updateSelected();
 }
+
+
 
 /* ------------------------------------------------------------
    7. Slot rendering
@@ -230,9 +240,16 @@ function renderSlots(slot) {
         const name = deco ? deco.name : "Empty";
 
         const div = document.createElement("div");
-        div.innerHTML = `Slot ${index + 1} (Lv${slotLevel}): <button onclick="selectDecoration('${slot}', ${index}, ${slotLevel})">${name}</button>`;
+
+        div.innerHTML = `
+        Slot ${index + 1} (Lv${slotLevel}): 
+        <button onclick="selectDecoration('${slot}', ${index}, ${slotLevel})">${name}</button>
+        <button style="margin-left:6px;" onclick="clearSlot('${slot}', ${index})">Clear</button>
+    `;
+
         container.appendChild(div);
     });
+
 }
 
 /* ------------------------------------------------------------
