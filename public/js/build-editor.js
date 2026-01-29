@@ -1,9 +1,9 @@
 /* ============================================================
-   BUILD EDITOR — FULL LOGIC (AJAX VERSION)
+   BUILD EDITOR — OPTIMIZED VERSION (NO CONSOLE LOGS)
    ============================================================ */
 
 /* ------------------------------------------------------------
-   0. Load data via AJAX
+   0. Load data via AJAX (only once)
    ------------------------------------------------------------ */
 
 let weapons = [];
@@ -15,16 +15,21 @@ let dataLoaded = false;
 
 let skillMaxLevels = {};
 let skillDescriptions = {};
+let decoCache = { weapon: { 1: [], 2: [], 3: [] }, armor: { 1: [], 2: [], 3: [] } };
 
 async function loadBuildData() {
     const res = await fetch('api/build-data');
     const data = await res.json();
+
     weapons = data.weapons;
     armors = data.armors;
     charms = data.charms;
     decorationsData = data.decorations;
     skillsData = data.skills;
+
     prepareSkillDictionaries();
+    prepareDecoCache();
+
     dataLoaded = true;
 }
 
@@ -49,7 +54,19 @@ function prepareSkillDictionaries() {
 }
 
 /* ------------------------------------------------------------
-   2. Build state
+   2. Pre-cache decorations by level
+   ------------------------------------------------------------ */
+
+function prepareDecoCache() {
+    decorationsData.forEach(d => {
+        for (let lvl = d.slot; lvl <= 3; lvl++) {
+            decoCache[d.kind][lvl].push(d);
+        }
+    });
+}
+
+/* ------------------------------------------------------------
+   3. Build state
    ------------------------------------------------------------ */
 
 let build = {
@@ -81,7 +98,7 @@ let modalMode = null;
 let currentList = [];
 
 /* ------------------------------------------------------------
-   3. Helpers
+   4. Helpers
    ------------------------------------------------------------ */
 
 function getName(item) {
@@ -107,7 +124,7 @@ function extractSkills(item) {
 }
 
 /* ------------------------------------------------------------
-   4. Skill calculation
+   5. Skill calculation
    ------------------------------------------------------------ */
 
 function calculateTotalSkills() {
@@ -163,7 +180,7 @@ function renderSkillTotals() {
 }
 
 /* ------------------------------------------------------------
-   5. Update UI
+   6. Update UI
    ------------------------------------------------------------ */
 
 function updateSelected() {
@@ -182,7 +199,7 @@ function clearSlot(slot) {
 }
 
 /* ------------------------------------------------------------
-   6. Slot rendering
+   7. Slot rendering
    ------------------------------------------------------------ */
 
 function renderSlots(slot) {
@@ -219,7 +236,7 @@ function renderSlots(slot) {
 }
 
 /* ------------------------------------------------------------
-   7. Decoration selection
+   8. Decoration selection
    ------------------------------------------------------------ */
 
 function selectDecoration(slot, index, slotLevel) {
@@ -232,16 +249,14 @@ function selectDecoration(slot, index, slotLevel) {
 
     const type = (slot === "weapon1" || slot === "weapon2") ? "weapon" : "armor";
 
-    currentList = decorationsData.filter(d =>
-        d.kind === type && d.slot <= slotLevel
-    );
+    currentList = decoCache[type][slotLevel];
 
     document.getElementById("searchInput").value = "";
     renderList(currentList);
 }
 
 /* ------------------------------------------------------------
-   8. Modal
+   9. Modal
    ------------------------------------------------------------ */
 
 function openModal() {
@@ -257,7 +272,7 @@ document.getElementById("modal").addEventListener("click", function (e) {
 });
 
 /* ------------------------------------------------------------
-   9. Render list
+   10. Render list
    ------------------------------------------------------------ */
 
 function renderList(list) {
@@ -296,7 +311,7 @@ function renderList(list) {
 }
 
 /* ------------------------------------------------------------
-   10. Search filter
+   11. Search filter
    ------------------------------------------------------------ */
 
 document.getElementById("searchInput").addEventListener("input", function () {
@@ -319,10 +334,10 @@ document.getElementById("searchInput").addEventListener("input", function () {
 });
 
 /* ------------------------------------------------------------
-   11. OPEN SELECTOR (AJAX)
+   12. OPEN SELECTOR — NOW INSTANT (NO AJAX)
    ------------------------------------------------------------ */
 
-async function openSelector(slot) {
+function openSelector(slot) {
     if (!dataLoaded) return;
 
     activeSlot = slot;
@@ -330,8 +345,15 @@ async function openSelector(slot) {
 
     document.getElementById("modalTitle").textContent = "Select " + slot;
 
-    const res = await fetch(`./api/items/${slot}`);
-    const list = await res.json();
+    let list = [];
+
+    if (slot === "weapon1" || slot === "weapon2") {
+        list = weapons;
+    } else if (slot === "charm") {
+        list = charms;
+    } else {
+        list = armors.filter(a => a.kind === slot);
+    }
 
     currentList = list;
 
@@ -340,7 +362,7 @@ async function openSelector(slot) {
 }
 
 /* ------------------------------------------------------------
-   12. SAVE BUILD (AJAX)
+   13. SAVE BUILD (AJAX)
    ------------------------------------------------------------ */
 
 async function saveBuild() {
@@ -358,7 +380,7 @@ async function saveBuild() {
 }
 
 /* ------------------------------------------------------------
-   13. INIT
+   14. INIT
    ------------------------------------------------------------ */
 
 loadBuildData();
