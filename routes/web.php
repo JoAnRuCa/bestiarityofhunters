@@ -8,6 +8,7 @@ use App\Http\Controllers\ArmorController;
 use App\Http\Controllers\CharmController;
 use App\Http\Controllers\DecorationController;
 use App\Http\Controllers\BuildEditorController;
+use App\Http\Controllers\BuildApiController;
 
 
 /*
@@ -41,3 +42,5 @@ Route::get('/decorations', [DecorationController::class, 'index'])->name('decora
 Route::get('/decorations/{slug}', [DecorationController::class, 'show'])->name('decorations.show');
 
 Route::get('/build-editor', [BuildEditorController::class, 'index']);
+
+
