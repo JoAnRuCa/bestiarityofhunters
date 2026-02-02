@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SkillController;
 use App\Http\Controllers\WeaponController;
@@ -10,21 +11,20 @@ use App\Http\Controllers\DecorationController;
 use App\Http\Controllers\BuildEditorController;
 use App\Http\Controllers\BuildApiController;
 
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-{nombre?} variable que puede ser opcional hay que inicianizarla a null
-{nombre} variable que existe siempre
 */
 
+// Página principal
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+/*
+|--------------------------------------------------------------------------
+| Rutas públicas de tu proyecto
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/skills', [SkillController::class, 'index'])->name('skills.index');
 Route::get('/skills/{slug}', [SkillController::class, 'show'])->name('skills.show');
@@ -41,6 +41,22 @@ Route::get('/charms/{slug}', [CharmController::class, 'show'])->name('charms.sho
 Route::get('/decorations', [DecorationController::class, 'index'])->name('decorations.index');
 Route::get('/decorations/{slug}', [DecorationController::class, 'show'])->name('decorations.show');
 
-Route::get('/build-editor', [BuildEditorController::class, 'index']);
+Route::get('/build-editor', [BuildEditorController::class, 'index'])->name('build.editor');
 
+/*
+|--------------------------------------------------------------------------
+| Rutas protegidas por login (Breeze)
+|--------------------------------------------------------------------------
+*/
 
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth'])->name('dashboard');
+
+/*
+|--------------------------------------------------------------------------
+| Rutas de autenticación (Breeze)
+|--------------------------------------------------------------------------
+*/
+
+require __DIR__.'/auth.php';
