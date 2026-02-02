@@ -13,8 +13,8 @@ class ModifyUsersTable extends Migration
      */
     public function up()
     {
-         Schema::table('users', function (Blueprint $table) { // nombre YA existe, no lo añadimos  
-        $table->string('avatar')->nullable()->after('nombre');  
+         Schema::table('users', function (Blueprint $table) {
+        $table->string('avatar')->nullable()->after('name');  
         $table->string('role')->default('user')->after('avatar'); });
     }
 
