@@ -27,19 +27,36 @@ class DecorationController extends Controller
     {
         $decorations = $this->loadDecorations();
 
-        // ⭐ Búsqueda por nombre
+        // ⭐ Búsqueda por nombre de decoración o por nombre de habilidad
         if (request()->filled('q')) {
             $q = strtolower(request('q'));
 
             $decorations = $decorations->filter(function ($decoration) use ($q) {
-                return str_contains(strtolower($decoration['name']), $q);
+
+                // Coincidencia por nombre de la decoración
+                $nameMatch = str_contains(strtolower($decoration['name']), $q);
+
+                // Coincidencia por nombre de habilidad
+                $skillMatch = false;
+
+                if (isset($decoration['skills']) && is_array($decoration['skills'])) {
+                    foreach ($decoration['skills'] as $skillEntry) {
+                        if (isset($skillEntry['skill']['name'])) {
+                            if (str_contains(strtolower($skillEntry['skill']['name']), $q)) {
+                                $skillMatch = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return $nameMatch || $skillMatch;
             });
         }
 
         $decorations = $decorations->values();
         $page = request('page', 1);
 
-        // ⭐ Paginación con parámetros preservados
         $paginator = new LengthAwarePaginator(
             $decorations->forPage($page, $perPage),
             $decorations->count(),
@@ -58,14 +75,14 @@ class DecorationController extends Controller
         return $this->loadDecorations()->firstWhere('slug', $slug);
     }
 
-    private function index()
+    public function index()
     {
         return view('seccion.decorations', [
             'paginatedDecorations' => $this->getPaginatedDecorations()
         ]);
     }
 
-    private function show($slug)
+    public function show($slug)
     {
         $decoration = $this->findBySlug($slug);
 
