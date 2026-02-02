@@ -13,11 +13,9 @@ class ModifyUsersTable extends Migration
      */
     public function up()
     {
-         Schema::table('users', function (Blueprint $table) { // nombre YA existe, no lo añadimos 
-        $table->string('apellidos')->after('nombre'); 
-        $table->string('avatar')->nullable()->after('apellidos'); 
-        $table->date('fecha_nacimiento')->nullable()->after('avatar'); 
-        $table->string('role')->default('user')->after('fecha_nacimiento'); });
+         Schema::table('users', function (Blueprint $table) { // nombre YA existe, no lo añadimos  
+        $table->string('avatar')->nullable()->after('nombre');  
+        $table->string('role')->default('user')->after('avatar'); });
     }
 
     /**
@@ -28,7 +26,7 @@ class ModifyUsersTable extends Migration
     public function down()
     {
          Schema::table('users', function (Blueprint $table) {
-             $table->dropColumn([ 'apellidos', 'avatar', 'fecha_nacimiento', 'role']);
+             $table->dropColumn([ 'avatar', 'role']);
          });
     }
 }
