@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>@yield('title')</title>
 
+  <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ time() }}">
   <link rel="stylesheet" href="{{ asset('css/master.css') }}?v={{ time() }}">
-  <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 </head>
+
 <body>
   @include('layouts.partials.header')
 
