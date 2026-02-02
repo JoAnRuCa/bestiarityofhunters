@@ -12,13 +12,19 @@
 
         <!-- Styles -->
         <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+        <link rel="stylesheet" href="{{ asset('css/master.css') }}?v={{ time() }}">
+        <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 
         <!-- Scripts -->
         <script src="{{ asset('js/app.js') }}" defer></script>
+        
     </head>
     <body>
+        @include('layouts.partials.header')
         <div class="font-sans text-gray-900 antialiased">
             {{ $slot }}
         </div>
+        @include('layouts.partials.footer')
     </body>
 </html>
