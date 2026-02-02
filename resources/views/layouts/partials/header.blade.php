@@ -1,24 +1,27 @@
 <header>
     <div class="logo">
-        <img src="" alt="Logo">
+        <img src="{{ asset('images/logo.png') }}" alt="Logo">
     </div>
 
     <nav>
         <ul>
-            <li><a href="/">Inicio</a></li>
+            <li><a href="{{ route('home') }}">Home</a></li>
 
             <li class="dropdown">
-                <a href="#">Categorías</a>
+                <a href="#">Database</a>
                 <ul class="dropdown-menu">
-                    <li><a href="#">Opción 1</a></li>
-                    <li><a href="#">Opción 2</a></li>
-                    <li><a href="#">Opción 3</a></li>
+                    <li><a href="{{ route('skills.index') }}">Skills</a></li>
+                    <li><a href="{{ route('armors.index') }}">Armors</a></li>
+                    <li><a href="{{ route('weapons.index') }}">Weapons</a></li>
+                    <li><a href="{{ route('decorations.index') }}">Decorations</a></li>
+                    <li><a href="{{ route('charms.index') }}">Charms</a></li>
                 </ul>
             </li>
 
-            <li><a href="/productos">Productos</a></li>
-            <li><a href="/sucursales">Sucursales</a></li>
-            <li><a href="/contacto">Contacto</a></li>
+            <li><a href="">Builds</a></li>
+            <li><a href="{{ route('build.editor') }}">Build editor</a></li>
+            <li><a href="">Guides</a></li>
+            <li><a href="">Guide editor</a></li>
         </ul>
     </nav>
 
