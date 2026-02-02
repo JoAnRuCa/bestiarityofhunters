@@ -166,6 +166,11 @@ footer {
     /* Match theme highlight */
 }
 
+.dropdown-user .dropdown-menu {
+    left: auto;
+    right: 0;
+}
+
 
 /* Responsive: en pantallas pequeñas */
 @media (max-width: 768px) {
