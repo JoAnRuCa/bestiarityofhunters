@@ -27,16 +27,16 @@ class DecorationController extends Controller
     {
         $decorations = $this->loadDecorations();
 
-        // ⭐ Búsqueda por nombre de decoración o por nombre de habilidad
+        // ⭐ Búsqueda por nombre, habilidad, kind y slot
         if (request()->filled('q')) {
             $q = strtolower(request('q'));
 
             $decorations = $decorations->filter(function ($decoration) use ($q) {
 
-                // Coincidencia por nombre de la decoración
+                // 1. Coincidencia por nombre de la decoración
                 $nameMatch = str_contains(strtolower($decoration['name']), $q);
 
-                // Coincidencia por nombre de habilidad
+                // 2. Coincidencia por nombre de habilidad
                 $skillMatch = false;
 
                 if (isset($decoration['skills']) && is_array($decoration['skills'])) {
@@ -50,7 +50,17 @@ class DecorationController extends Controller
                     }
                 }
 
-                return $nameMatch || $skillMatch;
+                // 3. Coincidencia por kind
+                $kindMatch = isset($decoration['kind'])
+                    ? str_contains(strtolower($decoration['kind']), $q)
+                    : false;
+
+                // 4. Coincidencia por slot (convertimos a string para buscar)
+                $slotMatch = isset($decoration['slot'])
+                    ? str_contains((string)$decoration['slot'], $q)
+                    : false;
+
+                return $nameMatch || $skillMatch || $kindMatch || $slotMatch;
             });
         }
 
