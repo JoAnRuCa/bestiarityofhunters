@@ -6,7 +6,7 @@
     </div>
 
     {{-- Navegación --}}
-    <nav class="mt-4 md:mt-0">
+    <nav class="mt-6 md:mt-10">
         <ul class="flex flex-wrap gap-5 text-gray-800 font-semibold">
 
             <li><a href="{{ route('home') }}" class="hover:text-black transition">Home</a></li>
