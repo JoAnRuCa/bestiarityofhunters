@@ -12,20 +12,23 @@
             <li><a href="{{ route('home') }}" class="hover:text-black transition">Home</a></li>
 
             {{-- Dropdown Database --}}
-            <li class="relative group">
-                <a href="#" class="hover:text-black transition flex items-center">
-                    Database
-                    <span class="ml-1 text-xs">▼</span>
-                </a>
+<li class="relative group">
+    <a href="#" class="hover:text-black transition flex items-center pb-3">
+        Database
+        <span class="ml-1 text-xs">▼</span>
+    </a>
 
-                <ul class="absolute hidden group-hover:block bg-[#F4EBD0] shadow-lg rounded-md mt-2 w-40 py-2 text-sm">
-                    <li><a href="{{ route('skills.index') }}" class="block px-4 py-2 hover:bg-gray-200">Skills</a></li>
-                    <li><a href="{{ route('armors.index') }}" class="block px-4 py-2 hover:bg-gray-200">Armors</a></li>
-                    <li><a href="{{ route('weapons.index') }}" class="block px-4 py-2 hover:bg-gray-200">Weapons</a></li>
-                    <li><a href="{{ route('decorations.index') }}" class="block px-4 py-2 hover:bg-gray-200">Decorations</a></li>
-                    <li><a href="{{ route('charms.index') }}" class="block px-4 py-2 hover:bg-gray-200">Charms</a></li>
-                </ul>
-            </li>
+    <ul class="absolute left-0 mt-0 hidden group-hover:block bg-[#F4EBD0] shadow-lg rounded-md w-44 py-2 text-sm z-50
+               pt-3">
+        <li><a href="{{ route('skills.index') }}" class="block px-4 py-2 hover:bg-gray-200">Skills</a></li>
+        <li><a href="{{ route('armors.index') }}" class="block px-4 py-2 hover:bg-gray-200">Armors</a></li>
+        <li><a href="{{ route('weapons.index') }}" class="block px-4 py-2 hover:bg-gray-200">Weapons</a></li>
+        <li><a href="{{ route('decorations.index') }}" class="block px-4 py-2 hover:bg-gray-200">Decorations</a></li>
+        <li><a href="{{ route('charms.index') }}" class="block px-4 py-2 hover:bg-gray-200">Charms</a></li>
+    </ul>
+</li>
+
+
 
             <li><a href="#" class="hover:text-black transition">Builds</a></li>
             <li><a href="{{ route('build.editor') }}" class="hover:text-black transition">Build editor</a></li>
@@ -52,21 +55,26 @@
 
         @auth
             <div class="relative group">
-                <a href="#" class="font-semibold text-gray-800 hover:text-black transition flex items-center">
-                    {{ Auth::user()->name }}
-                    <span class="ml-1 text-xs">▼</span>
-                </a>
+    <a href="#" class="font-semibold text-gray-800 hover:text-black transition flex items-center pb-3">
+        {{ Auth::user()->name }}
+        <span class="ml-1 text-xs">▼</span>
+    </a>
 
-                <ul class="absolute right-0 hidden group-hover:block bg-[#F4EBD0] shadow-lg rounded-md mt-2 w-32 py-2 text-sm">
-                    <li>
-                        <a href="#"
-                           onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                           class="block px-4 py-2 hover:bg-gray-200">
-                           Logout
-                        </a>
-                    </li>
-                </ul>
-            </div>
+    <ul class="absolute right-0 mt-0 hidden group-hover:block bg-[#F4EBD0] shadow-lg rounded-md w-32 py-2 text-sm z-50 pt-3">
+        <li>
+            <a href="#"
+               onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+               class="block px-4 py-2 hover:bg-gray-200">
+               Logout
+            </a>
+        </li>
+    </ul>
+</div>
+
+<form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+    @csrf
+</form>
+
 
             <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
                 @csrf
