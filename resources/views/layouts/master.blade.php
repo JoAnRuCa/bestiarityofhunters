@@ -9,13 +9,16 @@
   <link rel="stylesheet" href="{{ asset('css/master.css') }}?v={{ time() }}">
 </head>
 
-<body>
+<body class="flex flex-col min-h-screen" style="font-family: 'Inter', sans-serif;">
+  
   @include('layouts.partials.header')
 
-  <main>
+  <main class="flex-1">
     @yield('content')
   </main>
 
   @include('layouts.partials.footer')
+
 </body>
+
 </html>

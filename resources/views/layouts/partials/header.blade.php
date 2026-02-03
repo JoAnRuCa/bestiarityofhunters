@@ -1,56 +1,78 @@
-<header>
-    <div class="logo">
-        <img src="{{ asset('images/logo.png') }}" alt="Logo">
+<header class="bg-[#F4EBD0] px-6 py-3 flex flex-wrap items-center justify-between" style="font-family: 'Inter', sans-serif;">
+    
+    {{-- Logo --}}
+    <div class="w-32 md:w-40 flex-shrink-0">
+        <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-full h-auto object-contain">
     </div>
 
-    <nav>
-        <ul>
-            <li><a href="{{ route('home') }}">Home</a></li>
+    {{-- Navegación --}}
+    <nav class="mt-4 md:mt-0">
+        <ul class="flex flex-wrap gap-5 text-gray-800 font-semibold">
 
-            <li class="dropdown">
-                <a href="#">Database</a>
-                <ul class="dropdown-menu">
-                    <li><a href="{{ route('skills.index') }}">Skills</a></li>
-                    <li><a href="{{ route('armors.index') }}">Armors</a></li>
-                    <li><a href="{{ route('weapons.index') }}">Weapons</a></li>
-                    <li><a href="{{ route('decorations.index') }}">Decorations</a></li>
-                    <li><a href="{{ route('charms.index') }}">Charms</a></li>
+            <li><a href="{{ route('home') }}" class="hover:text-black transition">Home</a></li>
+
+            {{-- Dropdown Database --}}
+            <li class="relative group">
+                <a href="#" class="hover:text-black transition flex items-center">
+                    Database
+                    <span class="ml-1 text-xs">▼</span>
+                </a>
+
+                <ul class="absolute hidden group-hover:block bg-[#F4EBD0] shadow-lg rounded-md mt-2 w-40 py-2 text-sm">
+                    <li><a href="{{ route('skills.index') }}" class="block px-4 py-2 hover:bg-gray-200">Skills</a></li>
+                    <li><a href="{{ route('armors.index') }}" class="block px-4 py-2 hover:bg-gray-200">Armors</a></li>
+                    <li><a href="{{ route('weapons.index') }}" class="block px-4 py-2 hover:bg-gray-200">Weapons</a></li>
+                    <li><a href="{{ route('decorations.index') }}" class="block px-4 py-2 hover:bg-gray-200">Decorations</a></li>
+                    <li><a href="{{ route('charms.index') }}" class="block px-4 py-2 hover:bg-gray-200">Charms</a></li>
                 </ul>
             </li>
 
-            <li><a href="">Builds</a></li>
-            <li><a href="{{ route('build.editor') }}">Build editor</a></li>
-            <li><a href="">Guides</a></li>
-            <li><a href="">Guide editor</a></li>
+            <li><a href="#" class="hover:text-black transition">Builds</a></li>
+            <li><a href="{{ route('build.editor') }}" class="hover:text-black transition">Build editor</a></li>
+            <li><a href="#" class="hover:text-black transition">Guides</a></li>
+            <li><a href="#" class="hover:text-black transition">Guide editor</a></li>
+
         </ul>
     </nav>
 
-    {{-- Zona derecha del header --}}
-    <div>
+    {{-- Zona derecha: Login/Register o Usuario --}}
+    <div class="mt-4 md:mt-0 flex items-center gap-3">
+
         @guest
-            <a href="{{ route('login') }}" class="login">Login</a>
-            <a href="{{ route('register') }}" class="register">Register</a>
+            <a href="{{ route('login') }}"
+               class="text-[#6B8E23] border-2 border-[#6B8E23] px-4 py-1.5 rounded-md font-semibold hover:bg-[#6B8E23] hover:text-[#F4EBD0] transition">
+               Login
+            </a>
+
+            <a href="{{ route('register') }}"
+               class="bg-[#6B8E23] text-[#F4EBD0] border-2 border-[#6B8E23] px-4 py-1.5 rounded-md font-semibold hover:bg-[#C67C48] hover:border-[#C67C48] transition">
+               Register
+            </a>
         @endguest
 
-@auth
-  <div class="dropdown dropdown-user">
-    <a href="#">{{ Auth::user()->name }}</a>
-    <ul class="dropdown-menu">
-      <li>
-        <a href="#"
-           onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-          Logout
-        </a>
-      </li>
-    </ul>
-  </div>
+        @auth
+            <div class="relative group">
+                <a href="#" class="font-semibold text-gray-800 hover:text-black transition flex items-center">
+                    {{ Auth::user()->name }}
+                    <span class="ml-1 text-xs">▼</span>
+                </a>
 
-  <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none;">
-    @csrf
-  </form>
-@endauth
+                <ul class="absolute right-0 hidden group-hover:block bg-[#F4EBD0] shadow-lg rounded-md mt-2 w-32 py-2 text-sm">
+                    <li>
+                        <a href="#"
+                           onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                           class="block px-4 py-2 hover:bg-gray-200">
+                           Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
 
-
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+                @csrf
+            </form>
+        @endauth
 
     </div>
+
 </header>
