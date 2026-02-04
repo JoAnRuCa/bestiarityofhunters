@@ -10,6 +10,7 @@ use App\Http\Controllers\CharmController;
 use App\Http\Controllers\DecorationController;
 use App\Http\Controllers\BuildEditorController;
 use App\Http\Controllers\BuildApiController;
+use App\Http\Controllers\ContactUsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +48,9 @@ Route::view('/privacy', 'seccion.privacyPolicy')->name('privacy');
 Route::view('/about', 'seccion.aboutUs')->name('about');
 Route::view('/disclaimer', 'seccion.disclaimer')->name('disclaimer');
 Route::view('/terms', 'seccion.termsOfUse')->name('terms');
+Route::get('/contact', [ContactUsController::class, 'index'])->name('contact.index');
+Route::post('/contact', [ContactUsController::class, 'store'])->name('contact.store');
+
 
 /*
 |--------------------------------------------------------------------------
