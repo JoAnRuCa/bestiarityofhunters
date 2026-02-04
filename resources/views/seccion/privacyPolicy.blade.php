@@ -28,9 +28,9 @@
       </h3>
 
       <ul class="space-y-3 ml-5">
-        <li class="pl-3 border-l-2 border-slate-300"><strong class="text-slate-900">Account Data:</strong> If you create an account, we collect your username and email address to manage your profile.</li>
-        <li class="pl-3 border-l-2 border-slate-300"><strong class="text-slate-900">User Content:</strong> We store the builds you create, your votes, and any comments you share to help the community grow.</li>
-        <li class="pl-3 border-l-2 border-slate-300"><strong class="text-slate-900">Technical Data:</strong> We use essential cookies and log your IP address to ensure site stability and security.</li>
+        <li><strong class="text-slate-900">Account Data:</strong> If you create an account, we collect your username and email address to manage your profile.</li>
+        <li><strong class="text-slate-900">User Content:</strong> We store the builds you create, your votes, and any comments you share to help the community grow.</li>
+        <li><strong class="text-slate-900">Technical Data:</strong> We use essential cookies and log your IP address to ensure site stability and security.</li>
       </ul>
     </section>
         <br>

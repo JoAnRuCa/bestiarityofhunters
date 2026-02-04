@@ -36,9 +36,9 @@
       </p>
 
       <ul class="space-y-3 ml-5">
-        <li class="pl-3 border-l-2 border-slate-300"><strong class="text-slate-900">Accessibility:</strong> A clean, fast, and intuitive interface for all players.</li>
-        <li class="pl-3 border-l-2 border-slate-300"><strong class="text-slate-900">Collaboration:</strong> A community where hunters can share builds and learn from each other.</li>
-        <li class="pl-3 border-l-2 border-slate-300"><strong class="text-slate-900">Transparency:</strong> Clear information, no hidden mechanics or barriers.</li>
+        <li><strong class="text-slate-900">Accessibility:</strong> A clean, fast, and intuitive interface for all players.</li>
+        <li><strong class="text-slate-900">Collaboration:</strong> A community where hunters can share builds and learn from each other.</li>
+        <li><strong class="text-slate-900">Transparency:</strong> Clear information, no hidden mechanics or barriers.</li>
       </ul>
     </section>
         <br>
