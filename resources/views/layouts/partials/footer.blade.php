@@ -1,23 +1,37 @@
-<footer class="bg-[#F4EBD0] text-gray-800 py-10" style="font-family: 'Inter', sans-serif;">
-  <div class="max-w-6xl mx-auto px-4 text-center">
+<footer class="bg-[#F4EBD0]/95 px-8 pt-12 pb-8 mt-auto border-t border-[#6B8E23]/20">
+  <div class="max-w-[1400px] mx-auto flex flex-col md:flex-row items-center justify-center gap-16">
     
-    {{-- Logo y lema --}}
-    <div class="mb-6">
-      <img src="{{ asset('images/logo.png') }}" alt="Bestiarity Logo" class="mx-auto h-16 w-auto object-contain">
-      <h2 class="text-xl font-semibold mt-2">BESTIARITY OF HUNTERS</h2>
-      <p class="text-sm italic text-gray-600">FROM HUNTERS, FOR HUNTERS</p>
+    <div class="flex items-center gap-3 text-2xl font-bold text-[#6B8E23]">
+      <img class="w-[260px] h-[150px] object-contain rounded" src="{{ asset('images/logo.png') }}" alt="Logo" onerror="this.style.display='none';">
     </div>
 
-    {{-- Enlaces legales con separación vertical y horizontal --}}
-    <ul class="flex flex-col md:flex-row justify-center items-center gap-y-3 gap-x-8 text-sm text-gray-700 mb-6">
-      <li><a href="#" class="hover:text-black transition">Privacy Policy</a></li>
-      <li><a href="#" class="hover:text-black transition">About us</a></li>
-      <li><a href="#" class="hover:text-black transition">Disclaimer</a></li>
-      <li><a href="#" class="hover:text-black transition">Terms of use</a></li>
-      <li><a href="#" class="hover:text-black transition">Contact us</a></li>
-    </ul>
+    <div class="flex flex-col items-center gap-4">
+      <div class="flex flex-wrap justify-center gap-8">
+        <a href="{{ route('privacy') }}" class="text-[#2F2F2F] no-underline font-medium px-4 py-2 rounded-lg transition-all duration-300 hover:bg-[#6B8E23]/10 hover:text-[#6B8E23]">
+          Privacy Policy
+        </a>
+        <a href="{{ route('about') }}" class="text-[#2F2F2F] no-underline font-medium px-4 py-2 rounded-lg transition-all duration-300 hover:bg-[#6B8E23]/10 hover:text-[#6B8E23]">
+          About us
+        </a>
+        <a href="{{ route('disclaimer') }}" class="text-[#2F2F2F] no-underline font-medium px-4 py-2 rounded-lg transition-all duration-300 hover:bg-[#6B8E23]/10 hover:text-[#6B8E23]">
+          Disclaimer
+        </a>
+      </div>
 
-    {{-- Copyright --}}
-    <p class="text-xs text-gray-600">© 2025–2026 Hunter's Bestiary. All rights reserved.</p>
+      <div class="flex flex-wrap justify-center gap-8">
+        <a href="{{ route('terms') }}" class="text-[#2F2F2F] no-underline font-medium px-4 py-2 rounded-lg transition-all duration-300 hover:bg-[#6B8E23]/10 hover:text-[#6B8E23]">
+          Terms of use
+        </a>
+        <a href="{{ route('contact.index') }}" class="text-[#2F2F2F] no-underline font-medium px-4 py-2 rounded-lg transition-all duration-300 hover:bg-[#6B8E23]/10 hover:text-[#6B8E23]">
+          Contact us
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 pt-4 border-t border-[#6B8E23]/20 text-center w-full">
+    <p class="text-[#2F2F2F] my-2 text-sm">
+      © 2025-2026 Hunter's Bestiary. All rights reserved.
+    </p>
   </div>
 </footer>
