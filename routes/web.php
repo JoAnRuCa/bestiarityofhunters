@@ -46,6 +46,7 @@ Route::get('/build-editor', [BuildEditorController::class, 'index'])->name('buil
 Route::view('/privacy', 'seccion.privacyPolicy')->name('privacy');
 Route::view('/about', 'seccion.aboutUs')->name('about');
 Route::view('/disclaimer', 'seccion.disclaimer')->name('disclaimer');
+Route::view('/terms', 'seccion.termsOfUse')->name('terms');
 
 /*
 |--------------------------------------------------------------------------
