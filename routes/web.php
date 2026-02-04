@@ -43,15 +43,7 @@ Route::get('/decorations/{slug}', [DecorationController::class, 'show'])->name('
 
 Route::get('/build-editor', [BuildEditorController::class, 'index'])->name('build.editor');
 
-/*
-|--------------------------------------------------------------------------
-| Rutas protegidas por login (Breeze)
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
+Route::view('/privacy', 'seccion.privacyPolicy')->name('privacy');
 
 /*
 |--------------------------------------------------------------------------
