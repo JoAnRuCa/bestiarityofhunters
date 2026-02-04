@@ -15,7 +15,7 @@
   <div class="text-lg leading-relaxed text-slate-700">
 
     <p class="mb-6">
-      At <strong class="text-[#C67C48]">Bestiarity of Hunters</strong>, our mission is to provide high-quality tools for hunters to plan and share their builds. In line with our values of <span class="font-semibold text-slate-900 underline decoration-[#6B8E23]/40">Transparency</span> and <span class="font-semibold text-slate-900 underline decoration-[#6B8E23]/40">Respect</span>, we are committed to protecting your data and being clear about how we use it.
+      At <strong>Bestiarity of Hunters</strong>, our mission is to provide high-quality tools for hunters to plan and share their builds. In line with our values of <span class="font-semibold">Transparency</span> and <span class="font-semibold">Respect</span>, we are committed to protecting your data and being clear about how we use it.
     </p>
 
     <hr class="my-8 border-slate-100">
@@ -58,10 +58,10 @@
         3. Data Sharing & Transparency
       </h3>
 
-      <div class="bg-[#6B8E23]/5 p-5 rounded-xl border border-[#6B8E23]/10">
+      <div>
         <ul class="space-y-3">
-          <li><strong class="text-[#C67C48]">No Sale of Data:</strong> We do not sell your personal information to third parties.</li>
-          <li><strong class="text-[#C67C48]">Community Visibility:</strong> Shared builds are public by default to promote learning. Privacy can be managed in settings.</li>
+          <li><strong>No Sale of Data:</strong> We do not sell your personal information to third parties.</li>
+          <li><strong>Community Visibility:</strong> Shared builds are public by default to promote learning. Privacy can be managed in settings.</li>
         </ul>
       </div>
     </section>

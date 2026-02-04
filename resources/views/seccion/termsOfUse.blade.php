@@ -22,7 +22,7 @@
       </h3>
 
       <p>
-        By accessing or using <strong class="text-[#C67C48]">Bestiarity of Hunters</strong>, you agree to comply with and be bound by these Terms of Use. If you do not agree with any part of these terms, you must discontinue use of the platform.
+        By accessing or using <strong>Bestiarity of Hunters</strong>, you agree to comply with and be bound by these Terms of Use. If you do not agree with any part of these terms, you must discontinue use of the platform.
       </p>
     </section>
 

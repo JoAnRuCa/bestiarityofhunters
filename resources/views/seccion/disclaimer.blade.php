@@ -22,7 +22,7 @@
       </h3>
 
       <p>
-        The information provided on <strong class="text-[#C67C48]">Bestiarity of Hunters</strong> is for general informational and community‑driven purposes only. While we strive to maintain accurate and up‑to‑date data, we cannot guarantee that all content is free of errors, omissions, or outdated information.
+        The information provided on <strong>Bestiarity of Hunters</strong> is for general informational and community‑driven purposes only. While we strive to maintain accurate and up‑to‑date data, we cannot guarantee that all content is free of errors, omissions, or outdated information.
       </p>
     </section>
 
@@ -78,7 +78,7 @@
       </h3>
 
       <p>
-        By using this website, you agree that <strong class="text-[#C67C48]">Bestiarity of Hunters</strong> is not liable for any damages, losses, or issues arising from the use of our tools, data, or community content. All use is at your own discretion and risk.
+        By using this website, you agree that <strong>Bestiarity of Hunters</strong> is not liable for any damages, losses, or issues arising from the use of our tools, data, or community content. All use is at your own discretion and risk.
       </p>
     </section>
     <br>      

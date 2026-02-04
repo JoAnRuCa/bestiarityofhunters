@@ -15,7 +15,7 @@
   <div class="text-lg leading-relaxed text-slate-700">
 
     <p class="mb-6">
-      <strong class="text-[#C67C48]">Bestiarity of Hunters</strong> was created with a clear purpose: to offer hunters a modern, accessible, and powerful tool to build, share, and refine their loadouts. We are a small team of developers and passionate players who believe in the value of shared knowledge and community-driven improvement.
+      <strong>Bestiarity of Hunters</strong> was created with a clear purpose: to offer hunters a modern, accessible, and powerful tool to build, share, and refine their loadouts. We are a small team of developers and passionate players who believe in the value of shared knowledge and community-driven improvement.
     </p>
 
     <p class="mb-6">
@@ -64,11 +64,11 @@
         Our Commitment
       </h3>
 
-      <div class="bg-[#6B8E23]/5 p-5 rounded-xl border border-[#6B8E23]/10">
+      <div>
         <ul class="space-y-3">
-          <li><strong class="text-[#C67C48]">Community First:</strong> We design every feature with the hunter community in mind.</li>
-          <li><strong class="text-[#C67C48]">No Toxicity:</strong> We promote a respectful and welcoming environment for all players.</li>
-          <li><strong class="text-[#C67C48]">Continuous Improvement:</strong> We constantly refine our tools based on user feedback.</li>
+          <li><strong>Community First:</strong> We design every feature with the hunter community in mind.</li>
+          <li><strong>No Toxicity:</strong> We promote a respectful and welcoming environment for all players.</li>
+          <li><strong>Continuous Improvement:</strong> We constantly refine our tools based on user feedback.</li>
         </ul>
       </div>
     </section>
