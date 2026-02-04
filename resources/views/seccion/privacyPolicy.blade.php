@@ -84,7 +84,7 @@
     </div>
         <br>
     <hr class="my-8 border-slate-100">
-
+    <br>      
     <section class="text-center">
       <p class="text-xs uppercase tracking-widest text-slate-500">
         Last updated: February 2026 • Bestiarity of Hunters
