@@ -44,6 +44,7 @@ Route::get('/decorations/{slug}', [DecorationController::class, 'show'])->name('
 Route::get('/build-editor', [BuildEditorController::class, 'index'])->name('build.editor');
 
 Route::view('/privacy', 'seccion.privacyPolicy')->name('privacy');
+Route::view('/about', 'seccion.aboutUs')->name('about');
 
 /*
 |--------------------------------------------------------------------------
