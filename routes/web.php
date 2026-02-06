@@ -11,6 +11,7 @@ use App\Http\Controllers\DecorationController;
 use App\Http\Controllers\BuildEditorController;
 use App\Http\Controllers\BuildApiController;
 use App\Http\Controllers\ContactUsController;
+use App\Http\Controllers\GuideEditorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,6 +52,10 @@ Route::view('/terms', 'seccion.termsOfUse')->name('terms');
 Route::get('/contact', [ContactUsController::class, 'index'])->name('contact.index');
 Route::post('/contact', [ContactUsController::class, 'store'])->name('contact.store');
 
+Route::middleware(['auth'])->group(function () { 
+    Route::get('/guide-editor', [GuideEditorController::class, 'index']) ->name('guide.editor'); 
+    Route::post('/guide-editor/store', [GuideEditorController::class, 'store']) ->name('guide.editor.store'); 
+});
 
 /*
 |--------------------------------------------------------------------------
