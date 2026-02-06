@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class Guide extends Model
 {
     use HasFactory;
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class, 'guide_tags');
+    }
 }
