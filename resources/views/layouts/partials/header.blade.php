@@ -33,7 +33,7 @@
             <li><a href="#" class="hover:text-black transition">Builds</a></li>
             <li><a href="{{ route('build.editor') }}" class="hover:text-black transition">Build editor</a></li>
             <li><a href="#" class="hover:text-black transition">Guides</a></li>
-            <li><a href="#" class="hover:text-black transition">Guide editor</a></li>
+            <li><a href="{{ route('guide.editor') }}" class="hover:text-black transition">Guide editor</a></li>
 
         </ul>
     </nav>

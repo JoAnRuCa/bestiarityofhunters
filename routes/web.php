@@ -49,13 +49,12 @@ Route::view('/privacy', 'seccion.privacyPolicy')->name('privacy');
 Route::view('/about', 'seccion.aboutUs')->name('about');
 Route::view('/disclaimer', 'seccion.disclaimer')->name('disclaimer');
 Route::view('/terms', 'seccion.termsOfUse')->name('terms');
+
+Route::get('/guide-editor', [GuideEditorController::class, 'index']) ->name('guide.editor'); 
+Route::post('/guide-editor/store', [GuideEditorController::class, 'store']) ->name('guide.editor.store'); 
 Route::get('/contact', [ContactUsController::class, 'index'])->name('contact.index');
 Route::post('/contact', [ContactUsController::class, 'store'])->name('contact.store');
 
-Route::middleware(['auth'])->group(function () { 
-    Route::get('/guide-editor', [GuideEditorController::class, 'index']) ->name('guide.editor'); 
-    Route::post('/guide-editor/store', [GuideEditorController::class, 'store']) ->name('guide.editor.store'); 
-});
 
 /*
 |--------------------------------------------------------------------------

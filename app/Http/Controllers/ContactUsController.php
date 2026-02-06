@@ -15,7 +15,7 @@ class ContactUsController extends Controller
     {
         // If user is not logged in, show a message instead of the form
         if (!Auth::check()) {
-            return view('seccion.contact.guest');
+            return view('layouts.partials.guest');
         }
 
         return view('seccion.contact.index', [
