@@ -3,8 +3,7 @@
 
 @section('content')
 
-<div class="max-w-4xl mx-auto mt-12 mb-12 p-8 rounded-lg shadow-sm"
-     style="background-color: #F4EBD0;">
+<div class="w-[80%] mx-auto mt-12 mb-12 p-8 rounded-lg shadow-lg bg-[#F4EBD0]">
 
     <h1 class="text-4xl md:text-5xl font-extrabold mb-6 border-b pb-4 text-[#6B8E23]">
         Create Guide
@@ -27,11 +26,11 @@
             <input type="text"
                    name="titulo"
                    value="{{ old('titulo') }}"
-                   class="w-full p-3 rounded border border-slate-300"
+                   class="w-full p-3 rounded border border-slate-300 focus:ring-2 focus:ring-[#6B8E23]"
                    required>
         </div>
 
-                {{-- Tags --}}
+        {{-- Tags --}}
         <div>
             <label class="block font-semibold mb-2">Tags</label>
 
@@ -41,28 +40,25 @@
                         <input type="checkbox"
                                name="tags[]"
                                value="{{ $tag->id }}"
-                               class="h-4 w-4 text-[#6B8E23] border-gray-300 rounded">
+                               class="h-4 w-4 text-[#6B8E23] border-gray-300 rounded focus:ring-[#6B8E23]">
                         <span>{{ $tag->name }}</span>
                     </label>
                 @endforeach
             </div>
         </div>
-        
 
         {{-- Contenido --}}
         <div>
             <label class="block font-semibold mb-1">Content</label>
             <textarea name="contenido"
                       rows="10"
-                      class="w-full p-3 rounded border border-slate-300"
+                      class="w-full p-3 rounded border border-slate-300 focus:ring-2 focus:ring-[#6B8E23]"
                       required>{{ old('contenido') }}</textarea>
         </div>
 
-
-
         {{-- Botón --}}
         <button type="submit"
-                class="px-6 py-3 bg-[#6B8E23] text-white font-bold rounded-lg hover:bg-[#58751C]">
+                class="px-6 py-3 bg-[#6B8E23] text-white font-bold rounded-lg hover:bg-[#58751C] transition">
             Create Guide
         </button>
 
