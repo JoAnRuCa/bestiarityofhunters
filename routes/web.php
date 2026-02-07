@@ -12,6 +12,7 @@ use App\Http\Controllers\BuildEditorController;
 use App\Http\Controllers\BuildApiController;
 use App\Http\Controllers\ContactUsController;
 use App\Http\Controllers\GuideEditorController;
+use App\Http\Controllers\GuideListController;
 
 /*
 |--------------------------------------------------------------------------

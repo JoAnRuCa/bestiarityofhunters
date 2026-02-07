@@ -863,11 +863,11 @@ select {
 .w-\[260px\] {
   width: 260px;
 }
+.w-\[30\%\] {
+  width: 30%;
+}
 .w-\[40\%\] {
   width: 40%;
-}
-.w-\[50\%\] {
-  width: 50%;
 }
 .w-\[80\%\] {
   width: 80%;
@@ -883,6 +883,9 @@ select {
 }
 .max-w-3xl {
   max-width: 48rem;
+}
+.max-w-5xl {
+  max-width: 64rem;
 }
 .max-w-6xl {
   max-width: 72rem;
@@ -1157,6 +1160,10 @@ select {
 .px-2 {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
+}
+.px-3 {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
 }
 .px-4 {
   padding-left: 1rem;

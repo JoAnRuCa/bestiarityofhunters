@@ -19,4 +19,9 @@ class Guide extends Model
     {
         return $this->belongsToMany(Tag::class, 'guide_tags');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
