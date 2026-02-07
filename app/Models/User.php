@@ -44,7 +44,7 @@ class User extends Authenticatable
 
     public function guideVotes()
     {
-        return $this->hasMany(GuideVote::class);
+        return $this->hasMany(GuidesVote::class);
     }
 
 }
