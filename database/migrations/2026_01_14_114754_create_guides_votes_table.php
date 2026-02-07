@@ -19,7 +19,7 @@ class CreateGuidesVotesTable extends Migration
         $table->unsignedBigInteger('guide_id');
 
         // Campo tipo (solo 0 o 1)
-        $table->boolean('tipo');
+        $table->tinyInteger('tipo');
 
         // Primary key compuesta
         $table->primary(['user_id', 'guide_id']);

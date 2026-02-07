@@ -19,7 +19,7 @@ public function up()
         $table->unsignedBigInteger('build_id');
 
         // Campo tipo (solo 0 o 1)
-        $table->boolean('tipo');
+        $table->tinyInteger('tipo');
 
         // Primary key compuesta
         $table->primary(['user_id', 'build_id']);

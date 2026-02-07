@@ -1,5 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
+
     document.querySelectorAll('.vote-container').forEach(container => {
+
+        // Cada contenedor tiene su propio estado
+        let votoActual = parseInt(container.dataset.voto);
 
         const upBtn = container.querySelector('.upvote');
         const downBtn = container.querySelector('.downvote');
@@ -7,23 +11,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const downSvg = container.querySelector('.arrow-down');
         const scoreBox = container.querySelector('.vote-score');
         const guideId = container.dataset.guide;
-        const url = container.dataset.url; // ← URL ABSOLUTA DESDE BLADE
+        const url = container.dataset.url;
+
+        function pintarVoto() {
+            upSvg.setAttribute("fill", votoActual === 1 ? "#6B8E23" : "none");
+            downSvg.setAttribute("fill", votoActual === -1 ? "#2F2F2F" : "none");
+        }
+
+        // 🔥 PINTAR AL CARGAR
+        pintarVoto();
 
         function updateScore(score) {
             scoreBox.textContent = score;
-
-            if (score > 0) scoreBox.style.color = "#6B8E23";
-            else if (score < 0) scoreBox.style.color = "#2F2F2F";
-            else scoreBox.style.color = "#555";
-        }
-
-        function resetArrows() {
-            upSvg.setAttribute("fill", "none");
-            downSvg.setAttribute("fill", "none");
+            scoreBox.style.color =
+                score > 0 ? "#6B8E23" :
+                    score < 0 ? "#2F2F2F" :
+                        "#555";
         }
 
         function votar(tipo) {
-            return fetch(url, {   // ← AQUÍ USAMOS LA URL CORRECTA
+            return fetch(url, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -34,50 +41,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     tipo: tipo
                 })
             })
-                .then(async res => {
-                    console.log("STATUS:", res.status);
-
-                    const text = await res.text();
-                    try {
-                        return JSON.parse(text);
-                    } catch (e) {
-                        console.error("Respuesta no JSON:", text);
-                        return null;
-                    }
-                })
+                .then(res => res.json())
                 .then(data => {
                     if (!data) return;
-                    console.log("DATA:", data);
+
+                    // 🔥 ACTUALIZAR SOLO ESTE COMPONENTE
+                    votoActual = data.voto;
+
+                    // 🔥 REPINTAR FLECHAS
+                    pintarVoto();
+
+                    // 🔥 ACTUALIZAR CONTADOR
                     updateScore(data.score);
-                })
-                .catch(err => console.error("Error en fetch:", err));
+                });
         }
 
+        // 🔼 CLICK EN UPVOTE
         upBtn.addEventListener('click', () => {
-            const active = upSvg.getAttribute("fill") !== "none";
-
-            resetArrows();
-
-            if (!active) {
-                upSvg.setAttribute("fill", "#6B8E23");
-                votar(1);
-            } else {
-                votar(1);
-            }
+            votar(1);
         });
 
+        // 🔽 CLICK EN DOWNVOTE
         downBtn.addEventListener('click', () => {
-            const active = downSvg.getAttribute("fill") !== "none";
-
-            resetArrows();
-
-            if (!active) {
-                downSvg.setAttribute("fill", "#2F2F2F");
-                votar(-1);
-            } else {
-                votar(-1);
-            }
+            votar(-1);
         });
 
     });
+
 });

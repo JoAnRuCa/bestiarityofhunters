@@ -27,25 +27,22 @@ class VoteController extends Controller
             // Si pulsa el mismo voto → toggle (se elimina)
             if ($voto->tipo == $request->tipo) {
 
-                GuidesVote::where('user_id', $user->id)
-                          ->where('guide_id', $request->guide_id)
-                          ->delete();
+                $voto->delete();
 
                 return response()->json([
                     'score' => Guide::find($request->guide_id)->score(),
+                    'voto'  => 0, // ← SIN VOTO
                     'estado' => 'removed'
                 ]);
             }
 
             // Si pulsa el contrario → actualizar
-            GuidesVote::where('user_id', $user->id)
-                      ->where('guide_id', $request->guide_id)
-                      ->update(['tipo' => $request->tipo]);
+            $voto->update(['tipo' => $request->tipo]);
 
         } else {
 
             // Crear nuevo voto
-            GuidesVote::create([
+            $voto = GuidesVote::create([
                 'user_id' => $user->id,
                 'guide_id' => $request->guide_id,
                 'tipo' => $request->tipo
@@ -54,6 +51,7 @@ class VoteController extends Controller
 
         return response()->json([
             'score' => Guide::find($request->guide_id)->score(),
+            'voto'  => $voto->tipo, // ← DEVOLVEMOS EL VOTO ACTUAL
             'estado' => 'updated'
         ]);
     }

@@ -1,6 +1,7 @@
 <div class="flex flex-col items-center justify-center gap-2 vote-container"
      data-guide="{{ $guide->id }}"
-     data-url="{{ route('votar') }}">
+     data-url="{{ route('votar') }}"
+     data-voto="{{ $votoUsuario }}">
 
     <button class="vote-btn upvote">
         <svg class="arrow-up" width="40" height="40" viewBox="0 0 24 24"

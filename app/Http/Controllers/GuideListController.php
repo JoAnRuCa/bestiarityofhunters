@@ -9,7 +9,8 @@ class GuideListController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Guide::with(['tags', 'user'])
+        // Cargar votos, tags y usuario SIEMPRE
+        $query = Guide::with(['tags', 'user', 'votos'])
             ->withSum('votos as score_sum', 'tipo'); // suma de votos
 
         // Buscador general (título + contenido)
@@ -52,8 +53,9 @@ class GuideListController extends Controller
 
     public function show($slug)
     {
+        // Cargar votos, tags y usuario SIEMPRE
         $guide = Guide::where('slug', $slug)
-            ->with(['tags', 'user'])
+            ->with(['tags', 'user', 'votos'])
             ->firstOrFail();
 
         return view('seccion.guideShow', compact('guide'));
