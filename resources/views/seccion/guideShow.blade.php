@@ -5,9 +5,14 @@
 
 <div class="w-[60%] max-w-4xl mx-auto mt-12 mb-12 p-8 bg-[#F4EBD0] rounded-lg shadow-lg">
 
-    <h1 class="text-4xl md:text-5xl font-extrabold mb-6 text-[#6B8E23] border-b pb-4">
-        {{ $guide->titulo }}
-    </h1>
+    {{-- TÍTULO + VOTOS (CORREGIDO: YA NO ESTÁ DENTRO DEL H1) --}}
+    <div class="flex items-center justify-between mb-6 border-b pb-4">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-[#6B8E23]">
+            {{ $guide->titulo }}
+        </h1>
+
+        <x-vote-block :guide="$guide" />
+    </div>
 
     {{-- Autor y fecha --}}
     <p class="text-gray-700 mb-4">
@@ -38,4 +43,8 @@
 
 </div>
 
+@endsection
+
+@section('scripts')
+<script src="{{ asset('js/votes.js') }}"></script>
 @endsection

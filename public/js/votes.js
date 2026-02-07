@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const downSvg = container.querySelector('.arrow-down');
         const scoreBox = container.querySelector('.vote-score');
         const guideId = container.dataset.guide;
+        const url = container.dataset.url; // ← URL ABSOLUTA DESDE BLADE
 
         function updateScore(score) {
             scoreBox.textContent = score;
@@ -22,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         function votar(tipo) {
-            return fetch("votar", {
+            return fetch(url, {   // ← AQUÍ USAMOS LA URL CORRECTA
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -36,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(async res => {
                     console.log("STATUS:", res.status);
 
-                    // Si el backend devuelve HTML (error 500), evitamos el crash
                     const text = await res.text();
                     try {
                         return JSON.parse(text);
