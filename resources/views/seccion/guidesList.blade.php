@@ -20,7 +20,7 @@
             @foreach($guides as $guide)
                 <div class="p-6 bg-white rounded-lg shadow border border-gray-200 flex justify-between items-center">
 
-                    {{-- Contenido --}}
+                    {{-- CONTENIDO --}}
                     <div class="flex-1 pr-4">
                         <h2 class="text-2xl font-bold text-[#6B8E23] mb-2">
                             {{ $guide->titulo }}
@@ -30,6 +30,7 @@
                             {{ Str::limit($guide->contenido, 150) }}
                         </p>
 
+                        {{-- TAGS --}}
                         <div class="flex flex-wrap gap-2 mb-3">
                             @foreach($guide->tags as $tag)
                                 <span class="px-3 py-1 bg-[#6B8E23] text-white text-sm rounded">
@@ -38,29 +39,35 @@
                             @endforeach
                         </div>
 
+                        {{-- AUTOR --}}
                         <p class="text-sm text-gray-600">
                             By <strong>{{ $guide->user->name }}</strong>
                             • {{ $guide->created_at->diffForHumans() }}
                         </p>
                     </div>
 
-                    {{-- Flechas vacías estilo ▲ ▼ --}}
-                    <div class="flex flex-col items-center justify-center gap-4 vote-container">
+                    {{-- SISTEMA DE VOTOS --}}
+                    <div class="flex flex-col items-center justify-center gap-2 vote-container"
+                         data-guide="{{ $guide->id }}">
 
                         {{-- Flecha arriba --}}
-                        <button class="vote-btn upvote" data-type="up">
+                        <button class="vote-btn upvote">
                             <svg class="arrow-up" width="40" height="40" viewBox="0 0 24 24"
-                                 stroke="#6B8E23" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                 fill="none">
+                                 stroke="#6B8E23" stroke-width="2" fill="none">
                                 <path d="M12 6 L6 14 H18 Z"></path>
                             </svg>
                         </button>
 
+                        {{-- Contador --}}
+                        <div class="text-xl font-bold vote-score"
+                             style="color: {{ $guide->score() > 0 ? '#6B8E23' : ($guide->score() < 0 ? '#2F2F2F' : '#555') }}">
+                            {{ $guide->score() }}
+                        </div>
+
                         {{-- Flecha abajo --}}
-                        <button class="vote-btn downvote" data-type="down">
+                        <button class="vote-btn downvote">
                             <svg class="arrow-down" width="40" height="40" viewBox="0 0 24 24"
-                                 stroke="#2F2F2F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                 fill="none">
+                                 stroke="#2F2F2F" stroke-width="2" fill="none">
                                 <path d="M12 18 L6 10 H18 Z"></path>
                             </svg>
                         </button>
@@ -72,6 +79,7 @@
 
         </div>
 
+        {{-- PAGINACIÓN --}}
         <div class="mt-8">
             {{ $guides->links() }}
         </div>
@@ -80,48 +88,8 @@
 
 </div>
 
-{{-- Script para activar/desactivar flechas con RELLENO --}}
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.vote-container').forEach(container => {
+@endsection
 
-        const upSvg = container.querySelector('.arrow-up');
-        const downSvg = container.querySelector('.arrow-down');
-
-        container.querySelector('.upvote').addEventListener('click', () => {
-            const active = upSvg.classList.contains('active');
-
-            // Reset
-            upSvg.classList.remove('active');
-            downSvg.classList.remove('active');
-            upSvg.style.fill = "none";
-            downSvg.style.fill = "none";
-
-            // Toggle
-            if (!active) {
-                upSvg.classList.add('active');
-                upSvg.style.fill = "#6B8E23"; // RELLENO
-            }
-        });
-
-        container.querySelector('.downvote').addEventListener('click', () => {
-            const active = downSvg.classList.contains('active');
-
-            // Reset
-            upSvg.classList.remove('active');
-            downSvg.classList.remove('active');
-            upSvg.style.fill = "none";
-            downSvg.style.fill = "none";
-
-            // Toggle
-            if (!active) {
-                downSvg.classList.add('active');
-                downSvg.style.fill = "#2F2F2F"; // RELLENO
-            }
-        });
-
-    });
-});
-</script>
-
+@section('scripts')
+<script src="{{ asset('js/votes.js') }}"></script>
 @endsection
