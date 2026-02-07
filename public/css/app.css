@@ -878,6 +878,9 @@ select {
 .w-full {
   width: 100%;
 }
+.min-w-\[160px\] {
+  min-width: 160px;
+}
 .max-w-2xl {
   max-width: 42rem;
 }
@@ -1106,6 +1109,10 @@ select {
 .border-transparent {
   border-color: transparent;
 }
+.bg-\[\#556b1c\] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(85 107 28 / var(--tw-bg-opacity, 1));
+}
 .bg-\[\#6B8E23\] {
   --tw-bg-opacity: 1;
   background-color: rgb(107 142 35 / var(--tw-bg-opacity, 1));
@@ -1225,6 +1232,9 @@ select {
 }
 .pr-4 {
   padding-right: 1rem;
+}
+.pr-8 {
+  padding-right: 2rem;
 }
 .pt-1 {
   padding-top: 0.25rem;
@@ -1513,6 +1523,14 @@ select {
   --tw-border-opacity: 1;
   border-color: rgb(209 213 219 / var(--tw-border-opacity, 1));
 }
+.hover\:bg-\[\#445516\]:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(68 85 22 / var(--tw-bg-opacity, 1));
+}
+.hover\:bg-\[\#556b1c\]:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(85 107 28 / var(--tw-bg-opacity, 1));
+}
 .hover\:bg-\[\#58751C\]:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(88 117 28 / var(--tw-bg-opacity, 1));
@@ -1778,6 +1796,10 @@ select {
 
   .md\:w-40 {
     width: 10rem;
+  }
+
+  .md\:w-auto {
+    width: auto;
   }
 
   .md\:grid-cols-2 {
