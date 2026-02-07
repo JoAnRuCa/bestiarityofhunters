@@ -55,6 +55,9 @@ Route::post('/guide-editor/store', [GuideEditorController::class, 'store']) ->na
 Route::get('/contact', [ContactUsController::class, 'index'])->name('contact.index');
 Route::post('/contact', [ContactUsController::class, 'store'])->name('contact.store');
 
+Route::get('/guides', [GuideListController::class, 'index'])->name('guides.index');
+Route::get('/guides/{slug}', [GuideListController::class, 'show'])->name('guides.show');
+
 
 /*
 |--------------------------------------------------------------------------
