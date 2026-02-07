@@ -14,12 +14,13 @@ class CreateSavedGuidesTable extends Migration
 public function up()
 {
     Schema::create('saved_guides', function (Blueprint $table) {
+        $table->id();
         // Foreign keys
         $table->unsignedBigInteger('user_id');
         $table->unsignedBigInteger('guide_id');
 
-        // Primary key compuesta
-        $table->primary(['user_id', 'guide_id']);
+        // No duplicados
+        $table->unique(['user_id', 'guide_id']);
 
         // Relaciones
         $table->foreign('user_id')

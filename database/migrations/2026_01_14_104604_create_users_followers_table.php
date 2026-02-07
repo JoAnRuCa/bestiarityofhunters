@@ -14,11 +14,12 @@ class CreateUsersFollowersTable extends Migration
     public function up()
     {
         Schema::create('users_followers', function (Blueprint $table) {
+            $table->id();
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('follower_id');
 
-            // Primary key compuesta
-            $table->primary(['user_id', 'follower_id']);
+            // No duplicados
+            $table->unique(['user_id', 'follower_id']);
 
             // Foreign keys con RESTRICT
             $table->foreign('user_id')

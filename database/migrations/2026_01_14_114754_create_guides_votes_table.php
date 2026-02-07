@@ -14,6 +14,7 @@ class CreateGuidesVotesTable extends Migration
    public function up()
 {
     Schema::create('guides_votes', function (Blueprint $table) {
+        $table->id();
         // Foreign keys
         $table->unsignedBigInteger('user_id');
         $table->unsignedBigInteger('guide_id');
@@ -21,8 +22,8 @@ class CreateGuidesVotesTable extends Migration
         // Campo tipo (solo 0 o 1)
         $table->tinyInteger('tipo');
 
-        // Primary key compuesta
-        $table->primary(['user_id', 'guide_id']);
+        // No duplicados    
+        $table->unique(['user_id', 'guide_id']);
 
         // Relaciones
         $table->foreign('user_id')

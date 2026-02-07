@@ -11,10 +11,6 @@ class GuidesVote extends Model
 
     protected $table = 'guides_votes';
 
-    // La tabla NO tiene columna id
-    public $incrementing = false;
-    protected $primaryKey = null;
-
     protected $fillable = [
         'user_id',
         'guide_id',

@@ -14,12 +14,13 @@ class CreateSavedBuildsTable extends Migration
     public function up()
 {
     Schema::create('saved_builds', function (Blueprint $table) {
+        $table->id();
         // Foreign keys
         $table->unsignedBigInteger('user_id');
         $table->unsignedBigInteger('build_id');
 
-        // Primary key compuesta
-        $table->primary(['user_id', 'build_id']);
+        // No duplicados    
+        $table->unique(['user_id', 'build_id']);
 
         // Relaciones
         $table->foreign('user_id')

@@ -14,6 +14,7 @@ class CreateBuildsVotesTable extends Migration
 public function up()
 {
     Schema::create('builds_votes', function (Blueprint $table) {
+        $table->id();
         // Foreign keys
         $table->unsignedBigInteger('user_id');
         $table->unsignedBigInteger('build_id');
@@ -21,8 +22,8 @@ public function up()
         // Campo tipo (solo 0 o 1)
         $table->tinyInteger('tipo');
 
-        // Primary key compuesta
-        $table->primary(['user_id', 'build_id']);
+        // No duplicados    
+        $table->unique(['user_id', 'build_id']);
 
         // Relaciones
         $table->foreign('user_id')
