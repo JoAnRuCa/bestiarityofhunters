@@ -13,14 +13,24 @@ document.addEventListener('DOMContentLoaded', function () {
         wrapper.style.opacity = '0.5';
         try {
             const response = await fetch(url, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
             });
-            const data = await response.json();
-            wrapper.innerHTML = data.html;
+
+            if (!response.ok) throw new Error('Error en la petición');
+
+            // LEEMOS COMO TEXTO (HTML), NO COMO JSON
+            const html = await response.text();
+
+            wrapper.innerHTML = html;
             window.history.pushState({}, '', url);
+
             if (typeof initVotes === 'function') initVotes();
+
         } catch (e) {
-            console.error("Error:", e);
+            console.error("Error al cargar guías:", e);
+            wrapper.innerHTML = '<p class="text-center text-red-500 py-10">Error loading guides.</p>';
         }
         wrapper.style.opacity = '1';
     }
@@ -35,12 +45,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 tagBtn.classList.remove('bg-[#C67C48]', 'text-white', 'border-[#C67C48]', 'shadow-md', 'hover:bg-[#a1633a]');
                 tagBtn.classList.add('bg-transparent', 'text-[#C67C48]', 'border-[#C67C48]/40', 'hover:bg-[#C67C48]/10');
                 tagBtn.setAttribute('data-active', 'false');
+
                 const input = tagsInputsContainer.querySelector(`input[value="${tagName}"]`);
                 if (input) input.remove();
             } else {
                 tagBtn.classList.remove('bg-transparent', 'text-[#C67C48]', 'border-[#C67C48]/40', 'hover:bg-[#C67C48]/10');
                 tagBtn.classList.add('bg-[#C67C48]', 'text-white', 'border-[#C67C48]', 'shadow-md', 'hover:bg-[#a1633a]');
                 tagBtn.setAttribute('data-active', 'true');
+
                 const newInput = document.createElement('input');
                 newInput.type = 'hidden';
                 newInput.name = 'tag[]';

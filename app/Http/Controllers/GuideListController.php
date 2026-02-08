@@ -12,6 +12,8 @@ class GuideListController extends Controller
     $query = Guide::with(['tags', 'user', 'votos'])
         ->withSum('votos as score_sum', 'tipo');
 
+    // ... (tus filtros de search, autor y tag se mantienen igual) ...
+
     if ($request->filled('search')) {
         $query->where(function ($q) use ($request) {
             $q->where('titulo', 'like', '%' . $request->search . '%')
@@ -42,11 +44,9 @@ class GuideListController extends Controller
 
     $guides = $query->paginate(10)->withQueryString();
 
-    // SI ES AJAX: devolvemos solo el fragmento HTML
+    // SI ES AJAX: Devolvemos el COMPONENTE directamente como HTML
     if ($request->ajax()) {
-        return response()->json([
-            'html' => view('seccion.partials._guides_items', compact('guides'))->render()
-        ]);
+        return view('components.guide-grid', compact('guides'))->render();
     }
 
     return view('seccion.guidesList', compact('guides'));
