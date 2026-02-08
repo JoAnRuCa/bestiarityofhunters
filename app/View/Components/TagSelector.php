@@ -13,8 +13,8 @@ class TagSelector extends Component
     public function __construct($selectedTags = [])
     {
         $this->allTags = Tag::all();
-        // Convertimos a array por si viene de old() o de una relación
-        $this->selectedTags = collect($selectedTags)->toArray();
+        // Convertimos a array para manejar tanto old() como colecciones de Eloquent
+        $this->selectedTags = is_array($selectedTags) ? $selectedTags : $selectedTags->pluck('id')->toArray();
     }
 
     public function render()

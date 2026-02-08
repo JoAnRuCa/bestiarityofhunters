@@ -1,5 +1,7 @@
 <div>
-    <label class="block font-semibold mb-2 text-[#2F2F2F]">Tags</label>
+    {{-- Color #2F2F2F y fuente ajustada --}}
+    <label class="block font-semibold mb-2 text-[#2F2F2F] text-base">Tags</label>
+    
     <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
         @foreach($allTags as $tag)
             <label class="flex items-center space-x-2 cursor-pointer group">
@@ -8,7 +10,9 @@
                        value="{{ $tag->id }}"
                        {{ in_array($tag->id, $selectedTags) ? 'checked' : '' }}
                        class="h-4 w-4 text-[#6B8E23] border-gray-300 rounded focus:ring-[#6B8E23] cursor-pointer">
-                <span class="text-sm text-gray-700 group-hover:text-[#6B8E23] transition-colors">
+                
+                {{-- Texto con color #2F2F2F y tamaño base --}}
+                <span class="text-base text-[#2F2F2F] group-hover:text-[#6B8E23] transition-colors">
                     {{ $tag->name }}
                 </span>
             </label>
