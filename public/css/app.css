@@ -1192,9 +1192,6 @@ select {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
 }
-.bg-white\/40 {
-  background-color: rgb(255 255 255 / 0.4);
-}
 .fill-current {
   fill: currentColor;
 }
@@ -1763,10 +1760,6 @@ select {
 .focus\:bg-indigo-100:focus {
   --tw-bg-opacity: 1;
   background-color: rgb(224 231 255 / var(--tw-bg-opacity, 1));
-}
-.focus\:bg-white:focus {
-  --tw-bg-opacity: 1;
-  background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
 }
 .focus\:text-gray-500:focus {
   --tw-text-opacity: 1;
