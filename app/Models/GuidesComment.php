@@ -9,37 +9,59 @@ class GuidesComment extends Model
 {
     use HasFactory;
 
+    // Forzamos el nombre de la tabla por seguridad
+    protected $table = 'guides_comments';
+
     protected $fillable = [
         'user_id',
         'guide_id',
-        'contenido'
+        'comentario', // Cambiado de 'contenido' a 'comentario' según tu tabla
+        'padre'       // Añadido para soportar respuestas
     ];
 
-    // Usuario que escribió el comentario
+    // --- RELACIONES DE JERARQUÍA ---
+
+    /**
+     * Obtener las respuestas de este comentario.
+     */
+    public function respuestas()
+    {
+        return $this->hasMany(GuidesComment::class, 'padre')->orderBy('created_at', 'asc');
+    }
+
+    /**
+     * Obtener el comentario original si este es una respuesta.
+     */
+    public function comentarioPadre()
+    {
+        return $this->belongsTo(GuidesComment::class, 'padre');
+    }
+
+    // --- RELACIONES DE ENTIDAD ---
+
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    // Guía a la que pertenece el comentario
     public function guide()
     {
         return $this->belongsTo(Guide::class);
     }
 
-    // Votos del comentario
+    // --- SISTEMA DE VOTOS (UNIVERSAL) ---
+
     public function votos()
     {
         return $this->hasMany(GuidesCommentVote::class, 'comment_id');
     }
 
-    // Score total del comentario
     public function score()
     {
-        return $this->votos()->sum('tipo');
+        // Forzamos a int para evitar problemas en PHP 7.4 si el sum es null
+        return (int) $this->votos()->sum('tipo');
     }
 
-    // Saber si un usuario ya votó este comentario
     public function votoDe($userId)
     {
         return $this->votos()->where('user_id', $userId)->first();

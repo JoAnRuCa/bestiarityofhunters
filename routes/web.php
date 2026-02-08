@@ -14,6 +14,7 @@ use App\Http\Controllers\ContactUsController;
 use App\Http\Controllers\GuideEditorController;
 use App\Http\Controllers\GuideListController;
 use App\Http\Controllers\VoteController;
+use App\Http\Controllers\CommentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,7 +65,9 @@ Route::post('/votar', [VoteController::class, 'votar'])
     ->middleware('auth')
     ->name('votar');
 
-
+Route::post('/comments/store', [CommentController::class, 'store'])
+    ->middleware('auth')
+    ->name('comments.store');
 
 
 /*

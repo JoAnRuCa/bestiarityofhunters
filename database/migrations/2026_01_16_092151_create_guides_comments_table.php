@@ -26,7 +26,7 @@ class CreateGuidesCommentsTable extends Migration
         $table->unsignedBigInteger('guide_id');
 
         // Comentario padre (0 = comentario sin padre)
-        $table->unsignedBigInteger('padre')->default(0);
+        $table->unsignedBigInteger('padre')->nullable();
 
         // Foreign keys
         $table->foreign('user_id')

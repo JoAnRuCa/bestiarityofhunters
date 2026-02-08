@@ -51,13 +51,18 @@ class GuideListController extends Controller
         return view('seccion.guidesList', compact('guides'));
     }
 
-    public function show($slug)
-    {
-        // Cargar votos, tags y usuario SIEMPRE
-        $guide = Guide::where('slug', $slug)
-            ->with(['tags', 'user', 'votos'])
-            ->firstOrFail();
+public function show($slug)
+{
+    $guide = Guide::where('slug', $slug)
+        ->with([
+            'tags', 
+            'user', 
+            'votos', 
+            'comments.user', 
+            'comments.respuestas.user'
+        ])
+        ->firstOrFail();
 
-        return view('seccion.guideShow', compact('guide'));
-    }
+    return view('seccion.guideShow', compact('guide'));
+}
 }
