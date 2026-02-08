@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\View\Components\CommentItem; // Importamos la clase del componente
 
 class CommentController extends Controller
 {
@@ -20,36 +21,41 @@ class CommentController extends Controller
             'guide' => [
                 'model' => \App\Models\GuidesComment::class,
                 'fk'    => 'guide_id',
-                'guide_model' => \App\Models\Guide::class
+                'parent_model' => \App\Models\Guide::class
             ],
             'build' => [
                 'model' => \App\Models\BuildsComment::class,
-                'fk'    => 'build_id'
+                'fk'    => 'build_id',
+                'parent_model' => \App\Models\Build::class // Asumiendo que tienes un modelo Build
             ]
         ];
 
         $setup = $config[$request->type];
 
+        // 1. Crear el comentario en la base de datos
         $comment = $setup['model']::create([
-            'user_id'           => Auth::id(),
-            $setup['fk']        => $request->item_id,
-            'comentario'        => $request->comentario,
-            'padre'             => $request->padre,
+            'user_id'    => Auth::id(),
+            $setup['fk'] => $request->item_id,
+            'comentario' => $request->comentario,
+            'padre'      => $request->padre,
         ]);
 
+        // 2. Respuesta para AJAX
         if ($request->ajax()) {
-            $guide = ($request->type == 'guide') ? $setup['guide_model']::find($request->item_id) : null;
-            
+            // Buscamos el objeto padre (la Guía o la Build) para el componente
+            $item = $setup['parent_model']::find($request->item_id);
+            $level = intval($request->input('level', 0));
+
+            // Instanciamos el componente y lo renderizamos a HTML
+            // Pasamos: comentario, objeto padre, string del tipo y nivel
+            $component = new CommentItem($comment, $item, $request->type, $level);
+
             return response()->json([
                 'success' => true,
-                'comment_html' => view('layouts.partials.comment', [
-                    'comment' => $comment,
-                    'level'   => intval($request->input('level', 0)),
-                    'guide'   => $guide
-                ])->render()
+                'comment_html' => $component->render()->with($component->data())->render()
             ]);
         }
 
-        return back();
+        return back()->with('status', 'Comment posted!');
     }
 }

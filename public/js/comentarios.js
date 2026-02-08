@@ -1,4 +1,6 @@
-// Función para mostrar/ocultar respuestas
+/**
+ * Toggles the visibility of child replies
+ */
 function toggleChildren(btn) {
     const container = btn.closest('.flex-1').querySelector('.replies-container');
     const icon = btn.querySelector('.icon');
@@ -9,12 +11,26 @@ function toggleChildren(btn) {
         btn.innerHTML = `<span class="icon">▼</span> Hide Replies`;
     } else {
         container.classList.add('hidden');
-        // Intentamos recuperar el conteo si es posible o simplemente Reset
         btn.innerHTML = `<span class="icon">▶</span> Show Replies`;
     }
 }
 
-// Actualización de enviarComentario
+/**
+ * Toggles the reply form visibility
+ */
+function toggleReply(id) {
+    const form = document.getElementById(`reply-form-${id}`);
+    if (form) {
+        form.classList.toggle('hidden');
+        if (!form.classList.contains('hidden')) {
+            form.querySelector('textarea').focus();
+        }
+    }
+}
+
+/**
+ * Handles AJAX comment submission
+ */
 async function enviarComentario(e, form) {
     e.preventDefault();
     e.stopPropagation();
@@ -47,19 +63,29 @@ async function enviarComentario(e, form) {
                 const container = parentBody.querySelector('.replies-container');
 
                 container.appendChild(newElement);
-                container.classList.remove('hidden'); // Mostramos automáticamente al responder
+                container.classList.remove('hidden');
                 form.classList.add('hidden');
 
-                // Si el botón de "Show Replies" no existía (era la primera respuesta), podrías crearlo aquí o simplemente mostrar el contenedor
+                // Opcional: Si el botón de "Show Replies" existe, actualizarlo a "Hide"
+                const toggleBtn = parentBody.querySelector('button[onclick="toggleChildren(this)"]');
+                if (toggleBtn) {
+                    toggleBtn.innerHTML = `<span class="icon">▼</span> Hide Replies`;
+                }
             } else {
-                document.getElementById('comments-wrapper').prepend(newElement);
+                const wrapperList = document.getElementById('comments-wrapper');
+                // Eliminar el mensaje de "No comments yet" si existe
+                const noCommentsMsg = document.getElementById('no-comments-msg');
+                if (noCommentsMsg) noCommentsMsg.remove();
+
+                wrapperList.prepend(newElement);
             }
 
             form.reset();
         }
     } catch (err) {
-        console.error("Error:", err);
+        console.error("Error en la petición:", err);
+        alert("The guild's messenger failed to deliver your comment. Try again!");
     }
+
     return false;
 }
-
