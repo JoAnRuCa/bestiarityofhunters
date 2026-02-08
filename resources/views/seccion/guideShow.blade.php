@@ -15,6 +15,7 @@
         <div class="prose max-w-none text-gray-900 leading-relaxed mb-4">
             {!! nl2br(e($guide->contenido)) !!}
         </div>
+        <x-save-button :id="$guide->id" type="guide" />
     </div>
 
     {{-- BLOQUE 2: COMENTARIOS (Fondo crema corregido) --}}
@@ -33,4 +34,5 @@
 @section('scripts')
     <script src="{{ asset('js/votes.js') }}"></script>
     <script src="{{ asset('js/comentarios.js') }}"></script>
+    <script src="{{ asset('js/universal-save.js') }}"></script>
 @endsection
