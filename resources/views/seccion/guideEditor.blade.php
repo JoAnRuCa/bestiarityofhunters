@@ -9,14 +9,12 @@
         Create Guide
     </h1>
 
-    {{-- Mensaje de éxito --}}
     @if(session('success'))
         <p class="text-green-600 font-semibold mb-4">
             {{ session('success') }}
         </p>
     @endif
 
-    {{-- Formulario --}}
     <form action="{{ route('guide.editor.store') }}" method="POST" class="space-y-8">
         @csrf
 
@@ -30,22 +28,9 @@
                    required>
         </div>
 
-        {{-- Tags --}}
-        <div>
-            <label class="block font-semibold mb-2">Tags</label>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                @foreach($tags as $tag)
-                    <label class="flex items-center space-x-2">
-                        <input type="checkbox"
-                               name="tags[]"
-                               value="{{ $tag->id }}"
-                               class="h-4 w-4 text-[#6B8E23] border-gray-300 rounded focus:ring-[#6B8E23]">
-                        <span>{{ $tag->name }}</span>
-                    </label>
-                @endforeach
-            </div>
-        </div>
+        {{-- COMPONENTE DE TAGS EXTERNALIZADO --}}
+        {{-- Pasamos old('tags') para que si hay un error, no se borren los seleccionados --}}
+        <x-tag-selector :selectedTags="old('tags', [])" />
 
         {{-- Contenido --}}
         <div>
@@ -56,14 +41,11 @@
                       required>{{ old('contenido') }}</textarea>
         </div>
 
-        {{-- Botón --}}
         <button type="submit"
                 class="px-6 py-3 bg-[#6B8E23] text-white font-bold rounded-lg hover:bg-[#58751C] transition">
             Create Guide
         </button>
 
     </form>
-
 </div>
-
 @endsection

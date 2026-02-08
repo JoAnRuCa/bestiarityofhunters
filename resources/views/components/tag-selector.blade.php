@@ -1,0 +1,17 @@
+<div>
+    <label class="block font-semibold mb-2 text-[#2F2F2F]">Tags</label>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+        @foreach($allTags as $tag)
+            <label class="flex items-center space-x-2 cursor-pointer group">
+                <input type="checkbox"
+                       name="tags[]"
+                       value="{{ $tag->id }}"
+                       {{ in_array($tag->id, $selectedTags) ? 'checked' : '' }}
+                       class="h-4 w-4 text-[#6B8E23] border-gray-300 rounded focus:ring-[#6B8E23] cursor-pointer">
+                <span class="text-sm text-gray-700 group-hover:text-[#6B8E23] transition-colors">
+                    {{ $tag->name }}
+                </span>
+            </label>
+        @endforeach
+    </div>
+</div>

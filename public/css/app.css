@@ -1838,6 +1838,10 @@ select {
 .group:hover .group-hover\:block {
   display: block;
 }
+.group:hover .group-hover\:text-\[\#6B8E23\] {
+  --tw-text-opacity: 1;
+  color: rgb(107 142 35 / var(--tw-text-opacity, 1));
+}
 @media (min-width: 640px) {
 
   .sm\:-my-px {
