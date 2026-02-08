@@ -1,55 +1,48 @@
-<div class="comment-node py-4 {{ $level > 0 ? 'ml-6 md:ml-12 pl-4 mt-2' : '' }}" 
-     data-level="{{ $level }}">
-    
-    <div class="flex flex-row-reverse items-start gap-4">
-        {{-- Votos --}}
-        <div class="flex flex-col items-center min-w-[35px] {{ $level > 0 ? 'scale-90' : '' }}">
+<div class="comment-node py-4 {{ $level > 0 ? 'ml-6 md:ml-12 border-l-2 border-[#6B8E23]/20 pl-4' : '' }}" data-level="{{ $level }}">
+    <div class="flex flex-row items-start gap-4">
+        
+        <div class="flex-shrink-0">
             <x-vote-block :item="$comment" type="comment" />
         </div>
 
         <div class="flex-1">
             <div class="flex items-center gap-2 mb-1">
-                <span class="font-bold text-[#C67C48] text-sm">{{ $comment->user->name }}</span>
-                <span class="text-[11px] text-gray-500 font-normal italic">
-                    {{ $comment->created_at->diffForHumans() }}
-                </span>
+                <span class="font-bold text-[#C67C48]">{{ $comment->user->name }}</span>
+                <span class="text-xs text-gray-500 italic">{{ $comment->created_at->diffForHumans() }}</span>
             </div>
 
-            <p class="text-gray-800 mb-2 leading-relaxed text-[15px]">
-                {{ $comment->comentario }}
-            </p>
+            <p class="text-gray-800 text-[15px]">{{ $comment->comentario }}</p>
 
             <div class="flex items-center gap-4 mt-2">
                 @auth
-                    <button onclick="toggleReply('{{ $comment->id }}')" class="text-[11px] font-bold text-[#6B8E23] hover:underline uppercase transition-colors">Reply</button>
+                    <button onclick="toggleReply('{{ $comment->id }}')" class="text-[11px] font-bold text-[#6B8E23] uppercase">Reply</button>
                 @endauth
-
                 @if($comment->respuestas->count() > 0)
-                    {{-- Cambiado text-gray-400 por text-[#2F2F2F] --}}
-                    <button onclick="toggleChildren(this)" class="text-[11px] font-bold text-[#2F2F2F] hover:text-[#6B8E23] uppercase flex items-center gap-1 transition-colors">
-                        <span class="icon text-[9px]">▶</span> 
-                        <span class="label">Show {{ $comment->respuestas->count() }} Replies</span>
+                    <button onclick="toggleChildren(this)" class="text-[11px] font-bold text-[#2F2F2F] uppercase">
+                        <span class="icon">▶</span> Show Replies
                     </button>
                 @endif
             </div>
 
-            {{-- Formulario de respuesta --}}
-            @auth
-                <form id="reply-form-{{ $comment->id }}" action="{{ route('comments.store') }}" method="POST" 
-                      onsubmit="return enviarComentario(event, this)" class="hidden mt-4 bg-[#FEF9E7]/40 p-3 rounded-md">
-                    @csrf
-                    <input type="hidden" name="item_id" value="{{ $item->id }}">
-                    <input type="hidden" name="type" value="{{ $type }}">
-                    <input type="hidden" name="padre" value="{{ $comment->id }}">
-                    <textarea name="comentario" rows="2" class="w-full p-2 bg-white/20 border-none rounded text-sm outline-none shadow-inner" placeholder="Write a reply..."></textarea>
-                    <div class="flex justify-end mt-2">
-                        <button type="submit" class="text-[11px] bg-[#C67C48] text-white px-3 py-1 rounded font-bold uppercase hover:bg-[#a36236]">Send Reply</button>
-                    </div>
-                </form>
-            @endauth
+            <form id="reply-form-{{ $comment->id }}" action="{{ route('comments.store') }}" method="POST" onsubmit="return enviarComentario(event, this)" class="hidden mt-4 p-3 bg-white border border-[#6B8E23]/20 rounded">
+                @csrf
+                {{-- USAMOS $item->id para asegurar que el ID de la GUÍA se envíe siempre --}}
+                <input type="hidden" name="item_id" value="{{ $item->id }}">
+                <input type="hidden" name="type" value="{{ $type }}">
+                <input type="hidden" name="padre" value="{{ $comment->id }}">
+                
+                <textarea name="comentario" rows="2" required class="w-full p-2 bg-white border-none outline-none text-sm focus:ring-0" placeholder="Write a reply..."></textarea>
+                
+                <div class="flex justify-end mt-2">
+                    <button type="submit" class="bg-[#C67C48] text-white px-3 py-1 rounded text-[11px] font-bold uppercase hover:bg-[#a36236] transition-colors">
+                        Send
+                    </button>
+                </div>
+            </form>
 
-            <div class="replies-container hidden">
+            <div class="replies-container hidden mt-4">
                 @foreach($comment->respuestas as $respuesta)
+                    {{-- PASAMOS $item y $type explícitamente a la recursión --}}
                     <x-comment-item :comment="$respuesta" :item="$item" :type="$type" :level="$level + 1" />
                 @endforeach
             </div>

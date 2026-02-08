@@ -1,74 +1,43 @@
-document.addEventListener('DOMContentLoaded', () => {
-
+function initVotes() {
     document.querySelectorAll('.vote-container').forEach(container => {
+        // Evitar duplicar eventos si ya se inicializó
+        if (container.dataset.initialized) return;
+        container.dataset.initialized = "true";
 
-        // Estado interno de cada componente
-        let votoActual = parseInt(container.dataset.voto);
-        const id = container.dataset.id;
-        const model = container.dataset.model;
-        const url = container.dataset.url;
-
-        // Elementos del DOM
-        const upSvg = container.querySelector('.arrow-up');
-        const downSvg = container.querySelector('.arrow-down');
-        const scoreBox = container.querySelector('.vote-score');
         const upBtn = container.querySelector('.upvote');
         const downBtn = container.querySelector('.downvote');
+        const scoreBox = container.querySelector('.vote-score');
+        const upSvg = container.querySelector('.arrow-up');
+        const downSvg = container.querySelector('.arrow-down');
 
-        // Función para actualizar colores de las flechas
-        function pintarVoto() {
-            upSvg.setAttribute("fill", votoActual === 1 ? "#6B8E23" : "none");
-            downSvg.setAttribute("fill", votoActual === -1 ? "#2F2F2F" : "none");
-        }
-
-        // Función para actualizar el color y número del score
-        function updateScore(score) {
-            scoreBox.textContent = score;
-            if (score > 0) {
-                scoreBox.style.color = "#6B8E23";
-            } else if (score < 0) {
-                scoreBox.style.color = "#2F2F2F";
-            } else {
-                scoreBox.style.color = "#555";
-            }
-        }
-
-        // Función principal de envío
-        function ejecutarVoto(tipo) {
-            fetch(url, {
+        const ejecutarVoto = (tipo) => {
+            fetch(container.dataset.url, {
                 method: "POST",
-                credentials: "same-origin",
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                     "Accept": "application/json"
                 },
                 body: JSON.stringify({
-                    id: id,
+                    id: container.dataset.id,
                     tipo: tipo,
-                    model: model
+                    model: container.dataset.model
                 })
             })
-                .then(res => {
-                    if (res.status === 401) {
-                        alert("You must be logged in to vote.");
-                        return null;
-                    }
-                    return res.json();
-                })
+                .then(res => res.json())
                 .then(data => {
-                    if (!data || data.error) return;
+                    if (data.voto !== undefined) {
+                        upSvg.setAttribute("fill", data.voto === 1 ? "#6B8E23" : "none");
+                        downSvg.setAttribute("fill", data.voto === -1 ? "#2F2F2F" : "none");
+                        scoreBox.textContent = data.score;
+                        scoreBox.style.color = data.score > 0 ? "#6B8E23" : (data.score < 0 ? "#2F2F2F" : "#555");
+                    }
+                });
+        };
 
-                    // Actualizamos estado y UI
-                    votoActual = data.voto;
-                    pintarVoto();
-                    updateScore(data.score);
-                })
-                .catch(err => console.error("Error en la petición de voto:", err));
-        }
-
-        // Listeners
-        upBtn.addEventListener('click', () => ejecutarVoto(1));
-        downBtn.addEventListener('click', () => ejecutarVoto(-1));
+        upBtn.onclick = () => ejecutarVoto(1);
+        downBtn.onclick = () => ejecutarVoto(-1);
     });
-});
+}
+
+document.addEventListener('DOMContentLoaded', initVotes);
