@@ -10,26 +10,42 @@ use App\Services\VoteService;
 class GuideVoteController extends Controller
 {
     public function votar(Request $request, VoteService $voteService)
-    {
-        $request->validate([
-            'guide_id' => 'required|exists:guides,id',
-            'tipo' => 'required|in:1,-1'
-        ]);
+{
+    $request->validate([
+        'id'    => 'required|integer',
+        'tipo'  => 'required|in:1,-1',
+        'model' => 'required|in:guide,comment' // Añade aquí más tipos si hace falta
+    ]);
 
-        $user = auth()->user();
+    $user = auth()->user();
 
-        // Llamada compatible con PHP 7.x
-        $resultado = $voteService->procesarVoto(
-            GuidesVote::class,
-            'guide_id',
-            $request->guide_id,
-            $user->id,
-            $request->tipo,
-            function($id) {
-                return Guide::find($id)->score();
-            }
-        );
+    // Mapeo de modelos y llaves
+    $config = [
+        'guide' => [
+            'voteModel' => \App\Models\GuidesVote::class,
+            'entityModel' => \App\Models\Guide::class,
+            'foreignKey' => 'guide_id'
+        ],
+        'comment' => [
+            'voteModel' => \App\Models\GuidesCommentVote::class,
+            'entityModel' => \App\Models\GuidesComment::class,
+            'foreignKey' => 'comment_id'
+        ],
+    ];
 
-        return response()->json($resultado);
-    }
+    $setup = $config[$request->model];
+
+    $resultado = $voteService->procesarVoto(
+        $setup['voteModel'],
+        $setup['foreignKey'],
+        $request->id,
+        $user->id,
+        $request->tipo,
+        function($id) use ($setup) {
+            return $setup['entityModel']::find($id)->score();
+        }
+    );
+
+    return response()->json($resultado);
+}
 }

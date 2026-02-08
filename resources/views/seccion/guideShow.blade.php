@@ -11,7 +11,7 @@
             {{ $guide->titulo }}
         </h1>
 
-        <x-vote-block :guide="$guide" />
+        <x-vote-block :item="$guide" type="guide" />
     </div>
 
     {{-- Autor y fecha --}}

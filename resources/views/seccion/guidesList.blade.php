@@ -122,7 +122,7 @@
                 </div>
 
                 {{-- SISTEMA DE VOTOS (COMPONENTE) --}}
-                <x-vote-block :guide="$guide" />
+                <x-vote-block :item="$guide" type="guide" />
 
             </div>
         @endforeach

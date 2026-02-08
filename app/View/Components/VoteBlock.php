@@ -7,20 +7,19 @@ use App\Models\Guide;
 
 class VoteBlock extends Component
 {
-    public $guide;
+    public $item;
+    public $type;
     public $votoUsuario;
 
-    public function __construct(Guide $guide)
+    public function __construct($item, $type = 'guide')
     {
-        $this->guide = $guide;
+        $this->item = $item;
+        $this->type = $type;
 
         $this->votoUsuario = auth()->check()
-            ? ($guide->votoDe(auth()->id())->tipo ?? 0)
+            ? ($item->votos()->where('user_id', auth()->id())->first()->tipo ?? 0)
             : 0;
     }
 
-    public function render()
-    {
-        return view('components.vote-block');
-    }
+    public function render() { return view('components.vote-block'); }
 }
