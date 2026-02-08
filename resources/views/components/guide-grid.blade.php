@@ -18,7 +18,9 @@
                             </span>
                         @endforeach
                     </div>
-                    <p class="text-[11px] text-gray-500 font-medium uppercase tracking-wider">
+                    
+                    {{-- Estilo final: 'By' con B mayúscula y el tiempo en minúsculas --}}
+                    <p class="text-[11px] text-[#2F2F2F] font-medium tracking-wider">
                         By <span class="text-[#C67C48]">{{ $guide->user->name }}</span> • {{ $guide->created_at->diffForHumans() }}
                     </p>
                 </div>
