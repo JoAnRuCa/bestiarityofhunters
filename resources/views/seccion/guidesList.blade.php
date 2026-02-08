@@ -11,38 +11,38 @@
     <form id="filter-form" action="{{ url('/guides') }}" method="GET" class="mb-10 flex flex-col gap-6">
         @php $activeTags = (array) request('tag', []); @endphp
         
-        {{-- CONTENEDOR DE INPUTS OCULTOS --}}
         <div id="active-tags-inputs">
             @foreach($activeTags as $t)
                 <input type="hidden" name="tag[]" value="{{ $t }}">
             @endforeach
         </div>
 
-        <div class="flex flex-wrap gap-4">
+        <div class="flex flex-wrap gap-4 items-center">
+            {{-- Search: Fondo blanco sólido --}}
             <input type="text" name="search" placeholder="SEARCH GUIDES..." 
                    value="{{ request('search') }}" 
-                   class="bg-white/40 border border-[#C67C48]/30 px-4 py-2 rounded text-xs font-bold uppercase tracking-tighter text-gray-700 focus:ring-1 focus:ring-[#6B8E23] focus:bg-white outline-none placeholder:text-gray-500 w-full md:w-auto">
+                   class="bg-white border border-[#C67C48]/30 px-4 py-2 rounded text-xs font-bold uppercase tracking-tighter text-gray-700 focus:ring-1 focus:ring-[#6B8E23] outline-none placeholder:text-gray-500 w-full md:w-auto shadow-sm">
 
+            {{-- Author: Fondo blanco sólido --}}
             <input type="text" name="autor" placeholder="AUTHOR..." 
                    value="{{ request('autor') }}" 
-                   class="bg-white/40 border border-[#C67C48]/30 px-4 py-2 rounded text-xs font-bold uppercase tracking-tighter text-gray-700 focus:ring-1 focus:ring-[#6B8E23] focus:bg-white outline-none placeholder:text-gray-500 w-full md:w-auto">
+                   class="bg-white border border-[#C67C48]/30 px-4 py-2 rounded text-xs font-bold uppercase tracking-tighter text-gray-700 focus:ring-1 focus:ring-[#6B8E23] outline-none placeholder:text-gray-500 w-full md:w-auto shadow-sm">
             
-            <select name="orden" class="bg-white/40 border border-[#C67C48]/30 px-4 py-2 rounded text-xs font-bold uppercase tracking-tighter text-gray-700 focus:ring-1 focus:ring-[#6B8E23] outline-none cursor-pointer w-full md:w-auto">
+            {{-- Orden: Un poco más ancho (pr-10) para que la flecha no pise el texto --}}
+            <select name="orden" class="bg-white border border-[#C67C48]/30 pl-4 pr-10 py-2 rounded text-xs font-bold uppercase tracking-tighter text-gray-700 focus:ring-1 focus:ring-[#6B8E23] outline-none cursor-pointer w-full md:w-auto min-w-[180px] appearance-none shadow-sm" style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23C67C48%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E'); background-repeat: no-repeat; background-position: right 0.7rem center; background-size: 1em;">
                 <option value="recientes" {{ request('orden')=='recientes' ? 'selected' : '' }}>MOST RECENT</option>
                 <option value="votados" {{ request('orden')=='votados' ? 'selected' : '' }}>MOST VOTED</option>
             </select>
 
-            <button type="submit" class="bg-[#6B8E23] hover:bg-[#556b1c] text-white font-bold px-6 py-2 rounded transition-all shadow-md uppercase text-xs tracking-widest">
+            <button type="submit" class="bg-[#6B8E23] hover:bg-[#556b1c] text-white font-bold px-6 py-2 rounded transition-all shadow-md uppercase text-xs tracking-widest h-full">
                 APPLY FILTERS
             </button>
         </div>
 
-        {{-- SECCIÓN DE TAGS CON HOVER CORREGIDO --}}
+        {{-- SECCIÓN DE TAGS --}}
         <div class="flex flex-wrap gap-2 w-full border-t border-[#6B8E23]/10 pt-4">
             @foreach(\App\Models\Tag::all() as $tag)
-                @php
-                    $isActive = in_array($tag->name, $activeTags);
-                @endphp
+                @php $isActive = in_array($tag->name, $activeTags); @endphp
                 <button type="button" 
                    class="tag-link px-3 py-1 text-[10px] font-bold uppercase rounded transition-all duration-200 border
                           {{ $isActive 
@@ -99,26 +99,21 @@ document.addEventListener('DOMContentLoaded', function() {
             const isActive = tagBtn.getAttribute('data-active') === 'true';
 
             if (isActive) {
-                // VOLVER A INACTIVO
                 tagBtn.classList.remove('bg-[#C67C48]', 'text-white', 'border-[#C67C48]', 'shadow-md', 'hover:bg-[#a1633a]');
                 tagBtn.classList.add('bg-transparent', 'text-[#C67C48]', 'border-[#C67C48]/40', 'hover:bg-[#C67C48]/10');
                 tagBtn.setAttribute('data-active', 'false');
-                
                 const input = tagsInputsContainer.querySelector(`input[value="${tagName}"]`);
                 if (input) input.remove();
             } else {
-                // PASAR A ACTIVO
                 tagBtn.classList.remove('bg-transparent', 'text-[#C67C48]', 'border-[#C67C48]/40', 'hover:bg-[#C67C48]/10');
                 tagBtn.classList.add('bg-[#C67C48]', 'text-white', 'border-[#C67C48]', 'shadow-md', 'hover:bg-[#a1633a]');
                 tagBtn.setAttribute('data-active', 'true');
-
                 const newInput = document.createElement('input');
                 newInput.type = 'hidden';
                 newInput.name = 'tag[]';
                 newInput.value = tagName;
                 tagsInputsContainer.appendChild(newInput);
             }
-
             fetchGuides(getFilterUrl());
         }
 
