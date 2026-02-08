@@ -15,10 +15,12 @@
 
             <div class="flex items-center gap-4 mt-2">
                 @auth
-                    <button onclick="toggleReply('{{ $comment->id }}')" class="text-[11px] font-bold text-[#6B8E23] uppercase">Reply</button>
+                    <button onclick="toggleReply('{{ $comment->id }}')" class="text-[11px] font-bold text-[#6B8E23] uppercase hover:text-[#556b1c] transition-colors">Reply</button>
                 @endauth
+                
                 @if($comment->respuestas->count() > 0)
-                    <button onclick="toggleChildren(this)" class="text-[11px] font-bold text-[#2F2F2F] uppercase">
+                    {{-- BOTÓN ACTUALIZADO --}}
+                    <button onclick="toggleChildren(this)" class="text-[11px] font-bold text-[#2F2F2F] uppercase hover:text-[#6B8E23] transition-colors duration-200">
                         <span class="icon">▶</span> Show Replies
                     </button>
                 @endif
@@ -26,7 +28,6 @@
 
             <form id="reply-form-{{ $comment->id }}" action="{{ route('comments.store') }}" method="POST" onsubmit="return enviarComentario(event, this)" class="hidden mt-4 p-3 bg-white border border-[#6B8E23]/20 rounded">
                 @csrf
-                {{-- USAMOS $item->id para asegurar que el ID de la GUÍA se envíe siempre --}}
                 <input type="hidden" name="item_id" value="{{ $item->id }}">
                 <input type="hidden" name="type" value="{{ $type }}">
                 <input type="hidden" name="padre" value="{{ $comment->id }}">
@@ -42,7 +43,6 @@
 
             <div class="replies-container hidden mt-4">
                 @foreach($comment->respuestas as $respuesta)
-                    {{-- PASAMOS $item y $type explícitamente a la recursión --}}
                     <x-comment-item :comment="$respuesta" :item="$item" :type="$type" :level="$level + 1" />
                 @endforeach
             </div>
