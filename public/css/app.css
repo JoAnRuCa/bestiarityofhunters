@@ -682,11 +682,20 @@ select {
 .right-0 {
   right: 0px;
 }
+.right-6 {
+  right: 1.5rem;
+}
 .top-0 {
   top: 0px;
 }
+.top-6 {
+  top: 1.5rem;
+}
 .z-0 {
   z-index: 0;
+}
+.z-20 {
+  z-index: 20;
 }
 .z-50 {
   z-index: 50;
@@ -756,6 +765,9 @@ select {
 }
 .ml-6 {
   margin-left: 1.5rem;
+}
+.mr-1\.5 {
+  margin-right: 0.375rem;
 }
 .mr-2 {
   margin-right: 0.5rem;
@@ -1180,10 +1192,6 @@ select {
   --tw-bg-opacity: 1;
   background-color: rgb(243 244 246 / var(--tw-bg-opacity, 1));
 }
-.bg-gray-500 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(107 114 128 / var(--tw-bg-opacity, 1));
-}
 .bg-gray-800 {
   --tw-bg-opacity: 1;
   background-color: rgb(31 41 55 / var(--tw-bg-opacity, 1));
@@ -1240,10 +1248,6 @@ select {
   padding-left: 1rem;
   padding-right: 1rem;
 }
-.px-5 {
-  padding-left: 1.25rem;
-  padding-right: 1.25rem;
-}
 .px-6 {
   padding-left: 1.5rem;
   padding-right: 1.5rem;
@@ -1275,10 +1279,6 @@ select {
 .py-2 {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-}
-.py-2\.5 {
-  padding-top: 0.625rem;
-  padding-bottom: 0.625rem;
 }
 .py-3 {
   padding-top: 0.75rem;
@@ -1316,6 +1316,9 @@ select {
 .pr-10 {
   padding-right: 2.5rem;
 }
+.pr-32 {
+  padding-right: 8rem;
+}
 .pr-4 {
   padding-right: 1rem;
 }
@@ -1343,6 +1346,9 @@ select {
 .text-center {
   text-align: center;
 }
+.text-right {
+  text-align: right;
+}
 .font-sans {
   font-family: Nunito, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
@@ -1366,6 +1372,9 @@ select {
 }
 .text-\[15px\] {
   font-size: 15px;
+}
+.text-\[9px\] {
+  font-size: 9px;
 }
 .text-base {
   font-size: 1rem;
@@ -1416,6 +1425,9 @@ select {
 }
 .leading-7 {
   line-height: 1.75rem;
+}
+.leading-none {
+  line-height: 1;
 }
 .leading-relaxed {
   line-height: 1.625;
