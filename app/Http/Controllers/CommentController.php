@@ -9,36 +9,47 @@ class CommentController extends Controller
 {
     public function store(Request $request)
     {
-        // 1. Validación base
         $request->validate([
             'item_id'    => 'required|integer',
             'comentario' => 'required|string|min:3|max:1000',
             'padre'      => 'nullable|integer',
-            'type'       => 'required|in:guide,build' // El discriminador
+            'type'       => 'required|in:guide,build'
         ]);
 
-        // 2. Mapa de configuración (Tablas separadas)
         $config = [
             'guide' => [
                 'model' => \App\Models\GuidesComment::class,
-                'fk'    => 'guide_id'
+                'fk'    => 'guide_id',
+                'guide_model' => \App\Models\Guide::class
             ],
             'build' => [
-                'model' => \App\Models\BuildsComment::class, // Tu futura tabla
+                'model' => \App\Models\BuildsComment::class,
                 'fk'    => 'build_id'
             ]
         ];
 
         $setup = $config[$request->type];
 
-        // 3. Crear el comentario
-        $setup['model']::create([
+        $comment = $setup['model']::create([
             'user_id'           => Auth::id(),
             $setup['fk']        => $request->item_id,
             'comentario'        => $request->comentario,
             'padre'             => $request->padre,
         ]);
 
-        return back()->with('status', 'Comment posted!');
+        if ($request->ajax()) {
+            $guide = ($request->type == 'guide') ? $setup['guide_model']::find($request->item_id) : null;
+            
+            return response()->json([
+                'success' => true,
+                'comment_html' => view('layouts.partials.comment', [
+                    'comment' => $comment,
+                    'level'   => intval($request->input('level', 0)),
+                    'guide'   => $guide
+                ])->render()
+            ]);
+        }
+
+        return back();
     }
 }
