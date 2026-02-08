@@ -1649,6 +1649,10 @@ select {
 .hover\:bg-\[\#C67C48\]\/10:hover {
   background-color: rgb(198 124 72 / 0.1);
 }
+.hover\:bg-\[\#a1633a\]:hover {
+  --tw-bg-opacity: 1;
+  background-color: rgb(161 99 58 / var(--tw-bg-opacity, 1));
+}
 .hover\:bg-\[\#a36236\]:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(163 98 54 / var(--tw-bg-opacity, 1));

@@ -37,17 +37,16 @@
             </button>
         </div>
 
-        {{-- SECCIÓN DE TAGS --}}
+        {{-- SECCIÓN DE TAGS CON HOVER CORREGIDO --}}
         <div class="flex flex-wrap gap-2 w-full border-t border-[#6B8E23]/10 pt-4">
             @foreach(\App\Models\Tag::all() as $tag)
                 @php
                     $isActive = in_array($tag->name, $activeTags);
                 @endphp
-                {{-- Eliminamos el href complejo y dejamos que el JS maneje la URL --}}
                 <button type="button" 
                    class="tag-link px-3 py-1 text-[10px] font-bold uppercase rounded transition-all duration-200 border
                           {{ $isActive 
-                              ? 'bg-[#C67C48] text-white border-[#C67C48] shadow-md' 
+                              ? 'bg-[#C67C48] text-white border-[#C67C48] shadow-md hover:bg-[#a1633a]' 
                               : 'bg-transparent text-[#C67C48] border-[#C67C48]/40 hover:bg-[#C67C48]/10' }}"
                    data-tag="{{ $tag->name }}" 
                    data-active="{{ $isActive ? 'true' : 'false' }}">
@@ -71,7 +70,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('filter-form');
     const tagsInputsContainer = document.getElementById('active-tags-inputs');
 
-    // Función para obtener la URL actual con todos los filtros del formulario
     function getFilterUrl() {
         const formData = new FormData(form);
         const params = new URLSearchParams(formData);
@@ -94,7 +92,6 @@ document.addEventListener('DOMContentLoaded', function() {
         wrapper.style.opacity = '1';
     }
 
-    // Manejo de clics en Tags
     document.addEventListener('click', function(e) {
         const tagBtn = e.target.closest('.tag-link');
         if (tagBtn) {
@@ -102,17 +99,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const isActive = tagBtn.getAttribute('data-active') === 'true';
 
             if (isActive) {
-                // DESACTIVAR
-                tagBtn.classList.remove('bg-[#C67C48]', 'text-white', 'border-[#C67C48]', 'shadow-md');
-                tagBtn.classList.add('bg-transparent', 'text-[#C67C48]', 'border-[#C67C48]/40');
+                // VOLVER A INACTIVO
+                tagBtn.classList.remove('bg-[#C67C48]', 'text-white', 'border-[#C67C48]', 'shadow-md', 'hover:bg-[#a1633a]');
+                tagBtn.classList.add('bg-transparent', 'text-[#C67C48]', 'border-[#C67C48]/40', 'hover:bg-[#C67C48]/10');
                 tagBtn.setAttribute('data-active', 'false');
                 
                 const input = tagsInputsContainer.querySelector(`input[value="${tagName}"]`);
                 if (input) input.remove();
             } else {
-                // ACTIVAR
-                tagBtn.classList.remove('bg-transparent', 'text-[#C67C48]', 'border-[#C67C48]/40');
-                tagBtn.classList.add('bg-[#C67C48]', 'text-white', 'border-[#C67C48]', 'shadow-md');
+                // PASAR A ACTIVO
+                tagBtn.classList.remove('bg-transparent', 'text-[#C67C48]', 'border-[#C67C48]/40', 'hover:bg-[#C67C48]/10');
+                tagBtn.classList.add('bg-[#C67C48]', 'text-white', 'border-[#C67C48]', 'shadow-md', 'hover:bg-[#a1633a]');
                 tagBtn.setAttribute('data-active', 'true');
 
                 const newInput = document.createElement('input');
@@ -122,11 +119,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 tagsInputsContainer.appendChild(newInput);
             }
 
-            // Tras actualizar los inputs, pedimos las guías con el estado actual del form
             fetchGuides(getFilterUrl());
         }
 
-        // Paginación
         const pageLink = e.target.closest('.pagination-ajax a');
         if (pageLink) {
             e.preventDefault();
@@ -134,7 +129,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Filtros manuales
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         fetchGuides(getFilterUrl());
