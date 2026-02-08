@@ -2,10 +2,40 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
-class GuidesCommentVote extends Model
+class User extends Authenticatable
 {
-    use HasFactory;
+    use HasApiTokens, HasFactory, Notifiable;
+
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
+    // Votos en guías
+    public function guideVotes()
+    {
+        return $this->hasMany(GuidesVote::class, 'user_id');
+    }
+
+    // Votos en comentarios de guías
+    public function guideCommentVotes()
+    {
+        return $this->hasMany(GuidesCommentVote::class, 'user_id');
+    }
 }

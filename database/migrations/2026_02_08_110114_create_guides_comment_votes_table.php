@@ -13,12 +13,19 @@ class CreateGuidesCommentVotesTable extends Migration
      */
     public function up()
     {
-        Schema::create('guides_comment_votes', function (Blueprint $table) {
+        Schema::create('guides_comments_votes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            // Importante: Referencia a tu tabla específica
-            $table->foreignId('comment_id')->constrained('guides_comments')->onDelete('cascade');
-            $table->tinyInteger('tipo'); // 1 o -1
+
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('comment_id');
+
+        $table->tinyInteger('tipo'); // 1 o -1
+
+        $table->unique(['user_id', 'comment_id']);
+
+        $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('comment_id')->references('id')->on('guides_comments')->onDelete('cascade');
+
             $table->timestamps();
         });
     }
