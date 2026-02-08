@@ -7,7 +7,6 @@ document.addEventListener('click', async function (e) {
     const btnText = btn.querySelector('.btn-text');
     const svg = btn.querySelector('svg');
 
-    // Bloqueo temporal para evitar spam
     btn.disabled = true;
 
     try {
@@ -23,16 +22,14 @@ document.addEventListener('click', async function (e) {
         const data = await response.json();
 
         if (data.status === 'added') {
-            // Estado Guardado
-            btn.classList.replace('bg-[#C67C48]', 'bg-gray-500');
-            btn.classList.remove('hover:bg-[#a1633a]');
+            // Cambiar Marrón -> Verde
+            btn.classList.replace('bg-[#C67C48]', 'bg-[#6B8E23]');
             btnText.textContent = 'Saved';
-            svg.setAttribute('fill', 'currentColor');
+            svg.setAttribute('fill', '#2F2F2F');
             msg.classList.remove('hidden');
         } else if (data.status === 'removed') {
-            // Estado No Guardado
-            btn.classList.replace('bg-gray-500', 'bg-[#C67C48]');
-            btn.classList.add('hover:bg-[#a1633a]');
+            // Cambiar Verde -> Marrón
+            btn.classList.replace('bg-[#6B8E23]', 'bg-[#C67C48]');
             btnText.textContent = 'Save Guide';
             svg.setAttribute('fill', 'none');
             msg.classList.add('hidden');

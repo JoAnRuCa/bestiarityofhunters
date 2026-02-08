@@ -70,7 +70,7 @@ Route::post('/comments/store', [CommentController::class, 'store'])
     ->middleware('auth')
     ->name('comments.store');
 
-Route::post('/save/{type}/{id}', [App\Http\Controllers\SavedItemController::class, 'toggle'])
+Route::post('/save/{type}/{id}', [SavedItemController::class, 'toggle'])
     ->name('item.save')
     ->middleware('auth');
 
