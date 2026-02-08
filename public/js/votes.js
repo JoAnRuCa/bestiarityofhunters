@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         function votar(tipo) {
             return fetch(url, {
                 method: "POST",
+                credentials: "same-origin", // 🔥 NECESARIO PARA ENVIAR LA COOKIE DE SESIÓN
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content
@@ -45,16 +46,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(data => {
                     if (!data) return;
 
-                    // 🔥 ACTUALIZAR SOLO ESTE COMPONENTE
                     votoActual = data.voto;
-
-                    // 🔥 REPINTAR FLECHAS
                     pintarVoto();
-
-                    // 🔥 ACTUALIZAR CONTADOR
                     updateScore(data.score);
-                });
+                })
+                .catch(err => console.error(err));
         }
+
 
         // 🔼 CLICK EN UPVOTE
         upBtn.addEventListener('click', () => {
