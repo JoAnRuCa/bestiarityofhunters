@@ -13,7 +13,7 @@ use App\Http\Controllers\BuildApiController;
 use App\Http\Controllers\ContactUsController;
 use App\Http\Controllers\GuideEditorController;
 use App\Http\Controllers\GuideListController;
-use App\Http\Controllers\GuideVoteController;
+use App\Http\Controllers\VoteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,7 +60,7 @@ Route::post('/contact', [ContactUsController::class, 'store'])->name('contact.st
 Route::get('/guides', [GuideListController::class, 'index'])->name('guides.index');
 Route::get('/guides/{slug}', [GuideListController::class, 'show'])->name('guides.show');
 
-Route::post('/votar', [GuideVoteController::class, 'votar'])
+Route::post('/votar', [VoteController::class, 'votar'])
     ->middleware('auth')
     ->name('votar');
 
