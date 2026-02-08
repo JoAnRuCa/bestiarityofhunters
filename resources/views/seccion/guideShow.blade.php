@@ -16,10 +16,15 @@
         </div>
     </div>
 
+    <br>
+    <br>
+
     {{-- BLOQUE 2: COMENTARIOS (Sin sombras pesadas ni bordes grises) --}}
     <div class="w-[60%] max-w-4xl mx-auto p-8 bg-[#F4EBD0] rounded-lg shadow-sm">
         <x-comments-section :item="$guide" type="guide" />
     </div>
+    
+    <br>
 
     {{-- BOTÓN VOLVER --}}
     <div class="w-[60%] max-w-4xl mx-auto">

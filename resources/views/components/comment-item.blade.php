@@ -21,17 +21,19 @@
 
             <div class="flex items-center gap-4 mt-2">
                 @auth
-                    <button onclick="toggleReply('{{ $comment->id }}')" class="text-[11px] font-bold text-[#6B8E23] hover:underline uppercase">Reply</button>
+                    <button onclick="toggleReply('{{ $comment->id }}')" class="text-[11px] font-bold text-[#6B8E23] hover:underline uppercase transition-colors">Reply</button>
                 @endauth
 
                 @if($comment->respuestas->count() > 0)
-                    <button onclick="toggleChildren(this)" class="text-[11px] font-bold text-gray-400 hover:text-[#6B8E23] uppercase flex items-center gap-1">
-                        <span class="icon text-[9px]">▶</span> Show {{ $comment->respuestas->count() }} Replies
+                    {{-- Cambiado text-gray-400 por text-[#2F2F2F] --}}
+                    <button onclick="toggleChildren(this)" class="text-[11px] font-bold text-[#2F2F2F] hover:text-[#6B8E23] uppercase flex items-center gap-1 transition-colors">
+                        <span class="icon text-[9px]">▶</span> 
+                        <span class="label">Show {{ $comment->respuestas->count() }} Replies</span>
                     </button>
                 @endif
             </div>
 
-            {{-- Formulario de respuesta: Fondo crema muy tenue para que no sea gris --}}
+            {{-- Formulario de respuesta --}}
             @auth
                 <form id="reply-form-{{ $comment->id }}" action="{{ route('comments.store') }}" method="POST" 
                       onsubmit="return enviarComentario(event, this)" class="hidden mt-4 bg-[#FEF9E7]/40 p-3 rounded-md">
