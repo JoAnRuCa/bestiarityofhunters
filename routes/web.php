@@ -16,6 +16,7 @@ use App\Http\Controllers\GuideListController;
 use App\Http\Controllers\VoteController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\SavedItemController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -73,6 +74,10 @@ Route::post('/comments/store', [CommentController::class, 'store'])
 Route::post('/save/{type}/{id}', [SavedItemController::class, 'toggle'])
     ->name('item.save')
     ->middleware('auth');
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+});
 
 /*
 |--------------------------------------------------------------------------

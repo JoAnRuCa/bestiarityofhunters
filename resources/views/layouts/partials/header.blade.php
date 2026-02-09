@@ -72,7 +72,7 @@
                     <ul class="bg-[#F4EBD0] shadow-lg rounded-md w-32 py-2 text-sm 
                                transition-all duration-150 ease-out">
 
-                        <li><a href="" class="block px-4 py-2 hover:bg-gray-200">Profile</a></li>
+                        <li><a href="{{ route('profile') }}" class="block px-4 py-2 hover:bg-gray-200">Profile</a></li>
                         <li><a href="" class="block px-4 py-2 hover:bg-gray-200">My builds</a></li>
                         <li><a href="" class="block px-4 py-2 hover:bg-gray-200">Builds saved</a></li>
                         <li><a href="" class="block px-4 py-2 hover:bg-gray-200">My guides</a></li>
