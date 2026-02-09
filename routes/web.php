@@ -77,6 +77,7 @@ Route::post('/save/{type}/{id}', [SavedItemController::class, 'toggle'])
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
 
 /*
