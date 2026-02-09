@@ -23,14 +23,21 @@
                 :allTags="$allTags" 
                 :activeTags="$activeTags" 
                 :isTagActive="$isTagActive"
-            />
+            >
+                {{-- Input de Autor insertado para que el JS lo detecte en el FormData --}}
+                <div class="flex flex-col md:flex-row gap-4 items-center mt-4">
+                    <input type="text" name="autor" placeholder="Author..." 
+                           value="{{ request('autor') }}" 
+                           class="bg-white border border-[#C67C48]/30 px-4 py-2 rounded text-xs font-bold tracking-tighter text-gray-700 focus:ring-1 focus:ring-[#6B8E23] outline-none placeholder:text-gray-500 w-full md:w-64 shadow-sm">
+                </div>
+            </x-filter-panel>
         </div>
 
         {{-- CONTENEDOR PARA AJAX --}}
         <div id="guides-wrapper" class="transition-opacity duration-300">
 @endif
 
-            {{-- ESTA PARTE ES LA QUE SE REEMPLAZA POR AJAX --}}
+            {{-- CONTENIDO DINÁMICO --}}
             @if($savedData->count() === 0)
                 <div class="py-20 text-center border-2 border-dashed border-[#6B8E23]/10 rounded-lg">
                     <p class="text-xl text-gray-600 italic font-serif">Your archive is currently empty or no matches found.</p>
