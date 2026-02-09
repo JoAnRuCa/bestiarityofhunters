@@ -13,41 +13,9 @@ class GuideListController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Guide::with(['tags', 'user', 'votos'])
-            ->withSum('votos as score_sum', 'tipo');
-
-        // Filtro por Título o Contenido
-        if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('titulo', 'like', '%' . $request->search . '%')
-                  ->orWhere('contenido', 'like', '%' . $request->search . '%');
-            });
-        }
-
-        // Filtro por Autor
-        if ($request->filled('autor')) {
-            $query->whereHas('user', function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->autor . '%');
-            });
-        }
-
-        // Filtro por Tags
-        if ($request->filled('tag')) {
-            $tags = (array) $request->tag;
-            foreach ($tags as $tag) {
-                $query->whereHas('tags', function ($q) use ($tag) {
-                    $q->where('name', $tag);
-                });
-            }
-        }
-
-        // Ordenación
-        if ($request->orden === 'votados') {
-            $query->orderByDesc('score_sum');
-        } else {
-            $query->orderBy('created_at', 'desc');
-        }
-
+        // Llamamos a la lógica común sin forzar un usuario
+        $query = $this->applyFiltersAndSorting($request);
+        
         $guides = $query->paginate(10)->withQueryString();
 
         if ($request->ajax()) {
@@ -58,57 +26,12 @@ class GuideListController extends Controller
     }
 
     /**
-     * Detalle de una guía específica
-     */
-    public function show($slug)
-    {
-        $guide = Guide::where('slug', $slug)
-            ->with([
-                'tags', 
-                'user', 
-                'votos', 
-                'comments.user', 
-                'comments.respuestas.user'
-            ])
-            ->firstOrFail();
-
-        return view('seccion.guideShow', compact('guide'));
-    }
-
-    /**
-     * Mis Guías (Librería personal del usuario logeado)
+     * Mis Guías (Librería personal)
      */
     public function myGuides(Request $request)
     {
-        $userId = Auth::id();
-        $orden = $request->input('orden', 'recientes');
-
-        // Usamos withSum para evitar los errores de Join y Group By
-        $query = Guide::where('guides.user_id', $userId)
-            ->with(['user', 'tags', 'votos'])
-            ->withSum('votos as score_sum', 'tipo');
-
-        // Filtro de Búsqueda (solo en mis guías)
-        if ($request->filled('search')) {
-            $query->where('guides.titulo', 'LIKE', "%{$request->search}%");
-        }
-
-        // Filtros de Tags
-        if ($request->filled('tag')) {
-            $tags = (array) $request->tag;
-            foreach ($tags as $tagName) {
-                $query->whereHas('tags', function($q) use ($tagName) {
-                    $q->where('name', $tagName);
-                });
-            }
-        }
-
-        // Ordenación corregida sin ambigüedad
-        if ($orden === 'votados') {
-            $query->orderByDesc('score_sum');
-        } else {
-            $query->orderBy('guides.created_at', 'desc');
-        }
+        // Llamamos a la misma lógica común, pero pasándole el ID del usuario
+        $query = $this->applyFiltersAndSorting($request, Auth::id());
 
         $guides = $query->paginate(10)->withQueryString();
 
@@ -117,5 +40,62 @@ class GuideListController extends Controller
         }
 
         return view('seccion.myGuides', compact('guides'));
+    }
+
+    /**
+     * MÉTODO PRIVADO: Aquí centralizamos toda la lógica de filtrado y ordenación
+     */
+    private function applyFiltersAndSorting(Request $request, $userId = null)
+    {
+        $query = Guide::with(['tags', 'user', 'votos'])
+            ->withSum('votos as score_sum', 'tipo');
+
+        // Si pasamos un userId, filtramos por dueño (para My Guides)
+        if ($userId) {
+            $query->where('guides.user_id', $userId);
+        }
+
+        // Filtro de búsqueda (Título o Contenido)
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('guides.titulo', 'like', '%' . $request->search . '%')
+                  ->orWhere('guides.contenido', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        // Filtro por Autor (solo si no estamos en My Guides)
+        if (!$userId && $request->filled('autor')) {
+            $query->whereHas('user', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->autor . '%');
+            });
+        }
+
+        // Filtro por Tags (Lógica común)
+        if ($request->filled('tag')) {
+            $tags = (array) $request->tag;
+            foreach ($tags as $tag) {
+                $query->whereHas('tags', function ($q) use ($tag) {
+                    $q->where('name', $tag);
+                });
+            }
+        }
+
+        // Lógica de Ordenación (Lógica común)
+        if ($request->orden === 'votados') {
+            $query->orderByDesc('score_sum');
+        } else {
+            $query->orderBy('guides.created_at', 'desc');
+        }
+
+        return $query;
+    }
+
+    public function show($slug)
+    {
+        $guide = Guide::where('slug', $slug)
+            ->with(['tags', 'user', 'votos', 'comments.user', 'comments.respuestas.user'])
+            ->firstOrFail();
+
+        return view('seccion.guideShow', compact('guide'));
     }
 }
