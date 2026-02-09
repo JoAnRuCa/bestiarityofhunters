@@ -5,36 +5,40 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use App\Models\SavedGuide; // Asegúrate de tener este modelo para la vista
+use App\Models\SavedGuide; 
 
 class SavedItemController extends Controller
 {
-    // Método para ver la lista de guías guardadas
+    /**
+     * Muestra la lista de guías guardadas.
+     * Vista: resources/views/seccion/savedGuides.blade.php
+     */
     public function indexGuides()
     {
         $userId = Auth::id();
         
-        // Usamos el modelo para poder usar relaciones (user, tags)
+        // Obtenemos los registros con sus relaciones
         $savedData = SavedGuide::where('user_id', $userId)
             ->with(['guide.user', 'guide.tags'])
             ->latest()
             ->paginate(10);
 
-        return view('seccion.saved-guides', compact('savedData'));
+        // Apuntamos a la carpeta 'seccion' y al archivo 'savedGuides'
+        return view('seccion.savedGuides', compact('savedData'));
     }
 
-    // Tu método toggle mejorado para ser universal
+    /**
+     * Método universal para Guardar/Quitar (Toggle)
+     */
     public function toggle($type, $id)
     {
         try {
             $userId = Auth::id();
             if (!$userId) return response()->json(['error' => 'Unauthenticated'], 401);
 
-            // Configuramos dinámicamente según el tipo
             $table = ($type === 'guide') ? 'saved_guides' : 'saved_builds';
             $foreignKey = ($type === 'guide') ? 'guide_id' : 'build_id';
 
-            // Buscamos si existe
             $query = DB::table($table)
                 ->where('user_id', $userId)
                 ->where($foreignKey, $id);
@@ -44,10 +48,9 @@ class SavedItemController extends Controller
                 return response()->json(['status' => 'removed']);
             }
 
-            // Si no existe, lo creamos
             DB::table($table)->insert([
-                'user_id' => $userId,
-                $foreignKey => $id,
+                'user_id'    => $userId,
+                $foreignKey  => $id,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

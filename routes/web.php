@@ -71,10 +71,15 @@ Route::post('/comments/store', [CommentController::class, 'store'])
     ->middleware('auth')
     ->name('comments.store');
 
-// routes/web.php
-Route::post('/save/{type}/{id}', [SavedItemController::class, 'toggle'])
-    ->name('saved.toggle')
-    ->middleware('auth');
+Route::middleware(['auth'])->group(function () {
+    // Página de Guías Guardadas
+    Route::get('/saved-guides', [SavedItemController::class, 'indexGuides'])
+        ->name('saved.guides');
+
+    // Acción Universal de Guardar (AJAX)
+    Route::post('/save/{type}/{id}', [SavedItemController::class, 'toggle'])
+        ->name('saved.toggle'); 
+});
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
