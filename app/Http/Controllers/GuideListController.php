@@ -100,18 +100,23 @@ class GuideListController extends Controller
     }
 
 
-    public function destroy($id)
-    {
-        $guide = Guide::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
-        $guide->delete();
+public function destroy($id)
+{
+    $guide = Guide::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
 
-        if (request()->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Scroll discarded successfully.'
-            ]);
-        }
+    // 1. Borramos los votos asociados primero
+    $guide->votos()->delete(); 
+    
+    // 2. Si tienes comentarios, también deberías borrarlos
+    // $guide->comments()->delete(); 
 
-        return redirect()->back()->with('status', 'Guide discarded.');
+    // 3. Ahora sí, borramos la guía
+    $guide->delete();
+
+    if (request()->ajax()) {
+        return response()->json(['success' => true]);
     }
+
+    return redirect()->back();
+}
 }
