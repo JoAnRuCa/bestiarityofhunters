@@ -1,7 +1,7 @@
 @if(!isset($only_content))
 @extends('layouts.master')
 
-@section('title', 'Saved Archives')
+@section('title', 'Saved Guides')
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 mb-20">
@@ -10,7 +10,7 @@
         {{-- Cabecera --}}
         <div class="mb-10 border-b-2 border-[#6B8E23]/20 pb-6">
             <h1 class="text-5xl font-extrabold text-[#6B8E23] uppercase tracking-tighter">
-                Saved <span class="text-[#C67C48]">Archives</span>
+                Saved <span class="text-[#C67C48]">Guides</span>
             </h1>
             <p class="text-gray-700 italic font-serif text-lg mt-2">Your personal collection of hunting scrolls and tactics.</p>
         </div>
@@ -23,7 +23,6 @@
                 :activeTags="$activeTags" 
                 :isTagActive="$isTagActive"
             >
-                {{-- Contenedor alineado: Usamos inline-flex para no romper la línea del componente padre --}}
                 <div class="flex items-center">
                     <input type="text" name="autor" placeholder="Author..." 
                            value="{{ request('autor') }}" 
@@ -44,11 +43,13 @@
                     </a>
                 </div>
             @else
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                {{-- Aumentamos el gap a 14 para separar más las guías ya que no tienen borde --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-14">
                     @foreach($savedData as $item)
                         @php $guide = $item->guide; @endphp
                         
-                        <div class="group p-6 flex justify-between items-start border border-[#6B8E23]/10 rounded-lg transition-all hover:bg-[#6B8E23]/5 relative bg-white/30">
+                        {{-- Eliminadas las clases: border, rounded-lg, hover:bg y transition --}}
+                        <div class="group p-2 flex justify-between items-start relative bg-transparent">
                             <div class="flex-1 pr-4">
                                 <h2 class="text-2xl font-bold mb-2 leading-tight">
                                     <a href="{{ route('guides.show', $guide->slug) }}" class="text-[#6B8E23] hover:text-[#C67C48] transition-colors uppercase tracking-tight font-serif">
@@ -92,7 +93,6 @@
 
 <style>
     .save-container { position: static !important; }
-    /* Ajuste forzado para que el slot del x-filter-panel se alinee con el buscador */
     form[action*="saved-guides"] .flex-wrap { align-items: center !important; }
 </style>
 @endsection
