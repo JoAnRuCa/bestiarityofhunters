@@ -16,14 +16,25 @@
             <p class="text-gray-700 italic font-serif text-lg mt-2">Your personal collection of hunting scrolls and tactics.</p>
         </div>
 
-        {{-- Panel de Filtros --}}
+{{-- Panel de Filtros --}}
         <div class="mb-12">
+            {{-- 
+               IMPORTANTE: Si el input de Autor no está dentro del componente x-filter-panel, 
+               asegúrate de que el JS 'guide-list.js' recoja los datos de este input. 
+               Lo ideal es que el componente x-filter-panel tenga un espacio para él.
+            --}}
             <x-filter-panel 
                 :action="route('saved.guides')" 
                 :allTags="$allTags" 
                 :activeTags="$activeTags" 
                 :isTagActive="$isTagActive"
-            />
+            >
+                {{-- Si tu componente permite slots, pon el input aquí. 
+                   Si no, tendrás que editar el componente x-filter-panel para incluirlo al lado del search --}}
+                <input type="text" name="autor" placeholder="Author..." 
+                       value="{{ request('autor') }}" 
+                       class="bg-white border border-[#C67C48]/30 px-4 py-2 rounded text-xs font-bold tracking-tighter text-gray-700 focus:ring-1 focus:ring-[#6B8E23] outline-none placeholder:text-gray-500 w-full md:w-auto shadow-sm">
+            </x-filter-panel>
         </div>
 
         {{-- CONTENEDOR PARA AJAX --}}
