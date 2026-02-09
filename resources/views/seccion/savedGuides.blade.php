@@ -63,7 +63,7 @@
                                 </div>
                                 <p class="text-[11px] text-[#2F2F2F] font-bold tracking-wider uppercase opacity-80">
                                     By <span class="text-[#C67C48]">{{ $guide->user->name }}</span> • 
-                                    <span class="text-gray-600">{{ $item->created_at->diffForHumans() }}</span>
+                                    <span class="text-gray-600">{{ $guide->created_at->diffForHumans() }}</span>
                                 </p>
                             </div>
 
