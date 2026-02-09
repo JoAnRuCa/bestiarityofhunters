@@ -74,9 +74,9 @@
 
                         <li><a href="{{ route('profile') }}" class="block px-4 py-2 hover:bg-gray-200">Profile</a></li>
                         <li><a href="" class="block px-4 py-2 hover:bg-gray-200">My builds</a></li>
-                        <li><a href="" class="block px-4 py-2 hover:bg-gray-200">Builds saved</a></li>
+                        <li><a href="" class="block px-4 py-2 hover:bg-gray-200">Saved builds</a></li>
                         <li><a href="" class="block px-4 py-2 hover:bg-gray-200">My guides</a></li>
-                        <li><a href="" class="block px-4 py-2 hover:bg-gray-200">Guides saved</a></li>
+                        <li><a href="{{ route('saved.guides') }}" class="block px-4 py-2 hover:bg-gray-200">Saved guides</a></li>
 
                         <li>
                             <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" 
