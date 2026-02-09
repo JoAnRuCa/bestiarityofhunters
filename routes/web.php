@@ -77,7 +77,8 @@ Route::middleware(['auth'])->group(function () {
         ->name('saved.guides');
 
     // Acción Universal de Guardar (AJAX)
-    Route::post('/save/{type}/{id}', [SavedItemController::class, 'toggle'])
+    // Cambiamos /save/ por /saved/toggle/ para que coincida con lo que pusimos en el controlador anteriormente
+    Route::post('/saved/toggle/{type}/{id}', [SavedItemController::class, 'toggle'])
         ->name('saved.toggle'); 
 });
 

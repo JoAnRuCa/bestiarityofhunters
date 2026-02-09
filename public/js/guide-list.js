@@ -3,6 +3,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('filter-form');
     const tagsInputsContainer = document.getElementById('active-tags-inputs');
 
+    // Si el wrapper no existe en la página, detenemos el script para evitar errores
+    if (!wrapper || !form) return;
+
     function getFilterUrl() {
         const formData = new FormData(form);
         const params = new URLSearchParams(formData);
@@ -20,13 +23,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (!response.ok) throw new Error('Error en la petición');
 
-            // LEEMOS COMO TEXTO (HTML), NO COMO JSON
             const html = await response.text();
 
+            // Reemplazamos el contenido del div
             wrapper.innerHTML = html;
+
+            // Actualizamos la URL en la barra del navegador
             window.history.pushState({}, '', url);
 
-            if (typeof initVotes === 'function') initVotes();
+            // --- REINICIALIZACIÓN DE COMPONENTES ---
+            // Activamos de nuevo los scripts para los elementos recién llegados
+            if (typeof initVotes === 'function') {
+                initVotes();
+            }
+
+            if (typeof initUniversalSave === 'function') {
+                initUniversalSave();
+            }
 
         } catch (e) {
             console.error("Error al cargar guías:", e);
@@ -35,7 +48,9 @@ document.addEventListener('DOMContentLoaded', function () {
         wrapper.style.opacity = '1';
     }
 
+    // Delegación de eventos para Tags y Paginación
     document.addEventListener('click', function (e) {
+        // Manejo de Tags
         const tagBtn = e.target.closest('.tag-link');
         if (tagBtn) {
             const tagName = tagBtn.getAttribute('data-tag');
@@ -62,6 +77,7 @@ document.addEventListener('DOMContentLoaded', function () {
             fetchGuides(getFilterUrl());
         }
 
+        // Manejo de Paginación
         const pageLink = e.target.closest('.pagination-ajax a');
         if (pageLink) {
             e.preventDefault();
@@ -69,6 +85,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // Manejo del Formulario (Search, Author, Order)
     form.addEventListener('submit', function (e) {
         e.preventDefault();
         fetchGuides(getFilterUrl());
