@@ -78,5 +78,32 @@ class SavedItemController extends Controller
     }
 
     // El método toggle se mantiene igual...
-    public function toggle(Request $request, $type, $id) { /* ... código anterior ... */ }
+   public function toggle(Request $request, $type, $id)
+{
+    $userId = Auth::id();
+
+    if ($type === 'guide') {
+        // 1. Verificar si ya está guardado
+        $saved = SavedGuide::where('user_id', $userId)
+                           ->where('guide_id', $id)
+                           ->first();
+
+        if ($saved) {
+            $saved->delete();
+            return response()->json(['status' => 'removed']);
+        }
+
+        // 2. Intentar crear el registro (aquí es donde saltaba el error)
+        SavedGuide::create([
+            'user_id' => $userId,
+            'guide_id' => $id
+        ]);
+
+        return response()->json(['status' => 'added']);
+    }
+
+    return response()->json(['status' => 'error'], 400);
+}
+
+    
 }
