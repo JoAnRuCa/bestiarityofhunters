@@ -63,35 +63,30 @@ Route::post('/contact', [ContactUsController::class, 'store'])->name('contact.st
 Route::get('/guides', [GuideListController::class, 'index'])->name('guides.index');
 Route::get('/guides/{slug}', [GuideListController::class, 'show'])->name('guides.show');
 
-Route::post('/votar', [VoteController::class, 'votar'])
-    ->middleware('auth')
-    ->name('votar');
-
-Route::post('/comments/store', [CommentController::class, 'store'])
-    ->middleware('auth')
-    ->name('comments.store');
 
 Route::middleware(['auth'])->group(function () {
+    Route::post('/votar', [VoteController::class, 'votar'])->name('votar');
+
+    Route::post('/comments/store', [CommentController::class, 'store'])->name('comments.store');
+    
     // Página de Guías Guardadas
     Route::get('/saved-guides', [SavedItemController::class, 'indexGuides'])
         ->name('saved.guides');
 
     // Acción Universal de Guardar (AJAX)
-    // Cambiamos /save/ por /saved/toggle/ para que coincida con lo que pusimos en el controlador anteriormente
     Route::post('/saved/toggle/{type}/{id}', [SavedItemController::class, 'toggle'])
         ->name('saved.toggle'); 
-});
 
-Route::get('/my-guides', [GuideListController::class, 'myGuides'])->name('my.guides')->middleware('auth');
-Route::delete('/guides/{id}', [GuideListController::class, 'destroy'])->name('guides.destroy')->middleware('auth');
-// Ruta para mostrar el formulario de edición
-Route::get('/guides/{id}/edit', [GuideListController::class, 'edit'])->name('guides.edit')->middleware('auth');
-// Ruta para procesar la actualización (POST/PUT)
-Route::put('/guides/{id}', [GuideListController::class, 'update'])->name('guides.update')->middleware('auth');
-Route::middleware(['auth'])->group(function () {
+    Route::get('/my-guides', [GuideListController::class, 'myGuides'])->name('my.guides');
+    Route::delete('/guides/{id}', [GuideListController::class, 'destroy'])->name('guides.destroy');
+    // Ruta para mostrar el formulario de edición
+    Route::get('/guides/{id}/edit', [GuideListController::class, 'edit'])->name('guides.edit');
+    // Ruta para procesar la actualización (POST/PUT)
+    Route::put('/guides/{id}', [GuideListController::class, 'update'])->name('guides.update');
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
+
 
 /*
 |--------------------------------------------------------------------------
