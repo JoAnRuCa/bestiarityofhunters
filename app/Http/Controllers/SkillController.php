@@ -23,7 +23,7 @@ class SkillController extends Controller
         });
     }
 
-    private function getPaginatedSkills(int $perPage = 20): LengthAwarePaginator
+    private function getPaginatedSkills(int $perPage = 18): LengthAwarePaginator
     {
         $skills = $this->loadSkills();
 

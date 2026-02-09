@@ -49,7 +49,7 @@ class CharmController extends Controller
         });
     }
 
-    private function getPaginatedRanks(int $perPage = 20): LengthAwarePaginator
+    private function getPaginatedRanks(int $perPage =18): LengthAwarePaginator
     {
         $ranks = $this->getAllRanks();
 

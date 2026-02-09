@@ -23,7 +23,7 @@ class WeaponController extends Controller
         });
     }
 
-    private function getPaginatedWeapons(int $perPage = 20): LengthAwarePaginator
+    private function getPaginatedWeapons(int $perPage = 18): LengthAwarePaginator
     {
         $weapons = $this->loadWeapons();
 

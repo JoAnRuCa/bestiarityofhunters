@@ -23,7 +23,7 @@ class ArmorController extends Controller
         });
     }
 
-    private function getPaginatedArmor(int $perPage = 20): LengthAwarePaginator
+    private function getPaginatedArmor(int $perPage = 18): LengthAwarePaginator
     {
         $armor = $this->loadArmor();
 

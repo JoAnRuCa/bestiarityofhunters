@@ -23,7 +23,7 @@ class DecorationController extends Controller
         });
     }
 
-    private function getPaginatedDecorations(int $perPage = 20): LengthAwarePaginator
+    private function getPaginatedDecorations(int $perPage = 18): LengthAwarePaginator
     {
         $decorations = $this->loadDecorations();
 
