@@ -15,11 +15,14 @@ class GuideListController extends Controller
     public function index(Request $request)
     {
         $query = $this->applyFiltersAndSorting($request);
-        
         $guides = $query->paginate(10)->withQueryString();
 
         if ($request->ajax()) {
-            return view('components.guide-grid', compact('guides'))->render();
+            // Activamos 'editable' para que el componente evalúe la autoría en cada card
+            return view('components.guide-grid', [
+                'guides' => $guides,
+                'editable' => true 
+            ])->render();
         }
 
         return view('seccion.guidesList', compact('guides'));
@@ -31,11 +34,9 @@ class GuideListController extends Controller
     public function myGuides(Request $request)
     {
         $query = $this->applyFiltersAndSorting($request, Auth::id());
-
         $guides = $query->paginate(10)->withQueryString();
 
         if ($request->ajax()) {
-            // Pasamos editable true para que el grid active los botones de gestión
             return view('components.guide-grid', [
                 'guides' => $guides,
                 'editable' => true
@@ -46,13 +47,16 @@ class GuideListController extends Controller
     }
 
     /**
-     * Muestra el formulario de edición (Ubicado en seccion/editGuide.blade.php)
+     * Muestra el formulario de edición
      */
     public function edit($id)
     {
-        $guide = Guide::where('id', $id)
-            ->where('user_id', Auth::id())
-            ->firstOrFail();
+        $guide = Guide::findOrFail($id);
+
+        // Comprobación de seguridad: Solo el dueño edita
+        if ($guide->user_id !== Auth::id()) {
+            abort(403, 'No tienes permiso para editar este contenido.');
+        }
         
         return view('seccion.editGuide', compact('guide'));
     }
@@ -60,49 +64,55 @@ class GuideListController extends Controller
     /**
      * Procesa la actualización de la guía
      */
-public function update(Request $request, $id)
-{
-    $guide = Guide::where('id', $id)
-        ->where('user_id', Auth::id())
-        ->firstOrFail();
-    
-    $validated = $request->validate([
-        'titulo' => 'required|string|max:255',
-        'contenido' => 'required|string',
-        'tags' => 'nullable|array', // Validamos que los tags sean un array
-    ]);
+    public function update(Request $request, $id)
+    {
+        $guide = Guide::findOrFail($id);
 
-    // 1. Actualizamos los datos básicos
-    $guide->titulo = $validated['titulo'];
-    $guide->contenido = $validated['contenido'];
-    $guide->slug = Str::slug($validated['titulo']);
-    $guide->save();
+        // Comprobación de seguridad
+        if ($guide->user_id !== Auth::id()) {
+            abort(403, 'Acción no autorizada.');
+        }
+        
+        $validated = $request->validate([
+            'titulo' => 'required|string|max:255',
+            'contenido' => 'required|string',
+            'tags' => 'nullable|array',
+        ]);
 
-    // 2. Sincronizamos los tags (ESTO ES LO QUE FALTA)
-    // sync() borra los tags viejos y añade los nuevos en la tabla intermedia automáticamente
-    if ($request->has('tags')) {
-        $guide->tags()->sync($request->tags);
-    } else {
-        // Si el usuario desmarca todos los tags, vaciamos la relación
-        $guide->tags()->detach();
+        // 1. Datos básicos y slug
+        $guide->titulo = $validated['titulo'];
+        $guide->contenido = $validated['contenido'];
+        $guide->slug = Str::slug($validated['titulo']);
+        $guide->save();
+
+        // 2. Sincronización de Tags (Relación Many-to-Many)
+        if ($request->has('tags')) {
+            $guide->tags()->sync($request->tags);
+        } else {
+            $guide->tags()->detach();
+        }
+
+        return redirect()->route('my.guides')->with('success', 'Scroll updated successfully.');
     }
 
-    return redirect()->route('my.guides')->with('success', 'Scroll updated successfully.');
-}
-
     /**
-     * Elimina la guía y sus relaciones (AJAX compatible)
+     * Elimina la guía y sus relaciones
      */
     public function destroy($id)
     {
-        $guide = Guide::where('id', $id)
-            ->where('user_id', Auth::id())
-            ->firstOrFail();
+        $guide = Guide::findOrFail($id);
 
-        // Limpiamos relaciones para evitar errores de Foreign Key (SQLState 23000)
+        // Comprobación de seguridad (Soporte para AJAX)
+        if ($guide->user_id !== Auth::id()) {
+            if (request()->ajax()) {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            }
+            abort(403);
+        }
+
+        // Limpieza de relaciones para evitar errores de integridad
         $guide->votos()->delete(); 
         
-        // Si usas etiquetas con tabla pivote, las desvinculamos
         if (method_exists($guide, 'tags')) {
             $guide->tags()->detach();
         }
@@ -129,7 +139,7 @@ public function update(Request $request, $id)
     }
 
     /**
-     * MÉTODO PRIVADO: Centraliza la lógica de filtrado y ordenación
+     * Lógica de filtrado y ordenación
      */
     private function applyFiltersAndSorting(Request $request, $userId = null)
     {

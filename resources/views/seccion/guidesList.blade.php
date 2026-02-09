@@ -24,7 +24,8 @@
 
         {{-- CONTENEDOR DE RESULTADOS --}}
         <div id="guides-wrapper" class="transition-opacity duration-300">
-            <x-guide-grid :guides="$guides" />
+            {{-- Añadimos :editable="true" --}}
+            <x-guide-grid :guides="$guides" :editable="true" />
         </div>
     </div>
     @endsection
