@@ -7,18 +7,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\SavedGuide;
 use App\Models\Tag;
-use App\Models\Guide; // Asegúrate de importar el modelo Guide
+use App\Models\Guide;
 
 class SavedItemController extends Controller
 {
-    public function __construct()
-    {
+    public function __construct() {
         $this->middleware('auth');
     }
 
-    /**
-     * Listado de guías guardadas con filtros y AJAX
-     */
     public function indexGuides(Request $request)
     {
         $userId = Auth::id();
@@ -26,12 +22,22 @@ class SavedItemController extends Controller
         $activeTags = $request->input('tag', []);
         $orden = $request->input('orden', 'recientes');
         $search = $request->input('search');
-        $autor = $request->input('autor'); // Capturamos el nuevo campo
+        $autor = $request->input('autor');
 
-        $query = SavedGuide::where('user_id', $userId)
-            ->with(['guide.user', 'guide.tags', 'guide.votos']);
+        // Iniciamos la consulta base
+        $query = SavedGuide::where('saved_guides.user_id', $userId);
 
-        // Filtro por Tags
+        // --- FILTROS (Búsqueda y Autor) ---
+        if ($request->filled('search') || $request->filled('autor')) {
+            $query->whereHas('guide', function($q) use ($search, $autor) {
+                if ($search) $q->where('titulo', 'LIKE', '%' . $search . '%');
+                if ($autor) $q->whereHas('user', function($u) use ($autor) {
+                    $u->where('name', 'LIKE', '%' . $autor . '%');
+                });
+            });
+        }
+
+        // --- FILTRO: Tags ---
         if (!empty($activeTags)) {
             foreach ($activeTags as $tagName) {
                 $query->whereHas('guide.tags', function($q) use ($tagName) {
@@ -40,38 +46,27 @@ class SavedItemController extends Controller
             }
         }
 
-        // Filtro por Búsqueda (Título)
-        if ($request->filled('search')) {
-            $query->whereHas('guide', function($q) use ($search) {
-                $q->where('titulo', 'LIKE', '%' . $search . '%');
-            });
-        }
-
-        // --- NUEVO: Filtro por Autor ---
-        if ($request->filled('autor')) {
-            $query->whereHas('guide.user', function($q) use ($autor) {
-                $q->where('name', 'LIKE', '%' . $autor . '%');
-            });
-        }
-
-        // Ordenación
+        // --- LÓGICA DE ORDENACIÓN (CORREGIDA) ---
         if ($orden === 'votados') {
-            $query->whereHas('guide', function($q) {
-                $q->withCount(['votos as total_score' => function($sq) {
-                    $sq->select(DB::raw('sum(tipo)'));
-                }])->orderBy('total_score', 'desc');
-            });
+            $query->join('guides', 'saved_guides.guide_id', '=', 'guides.id')
+                ->leftJoin('guides_votes', 'guides.id', '=', 'guides_votes.guide_id')
+                ->select('saved_guides.*') // Solo queremos los datos del guardado
+                ->addSelect(DB::raw('IFNULL(SUM(guides_votes.tipo), 0) as total_points'))
+                ->groupBy('saved_guides.id', 'saved_guides.user_id', 'saved_guides.guide_id', 'saved_guides.created_at', 'saved_guides.updated_at')
+                ->orderBy('total_points', 'desc');
         } else {
-            $query->latest();
+            // "Most Recent": Forzamos que use la fecha de la tabla saved_guides
+            // Quitamos cualquier select previo para evitar errores de duplicidad
+            $query->select('saved_guides.*')->orderBy('saved_guides.created_at', 'desc');
         }
 
-        $savedData = $query->paginate(10);
+        // Cargamos las relaciones después de filtrar y ordenar para optimizar
+        $savedData = $query->with(['guide.user', 'guide.tags', 'guide.votos'])->paginate(10);
 
         $isTagActive = function ($tagName) use ($activeTags) {
             return in_array($tagName, $activeTags);
         };
 
-        // Respuesta para AJAX y carga normal (Compatible Laravel 8)
         if ($request->ajax()) {
             return view('seccion.savedGuides', compact('savedData', 'allTags', 'activeTags', 'isTagActive'))
                 ->with('only_content', true);
@@ -80,35 +75,18 @@ class SavedItemController extends Controller
         return view('seccion.savedGuides', compact('savedData', 'allTags', 'activeTags', 'isTagActive'));
     }
 
-    /**
-     * MÉTODO TOGGLE: Para guardar/eliminar guías
-     * Soluciona el error: Method toggle does not exist
-     */
     public function toggle(Request $request, $type, $id)
     {
         $userId = Auth::id();
-
         if ($type === 'guide') {
-            // Buscamos si ya está guardada
-            $saved = SavedGuide::where('user_id', $userId)
-                               ->where('guide_id', $id)
-                               ->first();
-
+            $saved = SavedGuide::where('user_id', $userId)->where('guide_id', $id)->first();
             if ($saved) {
                 $saved->delete();
                 return response()->json(['status' => 'removed']);
             }
-
-            // Si no existe, la creamos
-            SavedGuide::create([
-                'user_id' => $userId,
-                'guide_id' => $id
-            ]);
-
+            SavedGuide::create(['user_id' => $userId, 'guide_id' => $id]);
             return response()->json(['status' => 'added']);
         }
-
-        // Para futuros SavedBuilds añadirías el 'else if' aquí
-        return response()->json(['status' => 'error', 'message' => 'Type not supported'], 400);
+        return response()->json(['status' => 'error'], 400);
     }
 }
