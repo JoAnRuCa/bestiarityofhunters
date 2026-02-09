@@ -4,14 +4,19 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Guide;
+use Illuminate\Support\Facades\Auth;
 
 class GuideListController extends Controller
 {
+    /**
+     * Lista general de guías
+     */
     public function index(Request $request)
     {
         $query = Guide::with(['tags', 'user', 'votos'])
             ->withSum('votos as score_sum', 'tipo');
 
+        // Filtro por Título o Contenido
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('titulo', 'like', '%' . $request->search . '%')
@@ -19,12 +24,14 @@ class GuideListController extends Controller
             });
         }
 
+        // Filtro por Autor
         if ($request->filled('autor')) {
             $query->whereHas('user', function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->autor . '%');
             });
         }
 
+        // Filtro por Tags
         if ($request->filled('tag')) {
             $tags = (array) $request->tag;
             foreach ($tags as $tag) {
@@ -34,6 +41,7 @@ class GuideListController extends Controller
             }
         }
 
+        // Ordenación
         if ($request->orden === 'votados') {
             $query->orderByDesc('score_sum');
         } else {
@@ -42,7 +50,6 @@ class GuideListController extends Controller
 
         $guides = $query->paginate(10)->withQueryString();
 
-        // SI ES AJAX: Devolvemos el componente renderizado como HTML
         if ($request->ajax()) {
             return view('components.guide-grid', compact('guides'))->render();
         }
@@ -50,6 +57,9 @@ class GuideListController extends Controller
         return view('seccion.guidesList', compact('guides'));
     }
 
+    /**
+     * Detalle de una guía específica
+     */
     public function show($slug)
     {
         $guide = Guide::where('slug', $slug)
@@ -65,30 +75,47 @@ class GuideListController extends Controller
         return view('seccion.guideShow', compact('guide'));
     }
 
+    /**
+     * Mis Guías (Librería personal del usuario logeado)
+     */
     public function myGuides(Request $request)
-{
-    $query = Guide::where('user_id', auth()->id()); // Filtro clave: Solo mis guías
+    {
+        $userId = Auth::id();
+        $orden = $request->input('orden', 'recientes');
 
-    // Filtros de búsqueda y tags (opcional, por si quieres buscar entre tus propias guías)
-    if ($request->has('search')) {
-        $query->where('titulo', 'like', '%' . $request->search . '%');
-    }
+        // Usamos withSum para evitar los errores de Join y Group By
+        $query = Guide::where('guides.user_id', $userId)
+            ->with(['user', 'tags', 'votos'])
+            ->withSum('votos as score_sum', 'tipo');
 
-    if ($request->has('tag')) {
-        $activeTags = $request->input('tag');
-        foreach ($activeTags as $tagName) {
-            $query->whereHas('tags', function($q) use ($tagName) {
-                $q->where('name', $tagName);
-            });
+        // Filtro de Búsqueda (solo en mis guías)
+        if ($request->filled('search')) {
+            $query->where('guides.titulo', 'LIKE', "%{$request->search}%");
         }
+
+        // Filtros de Tags
+        if ($request->filled('tag')) {
+            $tags = (array) $request->tag;
+            foreach ($tags as $tagName) {
+                $query->whereHas('tags', function($q) use ($tagName) {
+                    $q->where('name', $tagName);
+                });
+            }
+        }
+
+        // Ordenación corregida sin ambigüedad
+        if ($orden === 'votados') {
+            $query->orderByDesc('score_sum');
+        } else {
+            $query->orderBy('guides.created_at', 'desc');
+        }
+
+        $guides = $query->paginate(10)->withQueryString();
+
+        if ($request->ajax()) {
+            return view('components.guide-grid', compact('guides'))->render();
+        }
+
+        return view('seccion.myGuides', compact('guides'));
     }
-
-    $guides = $query->latest()->paginate(10);
-
-    if ($request->ajax()) {
-        return view('components.guide-grid', compact('guides'))->render();
-    }
-
-    return view('seccion.myGuides', compact('guides'));
-}
 }
