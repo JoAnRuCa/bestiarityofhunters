@@ -4,7 +4,7 @@
 @section('title', 'Saved Guides')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 mb-20">
+<div class="w-[90%] md:w-[60%] max-w-6xl mx-auto mt-12 mb-20">
     <div class="bg-[#F4EBD0] rounded-xl shadow-2xl border border-[#6B8E23]/30 overflow-hidden p-8 md:p-12">
         
         {{-- Cabecera --}}
