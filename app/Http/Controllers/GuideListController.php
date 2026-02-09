@@ -98,4 +98,20 @@ class GuideListController extends Controller
 
         return view('seccion.guideShow', compact('guide'));
     }
+
+
+    public function destroy($id)
+    {
+        $guide = Guide::where('id', $id)->where('user_id', auth()->id())->firstOrFail();
+        $guide->delete();
+
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Scroll discarded successfully.'
+            ]);
+        }
+
+        return redirect()->back()->with('status', 'Guide discarded.');
+    }
 }

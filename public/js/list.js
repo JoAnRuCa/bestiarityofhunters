@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Intentamos encontrar el contenedor de resultados (soporta guías o builds)
+    // Contenedor de resultados (Guías o Builds)
     const wrapper = document.getElementById('guides-wrapper') ||
         document.getElementById('builds-wrapper') ||
         document.querySelector('.results-container');
@@ -7,16 +7,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('filter-form');
     const tagsInputsContainer = document.getElementById('active-tags-inputs');
 
-    // Si no hay contenedor o formulario, el script se desactiva silenciosamente
     if (!wrapper || !form) return;
 
     /**
-     * Construye la URL con todos los filtros actuales
+     * Construye la URL con filtros
      */
     function getFilterUrl() {
         const formData = new FormData(form);
         const params = new URLSearchParams(formData);
-        // Filtramos parámetros vacíos para limpiar la URL
         for (const [key, value] of [...params.entries()]) {
             if (!value) params.delete(key);
         }
@@ -24,31 +22,25 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     /**
-     * Realiza la petición AJAX y actualiza el DOM
+     * Petición AJAX principal
      */
     async function fetchContent(url) {
         wrapper.style.opacity = '0.5';
-        wrapper.style.pointerEvents = 'none'; // Evita clics dobles mientras carga
+        wrapper.style.pointerEvents = 'none';
 
         try {
             const response = await fetch(url, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
             });
 
             if (!response.ok) throw new Error('Network response was not ok');
 
             const html = await response.text();
-
-            // Actualizamos el contenido
             wrapper.innerHTML = html;
 
-            // Sincronizamos la URL en el navegador
             window.history.pushState({ path: url }, '', url);
 
-            // --- REINICIALIZACIÓN ---
-            // Esto es vital para que los botones de votar/guardar funcionen en el nuevo HTML
+            // Reinicializar otros componentes
             if (typeof initVotes === 'function') initVotes();
             if (typeof initUniversalSave === 'function') initUniversalSave();
 
@@ -66,10 +58,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // --- DELEGACIÓN DE EVENTOS ---
+    // --- DELEGACIÓN DE EVENTOS (CLICK) ---
     document.addEventListener('click', function (e) {
-
-        // 1. Manejo de Tags (dentro del panel de filtros)
+        // 1. Manejo de Tags
         const tagBtn = e.target.closest('.tag-link');
         if (tagBtn) {
             e.preventDefault();
@@ -77,19 +68,15 @@ document.addEventListener('DOMContentLoaded', function () {
             const isActive = tagBtn.getAttribute('data-active') === 'true';
 
             if (isActive) {
-                // Desactivar
                 tagBtn.classList.remove('bg-[#C67C48]', 'text-white');
                 tagBtn.classList.add('bg-transparent', 'text-[#C67C48]');
                 tagBtn.setAttribute('data-active', 'false');
-
                 const input = tagsInputsContainer.querySelector(`input[value="${tagName}"]`);
                 if (input) input.remove();
             } else {
-                // Activar
                 tagBtn.classList.remove('bg-transparent', 'text-[#C67C48]');
                 tagBtn.classList.add('bg-[#C67C48]', 'text-white');
                 tagBtn.setAttribute('data-active', 'true');
-
                 const newInput = document.createElement('input');
                 newInput.type = 'hidden';
                 newInput.name = 'tag[]';
@@ -99,26 +86,71 @@ document.addEventListener('DOMContentLoaded', function () {
             fetchContent(getFilterUrl());
         }
 
-        // 2. Manejo de Paginación AJAX
+        // 2. Manejo de Paginación
         const pageLink = e.target.closest('.pagination-ajax a');
         if (pageLink) {
             e.preventDefault();
             fetchContent(pageLink.href);
-            // Scroll suave hacia arriba para que el usuario vea los nuevos resultados
             wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     });
 
-    // 3. Manejo de Inputs (Search, Autor, Orden)
-    // Escuchamos el cambio en el selector de orden y el submit del buscador
-    form.addEventListener('change', function (e) {
-        if (e.target.name === 'orden') {
-            fetchContent(getFilterUrl());
+    // --- MANEJO DE ELIMINACIÓN AJAX ---
+    document.addEventListener('submit', async function (e) {
+        const deleteForm = e.target.closest('.delete-form-ajax');
+
+        // Si es el formulario de filtros, dejamos que lo maneje el listener de abajo
+        if (!deleteForm) return;
+
+        e.preventDefault();
+        if (!confirm('Do you want to discard this scroll forever?')) return;
+
+        const url = deleteForm.action;
+        const formData = new FormData(deleteForm);
+        const itemContainer = deleteForm.closest('.group'); // Busca el contenedor de la card
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST', // Laravel usa POST + _method DELETE
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Animación de salida
+                itemContainer.style.transition = 'all 0.4s ease';
+                itemContainer.style.opacity = '0';
+                itemContainer.style.transform = 'scale(0.95)';
+
+                setTimeout(() => {
+                    itemContainer.remove();
+                    // Si ya no quedan elementos, recargamos filtros o mostramos mensaje vacío
+                    if (wrapper.querySelectorAll('.group').length === 0) {
+                        wrapper.innerHTML = `
+                            <div class="py-12 text-center">
+                                <p class="text-gray-600 italic font-serif text-lg">Your library is currently empty.</p>
+                            </div>
+                        `;
+                    }
+                }, 400);
+            }
+        } catch (error) {
+            console.error('Delete Error:', error);
+            alert('Could not discard the item.');
         }
     });
 
+    // --- FORMULARIO DE FILTROS ---
+    form.addEventListener('change', function (e) {
+        if (e.target.name === 'orden') fetchContent(getFilterUrl());
+    });
+
     form.addEventListener('submit', function (e) {
-        e.preventDefault();
-        fetchContent(getFilterUrl());
+        if (e.target.id === 'filter-form') {
+            e.preventDefault();
+            fetchContent(getFilterUrl());
+        }
     });
 });

@@ -7,11 +7,16 @@ use Illuminate\View\Component;
 class GuideGrid extends Component
 {
     public $guides;
+    public $editable;
 
-    public function __construct($guides)
+    /**
+     * @param $guides
+     * @param bool $editable (Por defecto false para que no salga el botón en la lista general)
+     */
+    public function __construct($guides, $editable = false)
     {
-        // Recibimos las guías desde la vista principal
         $this->guides = $guides;
+        $this->editable = $editable;
     }
 
     public function render()

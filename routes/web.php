@@ -83,6 +83,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::get('/my-guides', [GuideListController::class, 'myGuides'])->name('my.guides')->middleware('auth');
+Route::delete('/guides/{id}', [GuideListController::class, 'destroy'])->name('guides.destroy')->middleware('auth');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
