@@ -64,4 +64,31 @@ class GuideListController extends Controller
 
         return view('seccion.guideShow', compact('guide'));
     }
+
+    public function myGuides(Request $request)
+{
+    $query = Guide::where('user_id', auth()->id()); // Filtro clave: Solo mis guías
+
+    // Filtros de búsqueda y tags (opcional, por si quieres buscar entre tus propias guías)
+    if ($request->has('search')) {
+        $query->where('titulo', 'like', '%' . $request->search . '%');
+    }
+
+    if ($request->has('tag')) {
+        $activeTags = $request->input('tag');
+        foreach ($activeTags as $tagName) {
+            $query->whereHas('tags', function($q) use ($tagName) {
+                $q->where('name', $tagName);
+            });
+        }
+    }
+
+    $guides = $query->latest()->paginate(10);
+
+    if ($request->ajax()) {
+        return view('components.guide-grid', compact('guides'))->render();
+    }
+
+    return view('seccion.myGuides', compact('guides'));
+}
 }

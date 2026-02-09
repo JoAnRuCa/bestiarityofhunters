@@ -82,6 +82,8 @@ Route::middleware(['auth'])->group(function () {
         ->name('saved.toggle'); 
 });
 
+Route::get('/my-guides', [GuideListController::class, 'myGuides'])->name('my.guides')->middleware('auth');
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
