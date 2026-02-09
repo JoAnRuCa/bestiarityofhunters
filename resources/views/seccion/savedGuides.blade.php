@@ -62,9 +62,9 @@
                                         <span class="px-2 py-0.5 bg-[#C67C48] text-white text-[10px] font-bold uppercase rounded shadow-sm">{{ $tag->name }}</span>
                                     @endforeach
                                 </div>
-                                <p class="text-[11px] text-[#2F2F2F] font-bold tracking-wider uppercase opacity-80">
+                                <p class="text-[11px] text-[#2F2F2F] font-bold tracking-wider opacity-80">
                                     By <span class="text-[#C67C48]">{{ $guide->user->name }}</span> • 
-                                    <span class="text-gray-600">{{ $guide->created_at->diffForHumans() }}</span>
+                                    <span class="text-[#2F2F2F]">{{ $guide->created_at->diffForHumans() }}</span>
                                 </p>
                             </div>
 
