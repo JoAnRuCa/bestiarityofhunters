@@ -3,7 +3,6 @@
 @else
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         @foreach($guides as $guide)
-            {{-- La clase 'group' permite que el JS identifique este contenedor para borrarlo con AJAX --}}
             <div class="group p-6 bg-transparent flex justify-between items-start border-b border-[#6B8E23]/10 md:border md:border-[#6B8E23]/5 md:rounded-lg transition-all hover:bg-[#6B8E23]/5">
                 
                 <div class="flex-1 pr-4">
@@ -27,24 +26,23 @@
                         <p class="text-[11px] text-[#2F2F2F] font-medium tracking-wider">
                             By <span class="text-[#C67C48]">{{ $guide->user->name }}</span> • {{ $guide->created_at->diffForHumans() }}
                         </p>
-
-                        {{-- Botón de borrar: solo aparece si pasas editable="true" desde la vista 'My Guides' --}}
-                        @if(isset($editable) && $editable && auth()->id() === $guide->user_id)
-                            <div class="ml-4">
-                                <x-delete-button :action="route('guides.destroy', $guide->id)" :id="$guide->id" />
-                            </div>
-                        @endif
                     </div>
                 </div>
 
-                <div class="pt-1 flex flex-col items-center gap-4">
+                {{-- Columna de Interacción: Votos y debajo el botón de borrar --}}
+                <div class="pt-1 flex flex-col items-center gap-4 min-w-[50px]">
                     <x-vote-block :item="$guide" type="guide" />
+
+                    @if(isset($editable) && $editable && auth()->id() === $guide->user_id)
+                        <div class="opacity-60 hover:opacity-100 transition-opacity duration-300">
+                            <x-delete-button :action="route('guides.destroy', $guide->id)" :id="$guide->id" />
+                        </div>
+                    @endif
                 </div>
             </div>
         @endforeach
     </div>
 
-    {{-- Contenedor para que la paginación funcione con el JS universal --}}
     <div class="mt-12 pagination-ajax">
         {{ $guides->links() }}
     </div>
