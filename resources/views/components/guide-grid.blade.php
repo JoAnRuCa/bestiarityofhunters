@@ -29,12 +29,18 @@
                     </div>
                 </div>
 
-                {{-- Columna de Interacción: Votos y debajo el botón de borrar --}}
-                <div class="pt-1 flex flex-col items-center gap-4 min-w-[50px]">
+                {{-- Columna de Interacción --}}
+                <div class="pt-1 flex flex-col items-center gap-4 min-w-[80px]">
+                    {{-- Bloque de Votos --}}
                     <x-vote-block :item="$guide" type="guide" />
 
+                    {{-- Acciones del Propietario --}}
                     @if(isset($editable) && $editable && auth()->id() === $guide->user_id)
-                        <div class="opacity-60 hover:opacity-100 transition-opacity duration-300">
+                        <div class="flex flex-row items-center justify-center gap-2 opacity-60 hover:opacity-100 transition-opacity duration-300">
+                            {{-- Botón Editar (A la izquierda) --}}
+                            <x-edit-button :url="route('guides.edit', $guide->id)" :editable="$editable" />
+
+                            {{-- Botón Borrar (A la derecha) --}}
                             <x-delete-button :action="route('guides.destroy', $guide->id)" :id="$guide->id" />
                         </div>
                     @endif

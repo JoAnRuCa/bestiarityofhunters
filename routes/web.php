@@ -84,7 +84,10 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('/my-guides', [GuideListController::class, 'myGuides'])->name('my.guides')->middleware('auth');
 Route::delete('/guides/{id}', [GuideListController::class, 'destroy'])->name('guides.destroy')->middleware('auth');
-
+// Ruta para mostrar el formulario de edición
+Route::get('/guides/{id}/edit', [GuideListController::class, 'edit'])->name('guides.edit')->middleware('auth');
+// Ruta para procesar la actualización (POST/PUT)
+Route::put('/guides/{id}', [GuideListController::class, 'update'])->name('guides.update')->middleware('auth');
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
