@@ -71,8 +71,9 @@ Route::post('/comments/store', [CommentController::class, 'store'])
     ->middleware('auth')
     ->name('comments.store');
 
+// routes/web.php
 Route::post('/save/{type}/{id}', [SavedItemController::class, 'toggle'])
-    ->name('item.save')
+    ->name('saved.toggle')
     ->middleware('auth');
 
 Route::middleware(['auth'])->group(function () {

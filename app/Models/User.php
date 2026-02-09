@@ -47,4 +47,10 @@ class User extends Authenticatable
         return $this->hasMany(GuidesVote::class);
     }
 
+    public function savedGuides()
+    {
+        // Relación a través del modelo SavedGuide
+        return $this->hasMany(SavedGuide::class);
+    }
+
 }

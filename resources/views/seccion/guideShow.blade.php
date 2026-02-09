@@ -4,27 +4,26 @@
 @section('content')
 <div class="flex flex-col gap-10 mt-12 mb-12">
     
-{{-- BLOQUE 1: LA GUÍA --}}
-<div class="relative w-[90%] md:w-[60%] max-w-4xl mx-auto p-8 bg-[#F4EBD0] rounded-lg shadow-lg border border-[#6B8E23]/10">
-    
-    <x-save-button :id="$guide->id" type="guide" />
-
-    {{-- Cambiamos 'items-start' por 'items-center' para centrar el título con los votos --}}
-    <div class="flex items-center gap-6 mb-6 border-b pb-4 border-[#6B8E23]/20">
-        <div class="flex-shrink-0">
-            <x-vote-block :item="$guide" type="guide" />
-        </div>
+    {{-- BLOQUE 1: LA GUÍA --}}
+    <div class="relative w-[90%] md:w-[60%] max-w-4xl mx-auto p-8 bg-[#F4EBD0] rounded-lg shadow-lg border border-[#6B8E23]/10">
         
-        {{-- Mantenemos el padding derecho para el botón de guardado --}}
-        <h1 class="text-4xl md:text-5xl font-extrabold text-[#6B8E23] pr-32 leading-tight">
-            {{ $guide->titulo }}
-        </h1>
-    </div>
+        {{-- Llamada al componente universal --}}
+        <x-save-button :id="$guide->id" type="guide" />
 
-    <div class="prose max-w-none text-gray-900 leading-relaxed mb-4">
-        {!! nl2br(e($guide->contenido)) !!}
+        <div class="flex items-center gap-6 mb-6 border-b pb-4 border-[#6B8E23]/20">
+            <div class="flex-shrink-0">
+                <x-vote-block :item="$guide" type="guide" />
+            </div>
+            
+            <h1 class="text-4xl md:text-5xl font-extrabold text-[#6B8E23] pr-32 leading-tight">
+                {{ $guide->titulo }}
+            </h1>
+        </div>
+
+        <div class="prose max-w-none text-gray-900 leading-relaxed mb-4">
+            {!! nl2br(e($guide->contenido)) !!}
+        </div>
     </div>
-</div>
 
     {{-- BLOQUE 2: COMENTARIOS --}}
     <div class="w-[90%] md:w-[60%] max-w-4xl mx-auto p-8 bg-[#F4EBD0] rounded-lg shadow-lg border border-[#6B8E23]/10">

@@ -18,14 +18,18 @@ class SaveButton extends Component
     {
         $this->id = $id;
         $this->type = $type;
-        $this->url = route('item.save', ['type' => $type, 'id' => $id]);
+        // Apunta a la nueva ruta universal: /saved/toggle/{type}/{id}
+        $this->url = route('saved.toggle', ['type' => $type, 'id' => $id]);
         $this->shouldShow = Auth::check();
 
         if ($this->shouldShow) {
-            // Comprobamos si el registro existe en la tabla correspondiente
-            $this->isSaved = DB::table('saved_guides')
+            // Dinamismo según el tipo (guide o build)
+            $table = ($type === 'guide') ? 'saved_guides' : 'saved_builds';
+            $foreignKey = ($type === 'guide') ? 'guide_id' : 'build_id';
+
+            $this->isSaved = DB::table($table)
                 ->where('user_id', Auth::id())
-                ->where('guide_id', $id)
+                ->where($foreignKey, $id)
                 ->exists();
         }
     }
