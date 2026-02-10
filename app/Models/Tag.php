@@ -12,4 +12,9 @@ class Tag extends Model
     {
         return $this->belongsToMany(Guide::class, 'guide_tags');
     }
+
+    public function builds()
+    {
+        return $this->belongsToMany(Build::class, 'build_tags');
+    }
 }
