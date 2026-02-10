@@ -52,7 +52,7 @@
                         <div class="group p-2 flex justify-between items-start relative bg-transparent">
                             <div class="flex-1 pr-4">
                                 <h2 class="text-2xl font-bold mb-2 leading-tight">
-                                    <a href="{{ route('guides.show', $guide->slug) }}" class="text-[#6B8E23] hover:text-[#C67C48] transition-colors uppercase tracking-tight font-serif">
+                                    <a href="{{ route('guides.show', $guide->slug) }}" class="text-[#6B8E23] hover:text-[#C67C48] transition-colors tracking-tight font-serif">
                                         {{ $guide->titulo }}
                                     </a>
                                 </h2>
