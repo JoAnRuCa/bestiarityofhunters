@@ -43,13 +43,13 @@
                     </a>
                 </div>
             @else
-                {{-- Aumentamos el gap a 14 para separar más las guías ya que no tienen borde --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-14">
                     @foreach($savedData as $item)
                         @php $guide = $item->guide; @endphp
                         
-                        {{-- Eliminadas las clases: border, rounded-lg, hover:bg y transition --}}
-                        <div class="group p-2 flex justify-between items-start relative bg-transparent">
+                        {{-- ID CRUCIAL PARA borrar.js --}}
+                        <div id="guide-card-{{ $guide->id }}" class="group p-2 flex justify-between items-start relative bg-transparent transition-all duration-300">
+                            
                             <div class="flex-1 pr-4">
                                 <h2 class="text-2xl font-bold mb-2 leading-tight">
                                     <a href="{{ route('guides.show', $guide->slug) }}" class="text-[#6B8E23] hover:text-[#C67C48] transition-colors tracking-tight font-serif">
@@ -57,27 +57,40 @@
                                     </a>
                                 </h2>
                                 <p class="text-gray-800 mb-4 leading-snug text-sm font-medium">{{ Str::limit($guide->contenido, 120) }}</p>
+                                
                                 <div class="flex flex-wrap gap-2 mb-4">
                                     @foreach($guide->tags as $tag)
                                         <span class="px-2 py-0.5 bg-[#C67C48] text-white text-[10px] font-bold uppercase rounded shadow-sm">{{ $tag->name }}</span>
                                     @endforeach
                                 </div>
+                                
                                 <p class="text-[11px] text-[#2F2F2F] font-bold tracking-wider opacity-80">
                                     By <span class="text-[#C67C48]">{{ $guide->user->name }}</span> • 
                                     <span class="text-[#2F2F2F]">{{ $guide->created_at->diffForHumans() }}</span>
                                 </p>
                             </div>
 
-                            <div class="flex flex-col items-center gap-6 min-w-[60px]">
-                                <div class="save-container">
-                                    <button type="button" class="save-btn flex items-center justify-center w-10 h-10 rounded-full bg-[#6B8E23] text-[#2F2F2F] shadow-sm transition-all hover:scale-110"
-                                            data-url="{{ route('saved.toggle', ['type' => 'guide', 'id' => $guide->id]) }}" data-type="guide">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" /></svg>
-                                    </button>
+                            <div class="flex flex-col items-end gap-6 min-w-[80px]">
+                                {{-- Controles: Guardar y Votar --}}
+                                <div class="flex flex-col items-center gap-4">
+                                    <div class="save-container">
+                                        <button type="button" class="save-btn flex items-center justify-center w-10 h-10 rounded-full bg-[#6B8E23] text-[#2F2F2F] shadow-sm transition-all hover:scale-110"
+                                                data-url="{{ route('saved.toggle', ['type' => 'guide', 'id' => $guide->id]) }}" data-type="guide">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" /></svg>
+                                        </button>
+                                    </div>
+                                    <div class="transform scale-90">
+                                        <x-vote-block :item="$guide" type="guide" />
+                                    </div>
                                 </div>
-                                <div class="transform scale-90">
-                                    <x-vote-block :item="$guide" type="guide" />
-                                </div>
+
+                                {{-- ACCIONES DE PROPIETARIO: Solo aparecen si la guía es tuya --}}
+                                @if(auth()->check() && auth()->id() === $guide->user_id)
+                                    <div class="flex flex-row items-center justify-end gap-2 w-full mt-auto pt-2 border-t border-[#6B8E23]/10">
+                                        <x-edit-button :url="route('guides.edit', $guide->id)" :editable="true" />
+                                        <x-delete-button :action="route('guides.destroy', $guide->id)" :id="$guide->id" />
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     @endforeach
@@ -93,7 +106,8 @@
 
 <style>
     .save-container { position: static !important; }
-    form[action*="saved-guides"] .flex-wrap { align-items: center !important; }
+    /* Ajuste para que los botones de editar/borrar no rompan el layout si el título es muy largo */
+    [id^="guide-card-"] { min-height: 180px; }
 </style>
 @endsection
 
