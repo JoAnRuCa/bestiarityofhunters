@@ -53,5 +53,6 @@
         <script src="{{ asset('js/universal-save.js') }}"></script>
         {{-- list.js ahora contiene la lógica de filtros y el borrado AJAX --}}
         <script src="{{ asset('js/list.js') }}"></script>
+        <script src="{{ asset('js/borrar.js') }}"></script>
     @endsection
 @endif

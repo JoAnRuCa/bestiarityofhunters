@@ -17,7 +17,6 @@
             </svg>
         </button>
 
-        {{-- Tooltip: Reacciona solo al hover del botón --}}
         <span class="absolute -top-10 left-1/2 -translate-x-1/2 bg-[#2F2F2F] text-white text-[10px] 
                      px-2 py-1 rounded pointer-events-none uppercase font-bold whitespace-nowrap shadow-md z-50
                      opacity-0 scale-95 peer-hover:opacity-100 peer-hover:scale-100 transition-all duration-200">

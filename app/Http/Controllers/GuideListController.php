@@ -98,34 +98,51 @@ class GuideListController extends Controller
     /**
      * Elimina la guía y sus relaciones
      */
-    public function destroy($id)
-    {
-        $guide = Guide::findOrFail($id);
+   /**
+ * Elimina la guía y sus relaciones
+ */
+public function destroy($id)
+{
+    $guide = Guide::findOrFail($id);
 
-        // Comprobación de seguridad (Soporte para AJAX)
-        if ($guide->user_id !== Auth::id()) {
-            if (request()->ajax()) {
-                return response()->json(['error' => 'Unauthorized'], 403);
+    if ($guide->user_id !== Auth::id()) {
+        return response()->json(['success' => false, 'error' => 'Unauthorized'], 403);
+    }
+
+    try {
+        // --- LIMPIEZA DE DEPENDENCIAS ---
+
+        // 1. Borrar de la tabla de "Guardados" (Favoritos)
+        \DB::table('saved_guides')->where('guide_id', $id)->delete();
+
+        // 2. Borrar Votos
+        $guide->votos()->delete(); 
+
+        // 3. Borrar Comentarios y sus Respuestas
+        foreach ($guide->comments as $comment) {
+            if (method_exists($comment, 'respuestas')) {
+                $comment->respuestas()->delete();
             }
-            abort(403);
+            $comment->delete();
         }
 
-        // Limpieza de relaciones para evitar errores de integridad
-        $guide->votos()->delete(); 
-        
+        // 4. Limpieza de Tags
         if (method_exists($guide, 'tags')) {
             $guide->tags()->detach();
         }
 
+        // --- BORRADO FINAL ---
         $guide->delete();
 
-        if (request()->ajax()) {
-            return response()->json(['success' => true]);
-        }
+        return response()->json(['success' => true]);
 
-        return redirect()->back()->with('success', 'Scroll discarded.');
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false, 
+            'error' => 'Error de integridad: ' . $e->getMessage()
+        ], 500);
     }
-
+}
     /**
      * Muestra una guía específica mediante su slug
      */

@@ -101,5 +101,6 @@
     <script src="{{ asset('js/votes.js') }}"></script>
     <script src="{{ asset('js/universal-save.js') }}"></script>
     <script src="{{ asset('js/list.js') }}"></script>
+    <script src="{{ asset('js/borrar.js') }}"></script>
 @endsection
 @endif

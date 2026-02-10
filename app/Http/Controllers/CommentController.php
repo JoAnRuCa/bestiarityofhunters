@@ -12,7 +12,7 @@ class CommentController extends Controller
     {
         $request->validate([
             'item_id'    => 'required|integer',
-            'comentario' => 'required|string|min:3|max:1000',
+            'comentario' => 'required|string|min:1|max:1000',
             'padre'      => 'nullable|integer',
             'type'       => 'required|in:guide,build'
         ]);
