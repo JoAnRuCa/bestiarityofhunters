@@ -84,16 +84,16 @@
                                     </div>
                                 </div>
 
-                                {{-- ACCIONES DE PROPIETARIO: Solo aparecen si la guía es tuya --}}
-                                @if(auth()->check() && auth()->id() === $guide->user_id)
-                                    <div class="flex flex-row items-center justify-end gap-2 w-full mt-auto pt-2 border-t border-[#6B8E23]/10">
-                                        <x-edit-button :url="route('guides.edit', $guide->id)" :editable="true" />
-                                        <x-delete-button :action="route('guides.destroy', $guide->id)" :id="$guide->id" />
-                                    </div>
-                                @endif
+                               {{-- ACCIONES DE PROPIETARIO --}}
+                                    @if(auth()->check() && auth()->id() === $guide->user_id)
+                                        <div class="flex flex-row items-center justify-end gap-2 w-full mt-auto">
+                                            <x-edit-button :url="route('guides.edit', $guide->id)" :editable="true" />
+                                            <x-delete-button :action="route('guides.destroy', $guide->id)" :id="$guide->id" />
+                                        </div>
+                                    @endif
                             </div>
                         </div>
-                    @endforeach
+                    @endforeach 
                 </div>
 
                 <div class="mt-12 pagination-ajax">{{ $savedData->links() }}</div>
