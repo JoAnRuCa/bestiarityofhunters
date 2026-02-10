@@ -19,7 +19,7 @@ public function up()
         $table->unsignedBigInteger('user_id');
         $table->unsignedBigInteger('build_id');
 
-        // Campo tipo (solo 0 o 1)
+        // Campo tipo (-1, 0, 1)S
         $table->tinyInteger('tipo');
 
         // No duplicados    

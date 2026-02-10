@@ -19,7 +19,7 @@ class CreateGuidesCommentVotesTable extends Migration
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('comment_id');
 
-        $table->tinyInteger('tipo'); // 1 o -1
+        $table->tinyInteger('tipo'); 
 
         $table->unique(['user_id', 'comment_id']);
 
