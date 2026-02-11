@@ -226,20 +226,21 @@ function renderList(list) {
 }
 
 document.getElementById("searchInput").oninput = function () {
-    const t = this.value.toLowerCase().trim();
+    // 1. Limpiamos la búsqueda: pasamos a minúsculas, quitamos espacios y guiones
+    const t = this.value.toLowerCase().trim().replace(/[\s-]/g, '');
 
     renderList(currentList.filter(item => {
-        // 1. Buscar por nombre del ítem
-        const nameMatch = getName(item).toLowerCase().includes(t);
+        // 2. Limpiamos también los datos del item para comparar "limpio contra limpio"
+        const itemName = getName(item).toLowerCase().replace(/[\s-]/g, '');
+        const itemKind = item.kind ? item.kind.toLowerCase().replace(/[\s-]/g, '') : '';
 
-        // 2. Buscar por habilidades
-        const skillMatch = extractSkills(item).some(s => s.name.toLowerCase().includes(t));
+        // 3. Comprobamos habilidades
+        const skillMatch = extractSkills(item).some(s =>
+            s.name.toLowerCase().replace(/[\s-]/g, '').includes(t)
+        );
 
-        // 3. Buscar por tipo/categoría (kind)
-        // Esto permitirá buscar "bow", "insect", "arms", "head", etc.
-        const kindMatch = item.kind ? item.kind.toLowerCase().includes(t) : false;
-
-        return nameMatch || skillMatch || kindMatch;
+        // Devolvemos true si coincide en nombre, categoría (kind) o habilidades
+        return itemName.includes(t) || itemKind.includes(t) || skillMatch;
     }));
 };
 
