@@ -73,50 +73,53 @@
             </section>
         </div>
 
-        {{-- COLUMNA DERECHA: SKILLS --}}
+{{-- COLUMNA DERECHA: SKILLS --}}
+<div class="space-y-6">
+    {{-- Eliminamos 'sticky' si no quieres que el cuadro se quede pegado, 
+         o lo mantenemos si quieres que te siga mientras el resto de la página scrollea --}}
+    <div class="bg-white/40 border-2 border-[#6B8E23]/20 rounded-3xl p-6 shadow-inner">
+        <h3 class="font-black uppercase text-sm tracking-widest mb-6 flex items-center">
+            <span class="w-10 h-1 bg-[#6B8E23] mr-3"></span> Active Skills
+        </h3>
+        
+        {{-- Eliminado: max-h-[60vh], overflow-y-auto y custom-scrollbar --}}
         <div class="space-y-6">
-            <div class="bg-white/40 border-2 border-[#6B8E23]/20 rounded-3xl p-6 shadow-inner sticky top-6">
-                <h3 class="font-black uppercase text-sm tracking-widest mb-6 flex items-center">
-                    <span class="w-10 h-1 bg-[#6B8E23] mr-3"></span> Active Skills
-                </h3>
-                
-                <div class="space-y-6 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
-                    @forelse($totalSkills as $name => $lvl)
-                        @php
-                            $skillNameClean = trim($name);
-                            $max = $skillMaxLevels[$skillNameClean] ?? 5;
-                            $currentLvl = (int)min($lvl, $max);
-                            $percent = ($currentLvl / $max) * 100;
+            @forelse($totalSkills as $name => $lvl)
+                @php
+                    $skillNameClean = trim($name);
+                    $max = $skillMaxLevels[$skillNameClean] ?? 5;
+                    $currentLvl = (int)min($lvl, $max);
+                    $percent = ($currentLvl / $max) * 100;
 
-                            $skillInfo = collect($skillsData)->first(function($item) use ($skillNameClean) {
-                                return trim($item['name']) === $skillNameClean;
-                            });
+                    $skillInfo = collect($skillsData)->first(function($item) use ($skillNameClean) {
+                        return trim($item['name']) === $skillNameClean;
+                    });
 
-                            $descText = "Description not found.";
-                            if ($skillInfo && isset($skillInfo['ranks'][$currentLvl - 1])) {
-                                $rank = $skillInfo['ranks'][$currentLvl - 1];
-                                $descText = $rank['description'] ?? $rank['desc'] ?? $descText;
-                            }
-                        @endphp
+                    $descText = "Description not found.";
+                    if ($skillInfo && isset($skillInfo['ranks'][$currentLvl - 1])) {
+                        $rank = $skillInfo['ranks'][$currentLvl - 1];
+                        $descText = $rank['description'] ?? $rank['desc'] ?? $descText;
+                    }
+                @endphp
 
-                        <div>
-                            <div class="flex justify-between items-end mb-1">
-                                <span class="font-black uppercase text-[11px] tracking-wider">{{ $skillNameClean }}</span>
-                                <span class="text-[#6B8E23] font-black text-xs">Lv {{ $currentLvl }}/{{ $max }}</span>
-                            </div>
-                            <div class="w-full h-1.5 bg-gray-200/50 rounded-full overflow-hidden mb-2">
-                                <div class="h-full bg-[#6B8E23] transition-all duration-500" style="width: {{ $percent }}%"></div>
-                            </div>
-                            <p class="text-[10px] leading-tight font-bold uppercase opacity-80">
-                                {{ $descText }}
-                            </p>
-                        </div>
-                    @empty
-                        <p class="py-10 text-center italic text-xs opacity-50 font-bold uppercase tracking-widest">No Skills Detected</p>
-                    @endforelse
+                <div>
+                    <div class="flex justify-between items-end mb-1">
+                        <span class="font-black uppercase text-[11px] tracking-wider">{{ $skillNameClean }}</span>
+                        <span class="text-[#6B8E23] font-black text-xs">Lv {{ $currentLvl }}/{{ $max }}</span>
+                    </div>
+                    <div class="w-full h-1.5 bg-gray-200/50 rounded-full overflow-hidden mb-2">
+                        <div class="h-full bg-[#6B8E23] transition-all duration-500" style="width: {{ $percent }}%"></div>
+                    </div>
+                    <p class="text-[10px] leading-tight font-bold uppercase opacity-80">
+                        {{ $descText }}
+                    </p>
                 </div>
-            </div>
+            @empty
+                <p class="py-10 text-center italic text-xs opacity-50 font-bold uppercase tracking-widest">No Skills Detected</p>
+            @endforelse
         </div>
+    </div>
+</div>
     </div>
 </div>
 @endsection
