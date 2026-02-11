@@ -24,12 +24,30 @@
         </div>
     </div>
 
+    {{-- LÍNEA 1 --}}
+    <div class="w-full h-px bg-[#6B8E23]/30 my-8"></div>
+
+    {{-- SECCIÓN TAGS (Estilo exacto a tus filtros activos) --}}
+    @if($build->tags && $build->tags->count() > 0)
+    <div class="px-2">
+        <div class="flex flex-wrap gap-2">
+            @foreach($build->tags as $tag)
+                <span class="px-3 py-1 bg-[#C67C48] text-white border border-[#C67C48] text-[10px] font-bold uppercase rounded shadow-md tracking-widest">
+                    {{ $tag->name }}
+                </span>
+            @endforeach
+        </div>
+    </div>
+
+    {{-- LÍNEA 2 --}}
+    <div class="w-full h-px bg-[#6B8E23]/30 my-8"></div>
+    @endif
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
         
-        {{-- COLUMNA IZQUIERDA: LOADOUT & PLAYSTYLE --}}
+        {{-- COLUMNA IZQUIERDA --}}
         <div class="lg:col-span-2 flex flex-col">
             
-            {{-- SECCIÓN EQUIPO --}}
             <section class="mb-8">
                 <h3 class="text-[#2F2F2F] font-black uppercase text-sm tracking-widest mb-6 flex items-center">
                     <span class="w-10 h-1 bg-[#6B8E23] mr-3"></span> Equipment Loadout
@@ -42,7 +60,7 @@
                                 <span class="text-[10px] uppercase font-black text-[#6B8E23] tracking-wider mb-1 opacity-70 italic">
                                     @php
                                         $labels = [1 => 'Weapon', 2 => 'Armor Piece', 3 => 'Charm'];
-                                        echo isset($labels[$eq->tipo]) ? $labels[$eq->tipo] : 'Equipment';
+                                        echo $labels[$eq->tipo] ?? 'Equipment';
                                     @endphp
                                 </span>
                                 <span class="text-[#2F2F2F] font-bold text-lg leading-none">
@@ -69,23 +87,22 @@
                 </div>
             </section>
 
-            {{-- LÍNEA DIVISORIA ENTRE LOADOUT Y PLAYSTYLE --}}
+            {{-- LÍNEA 3 --}}
             <div class="w-full h-px bg-[#6B8E23]/30 my-8"></div>
 
-            {{-- SECCIÓN PLAYSTYLE --}}
             <section class="mb-12">
                 <h3 class="text-[#2F2F2F] font-black uppercase text-sm tracking-widest mb-4 flex items-center">
                     <span class="w-10 h-1 bg-[#6B8E23] mr-3"></span> Hunter's Strategy
                 </h3>
                 <div class="px-2">
                     <p class="font-bold text-[#2F2F2F] text-xl italic leading-relaxed whitespace-pre-line opacity-80">
-                        "{{ $build->playstyle ?: 'No strategic notes provided for this setup.' }}"
+                        "{{ $build->playstyle ?: 'No strategic notes provided.' }}"
                     </p>
                 </div>
             </section>
         </div>
 
-        {{-- COLUMNA DERECHA: SKILLS --}}
+        {{-- COLUMNA DERECHA --}}
         <div class="space-y-6 text-[#2F2F2F]">
             <div class="bg-white/40 border-2 border-[#6B8E23]/20 rounded-3xl p-6 shadow-inner sticky top-6">
                 <h3 class="font-black uppercase text-sm tracking-widest mb-6 flex items-center">
@@ -95,24 +112,20 @@
                 <div class="space-y-4 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
                     @forelse($totalSkills as $name => $lvl)
                         @php
-                            $max = isset($skillMaxLevels[$name]) ? $skillMaxLevels[$name] : 5;
-                            $cappedLvl = ($lvl > $max) ? $max : $lvl;
-                            $percent = ($cappedLvl / $max) * 100;
+                            $max = $skillMaxLevels[$name] ?? 5;
+                            $percent = (min($lvl, $max) / $max) * 100;
                         @endphp
                         <div>
                             <div class="flex justify-between items-end mb-1">
                                 <span class="font-black uppercase text-[11px] tracking-wider">{{ $name }}</span>
-                                <span class="text-[#6B8E23] font-black text-xs">Lv {{ $cappedLvl }}/{{ $max }}</span>
+                                <span class="text-[#6B8E23] font-black text-xs">Lv {{ min($lvl, $max) }}/{{ $max }}</span>
                             </div>
                             <div class="w-full h-2 bg-gray-200/50 rounded-full overflow-hidden">
-                                <div class="h-full bg-[#6B8E23] transition-all duration-500" 
-                                     style="width: {{ $percent }}%"></div>
+                                <div class="h-full bg-[#6B8E23] transition-all duration-500" style="width: {{ $percent }}%"></div>
                             </div>
                         </div>
                     @empty
-                        <div class="py-10 text-center">
-                            <p class="italic text-xs opacity-50 font-bold uppercase tracking-widest">No Skills Detected</p>
-                        </div>
+                        <p class="py-10 text-center italic text-xs opacity-50 font-bold uppercase tracking-widest">No Skills Detected</p>
                     @endforelse
                 </div>
             </div>
