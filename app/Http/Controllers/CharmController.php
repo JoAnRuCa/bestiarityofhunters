@@ -7,6 +7,7 @@ use App\Support\JsonLoader;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use App\Support\SearchHelper; // Asegúrate de que esté importado
 
 class CharmController extends Controller
 {
@@ -15,13 +16,11 @@ class CharmController extends Controller
     public function loadCharms(): Collection
     {
         return Cache::rememberForever('charms_processed', function () {
-
             $raw = JsonLoader::load('data/charms.json');
 
             return collect($raw)
                 ->filter(fn($c) => isset($c['ranks'][0]['name']))
                 ->map(function ($c) {
-
                     // Obtener nombre base sin número romano
                     $parts = explode(' ', $c['ranks'][0]['name']);
                     if (in_array(end($parts), $this->roman)) {
@@ -44,28 +43,27 @@ class CharmController extends Controller
         return $this->loadCharms()->flatMap(function ($charm) {
             return collect($charm['ranks'])->map(function ($rank) use ($charm) {
                 $rank['parent'] = $charm;
+                // Importante: Si el JSON de charms tiene las habilidades fuera del rank,
+                // podrías necesitarlas aquí, pero normalmente cada rank tiene sus 'skills'.
                 return $rank;
             });
         });
     }
 
-    private function getPaginatedRanks(int $perPage =18): LengthAwarePaginator
+    private function getPaginatedRanks(int $perPage = 18): LengthAwarePaginator
     {
         $ranks = $this->getAllRanks();
 
-        // ⭐ Búsqueda por nombre del rank
+        // ⭐ NUEVA BÚSQUEDA USANDO EL HELPER
         if (request()->filled('q')) {
-            $q = strtolower(request('q'));
-
-            $ranks = $ranks->filter(function ($rank) use ($q) {
-                return str_contains(strtolower($rank['name'] ?? ''), $q);
-            });
+            // Usamos el helper que creamos. 
+            // Esto buscará en $rank['name'] y en $rank['skills'] automáticamente.
+            $ranks = SearchHelper::apply($ranks, request('q'));
         }
 
         $ranks = $ranks->values();
         $page = request('page', 1);
 
-        // ⭐ Paginación con parámetros preservados
         $paginator = new LengthAwarePaginator(
             $ranks->forPage($page, $perPage),
             $ranks->count(),

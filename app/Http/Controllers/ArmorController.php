@@ -7,13 +7,13 @@ use App\Support\JsonLoader;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use App\Support\SearchHelper;
 
 class ArmorController extends Controller
 {
     public function loadArmor(): Collection
     {
         return Cache::rememberForever('armor_processed', function () {
-
             $raw = JsonLoader::load('data/armors.json');
 
             return collect($raw)->map(function ($armor) {
@@ -27,26 +27,14 @@ class ArmorController extends Controller
     {
         $armor = $this->loadArmor();
 
-        // ⭐ Búsqueda por nombre y por tipo (kind)
         if (request()->filled('q')) {
-            $q = strtolower(request('q'));
 
-            $armor = $armor->filter(function ($item) use ($q) {
-
-                $nameMatch = str_contains(strtolower($item['name']), $q);
-
-                $kindMatch = isset($item['kind'])
-                    ? str_contains(strtolower($item['kind']), $q)
-                    : false;
-
-                return $nameMatch || $kindMatch;
-            });
-        }
+    $armor = SearchHelper::apply($armor, request('q'));
+}
 
         $armor = $armor->values();
         $page = request('page', 1);
 
-        // ⭐ Paginación con parámetros preservados
         $paginator = new LengthAwarePaginator(
             $armor->forPage($page, $perPage),
             $armor->count(),

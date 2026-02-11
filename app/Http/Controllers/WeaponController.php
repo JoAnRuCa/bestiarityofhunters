@@ -7,13 +7,13 @@ use App\Support\JsonLoader;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use App\Support\SearchHelper;
 
 class WeaponController extends Controller
 {
     public function loadWeapons(): Collection
     {
         return Cache::rememberForever('weapons_processed', function () {
-
             $raw = JsonLoader::load('data/weapons.json');
 
             return collect($raw)->map(function ($weapon) {
@@ -24,41 +24,28 @@ class WeaponController extends Controller
     }
 
     private function getPaginatedWeapons(int $perPage = 18): LengthAwarePaginator
-    {
-        $weapons = $this->loadWeapons();
+{
+    $weapons = $this->loadWeapons();
 
-        // ⭐ Búsqueda por nombre y por tipo (kind)
-        if (request()->filled('q')) {
-            $q = strtolower(request('q'));
+    if (request()->filled('q')) {
+    $weapons = SearchHelper::apply($weapons, request('q'));
+}
 
-            $weapons = $weapons->filter(function ($weapon) use ($q) {
+    $weapons = $weapons->values();
+    $page = request('page', 1);
 
-                $nameMatch = str_contains(strtolower($weapon['name']), $q);
+    $paginator = new LengthAwarePaginator(
+        $weapons->forPage($page, $perPage),
+        $weapons->count(),
+        $perPage,
+        $page,
+        ['path' => request()->url()]
+    );
 
-                $kindMatch = isset($weapon['kind'])
-                    ? str_contains(strtolower($weapon['kind']), $q)
-                    : false;
+    $paginator->appends(request()->query());
 
-                return $nameMatch || $kindMatch;
-            });
-        }
-
-        $weapons = $weapons->values();
-        $page = request('page', 1);
-
-        // ⭐ Paginación con parámetros preservados
-        $paginator = new LengthAwarePaginator(
-            $weapons->forPage($page, $perPage),
-            $weapons->count(),
-            $perPage,
-            $page,
-            ['path' => request()->url()]
-        );
-
-        $paginator->appends(request()->query());
-
-        return $paginator;
-    }
+    return $paginator;
+}
 
     private function findBySlug(string $slug): ?array
     {
