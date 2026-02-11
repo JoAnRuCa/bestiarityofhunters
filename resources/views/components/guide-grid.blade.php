@@ -1,14 +1,15 @@
-{{-- resources/views/components/guide-grid.blade.php --}}
 @if($guides->count() === 0)
     <div id="no-guides-msg" class="py-12 text-center border-2 border-dashed border-[#6B8E23]/10 rounded-lg">
         <p class="text-gray-600 italic font-serif text-lg">No guides match your search.</p>
-        @if(Route::currentRouteName() == 'my.guides')
-            <a href="{{ route('guides.create') }}" class="mt-4 inline-block text-[#C67C48] font-bold uppercase hover:underline tracking-widest text-xs">
-                Write your first scroll →
+        
+        @if(request()->routeIs('my.guides'))
+            <a href="{{ url('/guide-editor') }}" class="mt-4 inline-block text-[#C67C48] font-bold uppercase hover:underline tracking-widest text-xs">
+                Write your own scroll →
             </a>
         @endif
     </div>
 @else
+    {{-- Resto del código del grid... --}}
     <div id="guides-container" class="grid grid-cols-1 md:grid-cols-2 gap-8">
         @foreach($guides as $guide)
             {{-- EL ID ES CLAVE: Permite al JS encontrar esta tarjeta específica --}}

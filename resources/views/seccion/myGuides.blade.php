@@ -4,11 +4,19 @@
         <x-guide-grid :guides="$guides" :editable="true" />
     @else
         <div class="py-12 text-center border-2 border-dashed border-[#6B8E23]/10 rounded-lg">
-            <p class="text-gray-600 italic font-serif text-lg">You haven't shared any of your hunting scrolls with the community yet.</p>
-            {{-- Cambiamos a la URL manual de tu editor --}}
-            <a href="{{ url('/guideEditor') }}" class="mt-4 inline-block text-[#C67C48] font-bold uppercase hover:underline tracking-widest text-xs">
-                Go to Guide Editor →
-            </a>
+            @if(request()->filled('tag'))
+                {{-- Mensaje cuando hay filtros activos pero no hay resultados --}}
+                <p class="text-gray-600 italic font-serif text-lg">No scrolls found with the selected tags.</p>
+                <a href="{{ route('my.guides') }}" class="mt-4 inline-block text-[#6B8E23] font-bold uppercase hover:underline tracking-widest text-xs">
+                    Clear Filters
+                </a>
+            @else
+                {{-- Mensaje cuando la librería está realmente vacía --}}
+                <p class="text-gray-600 italic font-serif text-lg">You haven't shared any of your hunting scrolls with the community yet.</p>
+                <a href="{{ url('/guide-editor') }}" class="mt-4 inline-block text-[#C67C48] font-bold uppercase hover:underline tracking-widest text-xs">
+                    Go to Guide Editor →
+                </a>
+            @endif
         </div>
     @endif
 @else
@@ -35,12 +43,20 @@
             @if($guides->count() > 0)
                 <x-guide-grid :guides="$guides" :editable="true" />
             @else
-                {{-- Mensaje para cuando no hay guías --}}
                 <div class="py-12 text-center border-2 border-dashed border-[#6B8E23]/10 rounded-lg">
-                    <p class="text-gray-600 italic font-serif text-lg">You haven't shared any of your hunting scrolls with the community yet.</p>
-                    <a href="{{ url('/guide-editor') }}" class="mt-4 inline-block text-[#C67C48] font-bold uppercase hover:underline tracking-widest text-xs">
-                        Go to Guide Editor →
-                    </a>
+                    @if(request()->filled('tag'))
+                        {{-- Mensaje para filtros sin éxito --}}
+                        <p class="text-gray-600 italic font-serif text-lg">No scrolls found with the selected tags.</p>
+                        <button onclick="window.location.href='{{ route('my.guides') }}'" class="mt-4 inline-block text-[#6B8E23] font-bold uppercase hover:underline tracking-widest text-xs">
+                            Clear Filters
+                        </button>
+                    @else
+                        {{-- Mensaje para librería vacía --}}
+                        <p class="text-gray-600 italic font-serif text-lg">You haven't shared any of your hunting scrolls with the community yet.</p>
+                        <a href="{{ url('/guide-editor') }}" class="mt-4 inline-block text-[#C67C48] font-bold uppercase hover:underline tracking-widest text-xs">
+                            Go to Guide Editor →
+                        </a>
+                    @endif
                 </div>
             @endif
         </div>
