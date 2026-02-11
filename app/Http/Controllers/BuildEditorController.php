@@ -31,9 +31,19 @@ class BuildEditorController extends Controller
             $buildData = json_decode($request->input('build_data'), true);
             $decoData = json_decode($request->input('decorations_data'), true);
 
-            return DB::transaction(function () use ($request, $buildData, $decoData) {
+            /** * MAPEO DE CATEGORÍAS 
+             * Convertimos el nombre del slot en un ID numérico para la DB
+             * 1 = Weapon, 2 = Armor, 3 = Charm
+             */
+            $categoryMap = [
+                'weapon1' => 1, 'weapon2' => 1,
+                'head'    => 2, 'chest'   => 2, 'arms' => 2, 'waist' => 2, 'legs' => 2,
+                'charm'   => 3
+            ];
+
+            return DB::transaction(function () use ($request, $buildData, $decoData, $categoryMap) {
                 
-                // 2. Crear la Build (El slug se genera en el modelo)
+                // 2. Crear la Build
                 $build = Build::create([
                     'titulo'    => $request->name,
                     'playstyle' => $request->playstyle,
@@ -44,11 +54,14 @@ class BuildEditorController extends Controller
                 foreach ($buildData as $slot => $item) {
                     if (!$item || !isset($item['id'])) continue;
 
-                    // Insertar equipo
+                    // Traducir el nombre del slot (ej: 'head') a su número (ej: 2)
+                    $tipoNumerico = $categoryMap[$slot] ?? 0;
+
+                    // Insertar equipo con el tipo corregido (Integer)
                     $buildEquipmentId = DB::table('builds_equipments')->insertGetId([
                         'build_id'     => $build->id,
                         'equipment_id' => $item['id'],
-                        'tipo'         => $slot,
+                        'tipo'         => $tipoNumerico, 
                         'created_at'   => now(),
                         'updated_at'   => now(),
                     ]);
@@ -68,7 +81,7 @@ class BuildEditorController extends Controller
                     }
                 }
 
-                // 4. Sincronizar Tags (esto maneja la tabla build_tags automáticamente)
+                // 4. Sincronizar Tags
                 if ($request->has('tags')) {
                     $build->tags()->sync($request->tags);
                 }
@@ -88,4 +101,5 @@ class BuildEditorController extends Controller
             ], 500);
         }
     }
+    
 }
