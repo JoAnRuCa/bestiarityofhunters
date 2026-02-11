@@ -4,25 +4,30 @@
 @section('content')
 <div class="w-[95%] max-w-7xl mx-auto mt-12 mb-12 p-8 rounded-3xl shadow-2xl bg-[#F4EBD0] border border-[#6B8E23]/20">
     
-    {{-- HEADER & BUILD NAME --}}
-    <div class="flex flex-col md:flex-row items-center justify-between mb-10 border-b border-[#6B8E23]/30 pb-8 gap-6">
-        <div class="w-full md:w-auto">
-            <h1 class="text-5xl font-black text-[#2F2F2F] tracking-tighter uppercase italic leading-none">
-                Build <span class="text-[#6B8E23]">Architect</span>
-            </h1>
-            <div class="mt-4 flex flex-col sm:flex-row gap-4 items-end sm:items-center">
-                <div class="w-full sm:w-80">
-                    <label for="buildName" class="text-[10px] uppercase font-black text-[#6B8E23] tracking-widest mb-1 block ml-1">Build Designation</label>
-                    <input type="text" id="buildName" placeholder="E.g. Rathalos Hunter v1" 
-                        class="w-full bg-white border-2 border-[#6B8E23]/30 rounded-xl py-3 px-4 outline-none focus:ring-0 focus:border-[#6B8E23]/30 font-bold text-[#2F2F2F] transition-all shadow-sm">
-                </div>
+   {{-- HEADER & BUILD NAME --}}
+<div class="flex flex-col md:flex-row items-center justify-between mb-10 border-b border-[#6B8E23]/30 pb-8 gap-6">
+    <div class="w-full md:w-auto">
+        <h1 class="text-5xl font-black text-[#2F2F2F] tracking-tighter uppercase italic leading-none">
+            Build <span class="text-[#6B8E23]">Architect</span>
+        </h1>
+        <div class="mt-4 flex flex-col gap-6">
+            <div class="w-full sm:w-80">
+                <label for="buildName" class="text-[10px] uppercase font-black text-[#6B8E23] tracking-widest mb-1 block ml-1">Build Designation</label>
+                <input type="text" id="buildName" placeholder="E.g. Rathalos Hunter v1" 
+                    class="w-full bg-white border-2 border-[#6B8E23]/30 rounded-xl py-3 px-4 outline-none focus:ring-0 focus:border-[#6B8E23]/30 font-bold text-[#2F2F2F] transition-all shadow-sm">
+            </div>
+
+            {{-- COMPONENTE DE TAGS --}}
+            <div id="tagContainer" class="bg-white/30 p-4 rounded-2xl border border-[#6B8E23]/10">
+                <x-tag-selector :showAll="false" />
             </div>
         </div>
-        
-        <button onclick="saveBuild()" class="bg-[#6B8E23] hover:bg-[#58751C] text-white px-10 py-5 rounded-2xl font-black uppercase tracking-tighter transition-all shadow-[0_5px_0_0_#4A6318] active:translate-y-1 active:shadow-none shrink-0">
-            Forge Build
-        </button>
     </div>
+    
+    <button onclick="saveBuild()" class="bg-[#6B8E23] hover:bg-[#58751C] text-white px-10 py-5 rounded-2xl font-black uppercase tracking-tighter transition-all shadow-[0_5px_0_0_#4A6318] active:translate-y-1 active:shadow-none shrink-0">
+        Forge Build
+    </button>
+</div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
         {{-- LEFT COLUMN: LOADOUT & PLAYSTYLE --}}
