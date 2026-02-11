@@ -276,6 +276,55 @@ function closeModal() {
     document.getElementById("modal").classList.add("hidden");
 }
 
+/**
+ * SINCRONIZADOR DE TAGS MEJORADO
+ * Maneja las discrepancias de nombres entre la API y el TagSelector
+ */
+function syncWeaponTags() {
+    const container = document.getElementById('tagContainer');
+    if (!container) return;
+
+    const weaponMapping = {
+        'great-sword': 'Great Sword',
+        'long-sword': 'Long Sword',
+        'sword-and-shield': 'Sword and Shield',
+        'dual-blades': 'Dual Blades',
+        'hunting-horn': 'Hunting Horn',
+        'switch-axe': 'Switch Axe',
+        'charge-blade': 'Charge Blade',
+        'insect-glaive': 'Insect Glaive',
+        'light-bowgun': 'Light Bowgun',
+        'heavy-bowgun': 'Heavy Bowgun',
+        'bow': 'Bow',
+        'hammer': 'Hammer',
+        'lance': 'Lance',
+        'gunlance': 'Gunlance'
+    };
+
+    const equippedTypes = [];
+    if (build.weapon1 && build.weapon1.type) equippedTypes.push(weaponMapping[build.weapon1.type] || build.weapon1.type);
+    if (build.weapon2 && build.weapon2.type) equippedTypes.push(weaponMapping[build.weapon2.type] || build.weapon2.type);
+
+    // Buscamos todos los checkboxes dentro del selector
+    const checkboxes = container.querySelectorAll('input[name="tags[]"]');
+    checkboxes.forEach(checkbox => {
+        const tagName = checkbox.getAttribute('data-name');
+
+        if (weaponNames.includes(tagName)) {
+            // Se marca si el arma está equipada
+            checkbox.checked = equippedTypes.includes(tagName);
+
+            // Opcional: darle un estilo visual al texto si está marcado (aunque esté oculto)
+            const labelText = checkbox.nextElementSibling;
+            if (checkbox.checked) {
+                labelText.classList.add('text-[#6B8E23]', 'font-bold');
+            } else {
+                labelText.classList.remove('text-[#6B8E23]', 'font-bold');
+            }
+        }
+    });
+}
+
 /* --- Save Build --- */
 
 async function saveBuild() {
