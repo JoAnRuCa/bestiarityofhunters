@@ -54,6 +54,7 @@ Route::get('/api/build-data', [BuildApiController::class, 'getBuildData']);
 // Ruta para procesar el guardado (la que te falta)
 Route::post('/save-build', [BuildEditorController::class, 'store'])->name('builds.store');
 
+
 Route::view('/privacy', 'seccion.privacyPolicy')->name('privacy');
 Route::view('/about', 'seccion.aboutUs')->name('about');
 Route::view('/disclaimer', 'seccion.disclaimer')->name('disclaimer');
