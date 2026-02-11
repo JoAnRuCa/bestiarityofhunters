@@ -3,11 +3,7 @@
    ============================================================ */
 
 // Data Stores
-let weapons = [];
-let armors = [];
-let charms = [];
-let decorationsData = [];
-let skillsData = [];
+let weapons = [], armors = [], charms = [], decorationsData = [], skillsData = [];
 let dataLoaded = false;
 
 // Dictionaries for fast lookup
@@ -48,7 +44,6 @@ async function loadBuildData() {
         });
 
         dataLoaded = true;
-        console.log("Forge data loaded successfully.");
     } catch (e) {
         console.error("Critical error loading build data:", e);
     }
@@ -67,7 +62,7 @@ let decorations = {
 
 let activeSlot = null;
 let activeDecoIndex = null;
-let modalMode = null; // 'piece' or 'decoration'
+let modalMode = null;
 let currentList = [];
 
 /* --- Utilities --- */
@@ -79,9 +74,7 @@ function getName(item) {
 
 function extractSkills(item) {
     if (!item) return [];
-    // Handle single skill objects (like charms)
     if (item.skill && item.level) return [{ name: item.skill.name, level: item.level }];
-    // Handle armor skill arrays
     if (Array.isArray(item.skills)) {
         return item.skills.map(s => ({ name: s.skill.name, level: s.level }));
     }
@@ -90,9 +83,6 @@ function extractSkills(item) {
 
 /* --- UI Rendering --- */
 
-/**
- * Main update function to sync the UI with the 'build' state
- */
 function updateSelected() {
     for (const slot in build) {
         const nameElement = document.getElementById(slot + "_name");
@@ -104,9 +94,6 @@ function updateSelected() {
     renderSkillTotals();
 }
 
-/**
- * Renders the decoration slots for a specific equipment piece
- */
 function renderSlots(slot) {
     const item = build[slot];
     const container = document.getElementById(slot + "_slots");
@@ -125,7 +112,6 @@ function renderSlots(slot) {
         const deco = decorations[slot][index];
         const row = document.createElement("div");
 
-        // Use 'deco-row' class for CSS-based hover (background & border)
         row.className = `deco-row flex items-center justify-between p-2 rounded-xl border border-dashed mb-1.5 cursor-pointer transition-all duration-200
             ${deco ? 'bg-[#6B8E23]/5 border-[#6B8E23]/30' : 'bg-gray-50 border-gray-200'}`;
 
@@ -135,7 +121,6 @@ function renderSlots(slot) {
         };
 
         const decoName = deco ? deco.name : `Empty Slot (Lv${slotLevel})`;
-        // Use 'deco-text' class for CSS-based hover (color & opacity)
         const textStyle = deco ? "text-[#2F2F2F]" : "text-[#2F2F2F]/40 italic";
 
         row.innerHTML = `
@@ -159,7 +144,6 @@ function renderSlots(slot) {
             };
             row.appendChild(deleteBtn);
         }
-
         container.appendChild(row);
     });
 }
@@ -174,13 +158,8 @@ function clearSlot(slot, index = null) {
     updateSelected();
 }
 
-/**
- * Calculates and renders the cumulative skills of the build
- */
 function renderSkillTotals() {
     const totals = {};
-
-    // 1. Gather skills from pieces and decorations
     for (const slot in build) {
         const item = build[slot];
         if (!item) continue;
@@ -203,7 +182,6 @@ function renderSkillTotals() {
     const box = document.getElementById("skillTotals");
     let html = "";
 
-    // 2. Generate HTML with progress bars
     for (const [name, lvl] of Object.entries(totals)) {
         const max = skillMaxLevels[name] || 5;
         const cappedLvl = Math.min(lvl, max);
@@ -224,13 +202,12 @@ function renderSkillTotals() {
     box.innerHTML = html || `<p class="italic text-sm opacity-50 text-center py-10 font-bold uppercase">No Skills Detected</p>`;
 }
 
-/* --- Modal Logic --- */
+/* --- Modal & Selection --- */
 
 function openSelector(slot) {
     if (!dataLoaded) return;
     activeSlot = slot;
     modalMode = "piece";
-    document.getElementById("modalTitle").textContent = "Select " + slot;
 
     let list = [];
     if (slot.includes("weapon")) list = weapons;
@@ -246,7 +223,6 @@ function selectDecoration(slot, index, slotLevel) {
     activeSlot = slot;
     activeDecoIndex = index;
     modalMode = "decoration";
-    document.getElementById("modalTitle").textContent = "Select Jewel (Lv" + slotLevel + ")";
 
     const type = slot.includes("weapon") ? "weapon" : "armor";
     currentList = decoCache[type][slotLevel];
@@ -263,7 +239,7 @@ function renderList(list) {
         div.className = "p-3 mb-2 bg-white border border-[#6B8E23]/10 rounded-xl hover:border-[#6B8E23] hover:bg-[#6B8E23]/5 cursor-pointer transition-all shadow-sm";
 
         const skillsHtml = extractSkills(item).map(s =>
-            `<span class="text-[9px] font-bold text-[#C67C48] bg-[#C67C48]/5 px-2 py-0.5 rounded-full mr-1 inline-block">◈ ${s.name}</span>`
+            `<span class="text-[9px] font-bold text-[#6B8E23] bg-[#6B8E23]/5 px-2 py-0.5 rounded-full mr-1 inline-block">◈ ${s.name}</span>`
         ).join("");
 
         div.innerHTML = `
@@ -274,7 +250,6 @@ function renderList(list) {
         div.onclick = () => {
             if (modalMode === "piece") {
                 build[activeSlot] = item;
-                // Initialize deco array based on item's slots
                 decorations[activeSlot] = new Array(item.slots ? item.slots.length : 0).fill(null);
             } else {
                 decorations[activeSlot][activeDecoIndex] = item;
@@ -286,14 +261,10 @@ function renderList(list) {
     });
 }
 
-// Live Search
 document.getElementById("searchInput").addEventListener("input", function () {
     const term = this.value.toLowerCase().trim();
-    const filtered = currentList.filter(item => getName(item).toLowerCase().includes(term));
-    renderList(filtered);
+    renderList(currentList.filter(item => getName(item).toLowerCase().includes(term)));
 });
-
-/* --- UI Controls --- */
 
 function openModal() {
     document.getElementById("modal").classList.remove("hidden");
@@ -305,21 +276,38 @@ function closeModal() {
     document.getElementById("modal").classList.add("hidden");
 }
 
+/* --- Save Build --- */
+
 async function saveBuild() {
+    const buildName = document.getElementById('buildName').value.trim();
+    const playstyle = document.getElementById('buildPlaystyle').value.trim();
+
+    if (!buildName) return alert("Please assign a name to your build.");
+
     try {
         const res = await fetch('api/save-build', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ""
             },
-            body: JSON.stringify({ build, decorations })
+            body: JSON.stringify({
+                name: buildName,
+                playstyle: playstyle,
+                build,
+                decorations
+            })
         });
-        if (res.ok) alert("Build stored in the forge!");
+
+        if (res.ok) {
+            alert("Build successfully forged!");
+        } else {
+            alert("The forge failed to save your build. Check server logs.");
+        }
     } catch (e) {
-        alert("The forge is cold. Error saving build.");
+        alert("Forge error: Network connection lost.");
     }
 }
 
-// Boot
+// Initialize
 loadBuildData();
