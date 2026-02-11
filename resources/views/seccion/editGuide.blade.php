@@ -15,29 +15,28 @@
         </p>
     @endif
 
-    {{-- Cambiamos la ruta a 'guides.update' y añadimos el ID --}}
     <form action="{{ route('guides.update', $guide->id) }}" method="POST" class="space-y-8">
         @csrf
-        @method('PUT') {{-- VITAL: Para que Laravel procese la actualización --}}
+        @method('PUT')
 
         {{-- Título --}}
         <div>
-            <label class="block font-semibold mb-1">Title</label>
+            <label class="block font-semibold mb-1 text-[#2F2F2F]">Title</label>
             <input type="text"
                    name="titulo"
-                   {{-- Cargamos el valor de la guía o lo que el usuario escribió si hubo un error --}}
                    value="{{ old('titulo', $guide->titulo) }}"
                    class="w-full p-3 rounded border border-slate-300 focus:ring-2 focus:ring-[#6B8E23]"
                    required>
         </div>
 
-        {{-- COMPONENTE DE TAGS EXTERNALIZADO --}}
-        {{-- Cargamos los IDs de los tags que ya tiene la guía asignados --}}
-        <x-tag-selector :selectedTags="old('tags', $guide->tags->pluck('id')->toArray())" />
+        {{-- COMPONENTE DE TAGS --}}
+        {{-- 1. Pasamos old('tags') o los tags actuales de la guía --}}
+        {{-- 2. Añadimos :showAll="true" para ver el listado completo (Armas + Categorías) --}}
+        <x-tag-selector :selectedTags="old('tags', $guide->tags->pluck('id')->toArray())" :showAll="true" />
 
         {{-- Contenido --}}
         <div>
-            <label class="block font-semibold mb-1">Content</label>
+            <label class="block font-semibold mb-1 text-[#2F2F2F]">Content</label>
             <textarea name="contenido"
                       rows="10"
                       class="w-full p-3 rounded border border-slate-300 focus:ring-2 focus:ring-[#6B8E23]"
