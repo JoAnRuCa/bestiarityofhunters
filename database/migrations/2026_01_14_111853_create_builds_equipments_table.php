@@ -20,7 +20,7 @@ class CreateBuildsEquipmentsTable extends Migration
         $table->unsignedBigInteger('build_id');
 
         $table->unsignedBigInteger('equipment_id');
-        $table->boolean('tipo');
+        $table->tinyInteger('tipo');
 
         // Relación con builds
         $table->foreign('build_id')
