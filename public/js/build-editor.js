@@ -136,8 +136,19 @@ function clearSlot(slot, index) {
 function renderSkillTotals() {
     const totals = {};
     for (const slot in build) {
-        const item = build[slot]; if (!item) continue;
-        extractSkills(item).forEach(s => { totals[s.name] = (totals[s.name] || 0) + s.level; });
+        // --- NUEVA CONDICIÓN: Ignorar arma secundaria en el conteo de habilidades ---
+        if (slot === 'weapon2') continue;
+        // --------------------------------------------------------------------------
+
+        const item = build[slot];
+        if (!item) continue;
+
+        // Extraer habilidades de la pieza (Arma 1, Armaduras, Amuleto)
+        extractSkills(item).forEach(s => {
+            totals[s.name] = (totals[s.name] || 0) + s.level;
+        });
+
+        // Extraer habilidades de las decoraciones de esa pieza
         if (decorations[slot]) {
             decorations[slot].forEach(d => {
                 if (d && d.skills) d.skills.forEach(ds => {
@@ -146,6 +157,7 @@ function renderSkillTotals() {
             });
         }
     }
+
     const box = document.getElementById("skillTotals");
     let html = "";
     Object.keys(totals).sort().forEach(name => {
