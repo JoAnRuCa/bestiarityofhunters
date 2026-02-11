@@ -148,28 +148,27 @@ function clearSlot(slot, index) {
 
 function renderSkillTotals() {
     const totals = {};
-    const weaponSkillNames = new Set(); // Para rastrear qué habilidades vienen del arma
+    const weaponSkillNames = new Set();
 
     for (const slot in build) {
-        if (slot === 'weapon2') continue; // El arma secundaria no suma habilidades
+        if (slot === 'weapon2') continue;
 
         const item = build[slot];
         if (!item) continue;
 
         const isMainWeapon = (slot === 'weapon1');
 
-        // Extraer habilidades del equipo
         extractSkills(item).forEach(s => {
-            totals[s.name] = (totals[s.name] || 0) + s.level;
-            if (isMainWeapon) weaponSkillNames.add(s.name);
+            const sName = s.name.trim(); // Limpieza de nombre
+            totals[sName] = (totals[sName] || 0) + s.level;
+            if (isMainWeapon) weaponSkillNames.add(sName);
         });
 
-        // Extraer habilidades de decoraciones
         if (decorations[slot]) {
             decorations[slot].forEach(d => {
                 if (d && d.skills) {
                     d.skills.forEach(ds => {
-                        const dName = ds.skill.name;
+                        const dName = ds.skill.name.trim(); // Limpieza de nombre
                         totals[dName] = (totals[dName] || 0) + ds.level;
                         if (isMainWeapon) weaponSkillNames.add(dName);
                     });
@@ -181,31 +180,29 @@ function renderSkillTotals() {
     const box = document.getElementById("skillTotals");
     let html = "";
 
-    // ORDENAMIENTO: 1. Arma, 2. Nivel, 3. Alfabético
     Object.keys(totals).sort((a, b) => {
         const isWeaponA = weaponSkillNames.has(a) ? 1 : 0;
         const isWeaponB = weaponSkillNames.has(b) ? 1 : 0;
 
-        // 1. Prioridad por Arma (descendente)
+        // PRIORIDAD 1: ¿Es de arma? (Las de arma arriba)
         if (isWeaponA !== isWeaponB) {
             return isWeaponB - isWeaponA;
         }
 
-        // 2. Prioridad por Nivel (descendente)
+        // PRIORIDAD 2: Nivel (De mayor a menor)
         if (totals[b] !== totals[a]) {
             return totals[b] - totals[a];
         }
 
-        // 3. Alfabético (ascendente)
+        // PRIORIDAD 3: Alfabético
         return a.localeCompare(b);
+
     }).forEach(name => {
         const lvl = totals[name];
         const max = skillMaxLevels[name] || 5;
         const capped = Math.min(lvl, max);
         const skill = skillsData.find(s => s.name === name);
         const desc = (skill?.ranks?.[capped - 1]) ? (skill.ranks[capped - 1].description || skill.ranks[capped - 1].desc) : "...";
-
-        // Eliminada la variable weaponIndicator para mantener el nombre limpio
 
         html += `
             <div class="mb-5 border-b border-[#6B8E23]/10 pb-4">

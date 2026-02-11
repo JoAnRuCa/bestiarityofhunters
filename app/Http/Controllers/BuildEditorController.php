@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Build;
-use App\Http\Requests\StoreBuildRequest; // Importamos tu nuevo Request
+use App\Http\Requests\StoreBuildRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -17,13 +17,9 @@ class BuildEditorController extends Controller
         return view('seccion.buildEditor');
     }
 
-    /**
-     * Guarda la build usando el StoreBuildRequest para validación automática.
-     */
     public function store(StoreBuildRequest $request)
     {
         try {
-            // Los datos ya están validados aquí gracias a StoreBuildRequest
             $buildData = json_decode($request->input('build_data'), true);
             $decoData = json_decode($request->input('decorations_data'), true);
 
@@ -58,7 +54,6 @@ class BuildEditorController extends Controller
                         'updated_at'   => now(),
                     ]);
 
-                    // Procesar decoraciones si existen para este slot
                     if (isset($decoData[$slot]) && is_array($decoData[$slot])) {
                         foreach ($decoData[$slot] as $deco) {
                             if ($deco && isset($deco['id'])) {
@@ -73,7 +68,6 @@ class BuildEditorController extends Controller
                     }
                 }
 
-                // Sincronizar etiquetas de armas
                 if ($request->has('tags')) {
                     $build->tags()->sync($request->tags);
                 }
@@ -94,124 +88,144 @@ class BuildEditorController extends Controller
         }
     }
 
-public function show($slug)
-{
-    $build = Build::with('tags')->where('slug', $slug)->firstOrFail();
-    $equipments = DB::table('builds_equipments')->where('build_id', $build->id)->get();
+    public function show($slug)
+    {
+        $build = Build::with('tags')->where('slug', $slug)->firstOrFail();
+        $equipments = DB::table('builds_equipments')->where('build_id', $build->id)->get();
 
-    // Carga de datos desde archivos JSON
-    $weapons = json_decode(Storage::get('data/weapons.json'), true) ?: [];
-    $armors = json_decode(Storage::get('data/armors.json'), true) ?: [];
-    $charms = $this->getNormalizedCharms();
-    $allDecorations = json_decode(Storage::get('data/decorations.json'), true) ?: [];
-    $skillsData = json_decode(Storage::get('data/skills.json'), true) ?: [];
-    
-    // Mapeo de niveles máximos para la vista
-    $skillMaxLevels = [];
-    foreach ($skillsData as $s) {
-        if (isset($s['name']) && isset($s['ranks'])) {
-            $skillMaxLevels[trim($s['name'])] = count($s['ranks']);
-        }
-    }
-
-    $totalSkillsRaw = [];
-    $weaponSkills = []; // Rastreador de habilidades prioritarias (Armas)
-
-    foreach ($equipments as $eq) {
-        $source = [];
-        $isWeapon = ((int)$eq->tipo === 1); // Guardamos si es tipo Arma
-
-        switch ((int)$eq->tipo) {
-            case 1: $source = $weapons; break;
-            case 2: $source = $armors; break;
-            case 3: $source = $charms; break;
-        }
-
-        $itemData = collect($source)->firstWhere('id', $eq->equipment_id);
+        $weapons = json_decode(Storage::get('data/weapons.json'), true) ?: [];
+        $armors = json_decode(Storage::get('data/armors.json'), true) ?: [];
+        $charms = $this->getNormalizedCharms();
+        $allDecorations = json_decode(Storage::get('data/decorations.json'), true) ?: [];
+        $skillsData = json_decode(Storage::get('data/skills.json'), true) ?: [];
         
-        if ($itemData) {
-            $eq->real_name = $itemData['name'] ?? $itemData['weaponName'] ?? $itemData['charmName'] ?? 'Unknown Item';
-            $eq->total_slots = $itemData['slots'] ?? [];
-
-            // Extraer habilidades nativas del equipo
-            if (isset($itemData['skill']['name'])) {
-                $name = trim($itemData['skill']['name']);
-                $totalSkillsRaw[$name] = ($totalSkillsRaw[$name] ?? 0) + ($itemData['level'] ?? 1);
-                if ($isWeapon) $weaponSkills[$name] = true;
-            } elseif (isset($itemData['skills'])) {
-                foreach ($itemData['skills'] as $s) {
-                    $name = trim($s['skill']['name'] ?? $s['name'] ?? '');
-                    if ($name) {
-                        $totalSkillsRaw[$name] = ($totalSkillsRaw[$name] ?? 0) + ($s['level'] ?? 1);
-                        if ($isWeapon) $weaponSkills[$name] = true;
-                    }
-                }
+        $skillMaxLevels = [];
+        foreach ($skillsData as $s) {
+            if (isset($s['name']) && isset($s['ranks'])) {
+                $skillMaxLevels[trim($s['name'])] = count($s['ranks']);
             }
         }
 
-        // Procesar Decoraciones guardadas en este slot
-        $savedDecos = DB::table('builds_equipments_decorations')->where('build_equipment_id', $eq->id)->get();
-        $eq->attached_decos = [];
-        
-        foreach ($savedDecos as $d) {
-            $decoInfo = collect($allDecorations)->firstWhere('id', $d->decoration_id);
-            if ($decoInfo) {
-                $eq->attached_decos[] = [
-                    'name' => $decoInfo['name'],
-                    'level' => $decoInfo['slot'] ?? 1,
-                    'is_empty' => false
-                ];
+        $totalSkillsRaw = [];
+        $weaponSkills = []; 
 
-                if (isset($decoInfo['skills'])) {
-                    foreach ($decoInfo['skills'] as $ds) {
-                        $dn = trim($ds['skill']['name'] ?? $ds['name'] ?? '');
-                        if ($dn) {
-                            $totalSkillsRaw[$dn] = ($totalSkillsRaw[$dn] ?? 0) + ($ds['level'] ?? 1);
-                            // Si la decoración está en un arma, también priorizamos la habilidad
-                            if ($isWeapon) $weaponSkills[$dn] = true;
+        // Definimos etiquetas de tipo para limpiar el Blade
+        $tipoLabels = [1 => 'Weapon', 2 => 'Armor Piece', 3 => 'Charm'];
+
+        foreach ($equipments as $eq) {
+            $source = [];
+            $isWeapon = ((int)$eq->tipo === 1);
+            
+            // Inyectamos la etiqueta de texto en el objeto
+            $eq->tipo_label = $tipoLabels[(int)$eq->tipo] ?? 'Equipment';
+
+            switch ((int)$eq->tipo) {
+                case 1: $source = $weapons; break;
+                case 2: $source = $armors; break;
+                case 3: $source = $charms; break;
+            }
+
+            $itemData = collect($source)->firstWhere('id', $eq->equipment_id);
+            
+            if ($itemData) {
+                $eq->real_name = $itemData['name'] ?? $itemData['weaponName'] ?? $itemData['charmName'] ?? 'Unknown Item';
+                $eq->total_slots = $itemData['slots'] ?? [];
+
+                if (isset($itemData['skill']['name'])) {
+                    $name = trim($itemData['skill']['name']);
+                    $totalSkillsRaw[$name] = ($totalSkillsRaw[$name] ?? 0) + ($itemData['level'] ?? 1);
+                    if ($isWeapon) $weaponSkills[$name] = true;
+                } elseif (isset($itemData['skills'])) {
+                    foreach ($itemData['skills'] as $s) {
+                        $name = trim($s['skill']['name'] ?? $s['name'] ?? '');
+                        if ($name) {
+                            $totalSkillsRaw[$name] = ($totalSkillsRaw[$name] ?? 0) + ($s['level'] ?? 1);
+                            if ($isWeapon) $weaponSkills[$name] = true;
                         }
                     }
                 }
             }
-        }
 
-        // Rellenar slots vacíos para la vista
-        if (isset($eq->total_slots) && is_array($eq->total_slots)) {
-            $numEquipadas = count($eq->attached_decos);
-            $numTotales = count($eq->total_slots);
+            $savedDecos = DB::table('builds_equipments_decorations')->where('build_equipment_id', $eq->id)->get();
+            $eq->attached_decos = [];
             
-            if ($numEquipadas < $numTotales) {
-                for ($i = $numEquipadas; $i < $numTotales; $i++) {
+            foreach ($savedDecos as $d) {
+                $decoInfo = collect($allDecorations)->firstWhere('id', $d->decoration_id);
+                if ($decoInfo) {
                     $eq->attached_decos[] = [
-                        'name' => null,
-                        'level' => $eq->total_slots[$i],
-                        'is_empty' => true
+                        'name' => $decoInfo['name'],
+                        'level' => $decoInfo['slot'] ?? 1,
+                        'is_empty' => false
                     ];
+
+                    if (isset($decoInfo['skills'])) {
+                        foreach ($decoInfo['skills'] as $ds) {
+                            $dn = trim($ds['skill']['name'] ?? $ds['name'] ?? '');
+                            if ($dn) {
+                                $totalSkillsRaw[$dn] = ($totalSkillsRaw[$dn] ?? 0) + ($ds['level'] ?? 1);
+                                if ($isWeapon) $weaponSkills[$dn] = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (isset($eq->total_slots) && is_array($eq->total_slots)) {
+                $numEquipadas = count($eq->attached_decos);
+                $numTotales = count($eq->total_slots);
+                
+                if ($numEquipadas < $numTotales) {
+                    for ($i = $numEquipadas; $i < $numTotales; $i++) {
+                        $eq->attached_decos[] = [
+                            'name' => null,
+                            'level' => $eq->total_slots[$i],
+                            'is_empty' => true
+                        ];
+                    }
                 }
             }
         }
+
+        // ⭐ LÓGICA DE ORDENAMIENTO Y MAPEO FINAL ⭐
+        $totalSkills = collect($totalSkillsRaw)
+            ->map(function($lvl, $name) use ($skillMaxLevels, $weaponSkills, $skillsData) {
+                $nameClean = trim($name);
+                $max = $skillMaxLevels[$nameClean] ?? 5;
+                $currentLvl = (int)min($lvl, $max);
+
+                $skillInfo = collect($skillsData)->first(function($item) use ($nameClean) {
+                    return trim($item['name'] ?? '') === $nameClean;
+                });
+
+                $desc = "Description not found.";
+                if ($skillInfo && isset($skillInfo['ranks'][$currentLvl - 1])) {
+                    $rank = $skillInfo['ranks'][$currentLvl - 1];
+                    $desc = $rank['description'] ?? $rank['desc'] ?? $desc;
+                }
+
+                return [
+                    'name'      => $nameClean,
+                    'lvl'       => $currentLvl,
+                    'max'       => $max,
+                    'percent'   => ($max > 0) ? ($currentLvl / $max) * 100 : 0,
+                    'desc'      => $desc,
+                    'is_weapon' => isset($weaponSkills[$nameClean]) ? 1 : 0
+                ];
+            })
+            ->sort(function ($a, $b) {
+                if ($a['is_weapon'] !== $b['is_weapon']) {
+                    return $b['is_weapon'] <=> $a['is_weapon'];
+                }
+                if ($a['lvl'] !== $b['lvl']) {
+                    return $b['lvl'] <=> $a['lvl'];
+                }
+                return $a['name'] <=> $b['name'];
+            })
+            ->values()
+            ->toArray();
+
+        return view('seccion.buildEditorShow', compact('build', 'equipments', 'totalSkills'));
     }
-
-    // ⭐ LÓGICA DE ORDENAMIENTO COMPLETA ⭐
-    $totalSkills = collect($totalSkillsRaw)
-        ->map(function($lvl, $name) use ($skillMaxLevels, $weaponSkills) {
-            return [
-                'name'      => $name,
-                'lvl'       => $lvl,
-                'max'       => $skillMaxLevels[$name] ?? 5,
-                'is_weapon' => isset($weaponSkills[$name]) ? 1 : 0
-            ];
-        })
-        ->sortBy([
-            ['is_weapon', 'desc'], // 1º Habilidades de Arma
-            ['lvl', 'desc'],       // 2º Nivel más alto (ej: 4/5 > 3/3)
-            ['name', 'asc']        // 3º Orden alfabético
-        ])
-        ->pluck('lvl', 'name')
-        ->toArray();
-
-    return view('seccion.buildEditorShow', compact('build', 'equipments', 'totalSkills', 'skillMaxLevels', 'skillsData'));
-}
 
     private function getNormalizedCharms() 
     {
