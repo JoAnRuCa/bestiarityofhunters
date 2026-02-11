@@ -4,19 +4,28 @@
 @section('content')
 <div class="w-[95%] max-w-7xl mx-auto mt-12 mb-12 p-8 rounded-3xl shadow-2xl bg-[#F4EBD0] border border-[#6B8E23]/20">
     
-    <div class="flex flex-col md:flex-row items-center justify-between mb-10 border-b border-[#6B8E23]/30 pb-6 gap-4">
-        <div>
+    {{-- HEADER & BUILD NAME --}}
+    <div class="flex flex-col md:flex-row items-center justify-between mb-10 border-b border-[#6B8E23]/30 pb-8 gap-6">
+        <div class="w-full md:w-auto">
             <h1 class="text-5xl font-black text-[#2F2F2F] tracking-tighter uppercase italic leading-none">
                 Build <span class="text-[#6B8E23]">Architect</span>
             </h1>
-            <p class="text-[#C67C48] font-bold uppercase tracking-[0.3em] text-xs mt-2">Professional Hunting Gear Configurator</p>
+            <div class="mt-4 flex flex-col sm:flex-row gap-4 items-end sm:items-center">
+                <div class="w-full sm:w-80">
+                    <label for="buildName" class="text-[10px] uppercase font-black text-[#6B8E23] tracking-widest mb-1 block ml-1">Build Designation</label>
+                    <input type="text" id="buildName" placeholder="E.g. Rathalos Hunter v1" 
+                        class="w-full bg-white border-2 border-[#6B8E23]/30 rounded-xl py-3 px-4 outline-none focus:ring-0 focus:border-[#6B8E23]/30 font-bold text-[#2F2F2F] transition-all shadow-sm">
+                </div>
+            </div>
         </div>
-        <button onclick="saveBuild()" class="bg-[#6B8E23] hover:bg-[#58751C] text-white px-8 py-4 rounded-xl font-bold transition-all shadow-[0_4px_0_0_#4A6318] active:translate-y-1 active:shadow-none">
+        
+        <button onclick="saveBuild()" class="bg-[#6B8E23] hover:bg-[#58751C] text-white px-10 py-5 rounded-2xl font-black uppercase tracking-tighter transition-all shadow-[0_5px_0_0_#4A6318] active:translate-y-1 active:shadow-none shrink-0">
             Forge Build
         </button>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        {{-- LOADOUT COLUMN --}}
         <div class="lg:col-span-2 space-y-4">
             <h3 class="text-[#2F2F2F] font-black uppercase text-sm tracking-widest mb-4 flex items-center">
                 <span class="w-10 h-1 bg-[#6B8E23] mr-3"></span> Equipment Loadout
@@ -41,25 +50,27 @@
                         </div>
 
                         <div id="{{ $slot }}_slots" class="mt-4 space-y-1.5 border-t border-gray-100 pt-3 hidden">
-                            </div>
+                        </div>
                     </div>
                 @endforeach
             </div>
         </div>
 
+        {{-- SKILLS COLUMN --}}
         <div class="space-y-6 text-[#2F2F2F]">
             <div class="bg-white/40 border-2 border-[#6B8E23]/20 rounded-3xl p-6 shadow-inner sticky top-6">
                 <h3 class="font-black uppercase text-sm tracking-widest mb-6 flex items-center">
-                    <span class="w-10 h-1 bg-[#C67C48] mr-3"></span> Active Skills
+                    <span class="w-10 h-1 bg-[#6B8E23] mr-3"></span> Active Skills
                 </h3>
                 <div id="skillTotals" class="space-y-2 max-h-[60vh] overflow-y-auto custom-scrollbar">
-                    <p class="text-xs italic opacity-50">Empty build...</p>
+                    <p class="text-xs italic opacity-50 text-center py-10 font-bold uppercase">No Skills Detected</p>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+{{-- MODAL --}}
 <div id="modal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-6">
     <div class="bg-[#F4EBD0] w-full max-w-md rounded-[2.5rem] shadow-2xl border-4 border-[#6B8E23] flex flex-col overflow-hidden max-h-[85vh]">
         <div class="bg-[#6B8E23] p-5 text-white flex justify-between items-center shrink-0">
@@ -68,7 +79,7 @@
         </div>
         <div class="p-4 border-b border-[#6B8E23]/20 bg-white/30 shrink-0">
             <input id="searchInput" type="text" placeholder="Search name, kind or skill..." 
-                class="w-full bg-white border-2 border-[#6B8E23]/30 rounded-xl py-3 px-4 focus:border-[#C67C48] outline-none font-bold text-sm">
+                class="w-full bg-white border-2 border-[#6B8E23]/30 rounded-xl py-3 px-4 outline-none focus:ring-0 focus:border-[#6B8E23]/30 font-bold text-sm">
         </div>
         <div id="modalList" class="overflow-y-auto p-4 space-y-2 flex-1 bg-[#F4EBD0]"></div>
     </div>
@@ -77,28 +88,10 @@
 <style>
     .custom-scrollbar::-webkit-scrollbar { width: 5px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #6B8E23; border-radius: 10px; }
-
-    /* --- FIX HOVER SLOTS --- */
-    .deco-row {
-        transition: all 0.2s ease;
-    }
-
-    .deco-row:hover {
-        background-color: #F4EBD0 !important;
-        border-color: #6B8E23 !important;
-    }
-
-    /* Forzamos que el texto dentro del hover sea verde, tenga o no opacidad previa */
-    .deco-row:hover .deco-text {
-        color: #6B8E23 !important;
-        opacity: 1 !important;
-        font-style: normal !important;
-    }
-
-    .delete-btn:hover {
-        color: #ef4444 !important;
-        background-color: #fee2e2 !important;
-    }
+    .deco-row { transition: all 0.2s ease; }
+    .deco-row:hover { background-color: #F4EBD0 !important; border-color: #6B8E23 !important; }
+    .deco-row:hover .deco-text { color: #6B8E23 !important; opacity: 1 !important; font-style: normal !important; }
+    .delete-btn:hover { color: #ef4444 !important; background-color: #fee2e2 !important; }
 </style>
 
 <script src="{{ asset('js/build-editor.js') }}"></script>

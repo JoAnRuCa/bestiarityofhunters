@@ -1468,6 +1468,10 @@ select {
   padding-left: 0.25rem;
   padding-right: 0.25rem;
 }
+.px-10 {
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+}
 .px-2 {
   padding-left: 0.5rem;
   padding-right: 0.5rem;
@@ -1523,6 +1527,10 @@ select {
 .py-4 {
   padding-top: 1rem;
   padding-bottom: 1rem;
+}
+.py-5 {
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
 }
 .py-6 {
   padding-top: 1.5rem;
@@ -1684,9 +1692,6 @@ select {
 .leading-tight {
   line-height: 1.25;
 }
-.tracking-\[0\.3em\] {
-  letter-spacing: 0.3em;
-}
 .tracking-tight {
   letter-spacing: -0.025em;
 }
@@ -1838,9 +1843,9 @@ select {
   --tw-shadow-colored: 0 25px 50px -12px var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
-.shadow-\[0_4px_0_0_\#4A6318\] {
-  --tw-shadow: 0 4px 0 0 #4A6318;
-  --tw-shadow-colored: 0 4px 0 0 var(--tw-shadow-color);
+.shadow-\[0_5px_0_0_\#4A6318\] {
+  --tw-shadow: 0 5px 0 0 #4A6318;
+  --tw-shadow-colored: 0 5px 0 0 var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 .shadow-inner {
@@ -2105,9 +2110,8 @@ select {
 .focus\:z-10:focus {
   z-index: 10;
 }
-.focus\:border-\[\#C67C48\]:focus {
-  --tw-border-opacity: 1;
-  border-color: rgb(198 124 72 / var(--tw-border-opacity, 1));
+.focus\:border-\[\#6B8E23\]\/30:focus {
+  border-color: rgb(107 142 35 / 0.3);
 }
 .focus\:border-blue-300:focus {
   --tw-border-opacity: 1;
@@ -2297,6 +2301,10 @@ select {
     height: 5rem;
   }
 
+  .sm\:w-80 {
+    width: 20rem;
+  }
+
   .sm\:max-w-md {
     max-width: 28rem;
   }
@@ -2307,6 +2315,10 @@ select {
 
   .sm\:grid-cols-2 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sm\:flex-row {
+    flex-direction: row;
   }
 
   .sm\:items-center {
