@@ -8,13 +8,13 @@
     <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
         <div class="w-full md:w-auto">
             <h1 class="text-5xl font-black tracking-tighter uppercase italic leading-none">
-                Build <span class="text-[#6B8E23]">Architect</span>
+                Build <span class="text-[#6B8E23]">Review</span>
             </h1>
             <div class="mt-6 flex flex-col gap-4">
                 <div class="w-full">
                     {{-- Mantenemos el label del nombre en el color de los tags para coherencia --}}
                     <label class="text-[10px] uppercase font-black text-[#C67C48] tracking-widest mb-1 block ml-1">Build's Name</label>
-                    <div class="text-4xl font-black uppercase tracking-tight leading-none mb-6">{{ $build->titulo }}</div>
+                    <div class="text-4xl font-black tracking-tight leading-none mb-6">{{ $build->titulo }}</div>
                     
                     {{-- SECCIÓN DE TAGS (MANTENIENDO #C67C48) --}}
                     <div class="flex flex-wrap gap-3">
@@ -144,7 +144,7 @@
                 <span class="w-10 h-1 bg-[#6B8E23] mr-3"></span> Playstyle & Strategy
             </h3>
             <div class="bg-white/30 border border-[#6B8E23]/10 p-6 rounded-2xl">
-                <p class="text-sm font-bold uppercase italic leading-relaxed opacity-80 whitespace-pre-line">
+                <p class="text-sm font-bold italic leading-relaxed opacity-80 whitespace-pre-line">
                     {{ $build->playstyle }}
                 </p>
             </div>
