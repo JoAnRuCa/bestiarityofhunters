@@ -4,20 +4,38 @@
 @section('content')
 <div class="w-[95%] max-w-7xl mx-auto mt-12 mb-12 p-8 rounded-3xl shadow-2xl bg-[#F4EBD0] border border-[#6B8E23]/20 text-[#2F2F2F]">
     
-    {{-- HEADER --}}
-    <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
-        <div class="w-full md:w-auto">
-            <h1 class="text-5xl font-black tracking-tighter uppercase italic leading-none">
-                Build <span class="text-[#6B8E23]">Architect</span>
-            </h1>
-            <div class="mt-6">
-                <div class="w-full sm:w-80">
-                    <label class="text-[10px] uppercase font-black text-[#6B8E23] tracking-widest mb-1 block ml-1">Build's Name</label>
-                    <div class="text-4xl font-black uppercase tracking-tight leading-none">{{ $build->titulo }}</div>
+{{-- HEADER --}}
+<div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
+    <div class="w-full md:w-auto">
+        <h1 class="text-5xl font-black tracking-tighter uppercase italic leading-none">
+            Build <span class="text-[#6B8E23]">Architect</span>
+        </h1>
+        <div class="mt-6 flex flex-col gap-4">
+            <div class="w-full">
+                <label class="text-[10px] uppercase font-black text-[#C67C48] tracking-widest mb-1 block ml-1">Build's Name</label>
+                <div class="text-4xl font-black uppercase tracking-tight leading-none mb-6">{{ $build->titulo }}</div>
+                
+                {{-- SECCIÓN DE TAGS --}}
+                <div class="flex flex-wrap gap-3">
+                    @forelse($build->tags as $tag)
+                        {{-- Se eliminó border-b-4 y el color de borde anterior --}}
+                        <div class="flex items-center gap-2 bg-[#C67C48] text-white px-4 py-2 rounded-xl shadow-sm">
+                            <svg class="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            
+                            <span class="text-xs font-black uppercase italic tracking-tight">
+                                {{ $tag->name }}
+                            </span>
+                        </div>
+                    @empty
+                        <span class="text-[10px] font-bold italic opacity-30 uppercase tracking-widest ml-1">No tags assigned</span>
+                    @endforelse
                 </div>
             </div>
         </div>
     </div>
+</div>
 
     <div class="w-full h-px bg-[#6B8E23]/30 my-8"></div>
 
