@@ -78,7 +78,7 @@ class BuildEditorController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => '¡Build forjada correctamente!',
-                    'slug'    => $build->slug
+                    'redirect_url' => url('/build-editor/' . $build->slug)
                 ]);
             });
 
