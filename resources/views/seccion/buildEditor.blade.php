@@ -31,10 +31,12 @@
             </div>
             
             {{-- Botón con Hover Cobrizo --}}
+            @auth
             <button type="submit" 
                 class="bg-[#6B8E23] hover:bg-[#C67C48] text-white px-10 py-5 rounded-2xl font-black uppercase shadow-[0_5px_0_0_#4A6318] hover:shadow-[0_5px_0_0_#A05E31] active:translate-y-1 active:shadow-none transition-all duration-300">
                 Forge Build
             </button>
+            @endauth
         </div>
 
         <div class="w-full h-px bg-[#6B8E23]/30 my-8"></div>
