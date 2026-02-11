@@ -226,11 +226,20 @@ function renderList(list) {
 }
 
 document.getElementById("searchInput").oninput = function () {
-    const t = this.value.toLowerCase();
+    const t = this.value.toLowerCase().trim();
+
     renderList(currentList.filter(item => {
+        // 1. Buscar por nombre del ítem
         const nameMatch = getName(item).toLowerCase().includes(t);
+
+        // 2. Buscar por habilidades
         const skillMatch = extractSkills(item).some(s => s.name.toLowerCase().includes(t));
-        return nameMatch || skillMatch;
+
+        // 3. Buscar por tipo/categoría (kind)
+        // Esto permitirá buscar "bow", "insect", "arms", "head", etc.
+        const kindMatch = item.kind ? item.kind.toLowerCase().includes(t) : false;
+
+        return nameMatch || skillMatch || kindMatch;
     }));
 };
 
