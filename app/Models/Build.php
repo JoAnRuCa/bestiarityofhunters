@@ -45,6 +45,11 @@ class Build extends Model
         return $this->hasMany(BuildComment::class, 'build_id');
     }
 
+    public function equipments()
+    {
+        return $this->hasMany(BuildsEquipment::class, 'build_id');
+    }
+
     // -----------------------------
     // SCORE TOTAL
     // -----------------------------
@@ -75,6 +80,21 @@ class Build extends Model
                 $build->slug = static::generateUniqueSlug($build->titulo, $build->id);
             }
         });
+
+        static::deleting(function ($build) {
+        // Al borrar la build, recorremos sus equipos
+        foreach ($build->equipments as $equipment) {
+            // 1. Borramos las decoraciones de ese equipo
+            $equipment->decorations()->delete();
+            // 2. Borramos el equipo en sí
+            $equipment->delete();
+        }
+        
+        // También limpiamos votos y comentarios si existen
+        $build->votos()->delete();
+        $build->comments()->delete();
+        $build->tags()->detach();
+    });
     }
 
     protected static function generateUniqueSlug($titulo, $ignoreId = null)
