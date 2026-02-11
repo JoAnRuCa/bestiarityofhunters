@@ -91,27 +91,30 @@ class BuildEditorController extends Controller
         }
     }
     
-    public function show($slug)
+public function show($slug)
     {
         $build = Build::with('tags')->where('slug', $slug)->firstOrFail();
         $equipments = DB::table('builds_equipments')->where('build_id', $build->id)->get();
 
+        // Carga de JSONs
         $weapons = json_decode(Storage::get('data/weapons.json'), true) ?: [];
         $armors = json_decode(Storage::get('data/armors.json'), true) ?: [];
         $charms = $this->getNormalizedCharms();
         $allDecorations = json_decode(Storage::get('data/decorations.json'), true) ?: [];
         
         $skillsData = json_decode(Storage::get('data/skills.json'), true) ?: [];
+        
         $skillMaxLevels = [];
         foreach ($skillsData as $s) {
             if (isset($s['name']) && isset($s['ranks'])) {
-                $skillMaxLevels[$s['name']] = count($s['ranks']);
+                $skillMaxLevels[trim($s['name'])] = count($s['ranks']);
             }
         }
 
         $totalSkills = [];
 
         foreach ($equipments as $eq) {
+            // Cambio de match por switch para PHP 7.4
             $source = [];
             switch ((int)$eq->tipo) {
                 case 1: $source = $weapons; break;
@@ -124,15 +127,13 @@ class BuildEditorController extends Controller
                 $eq->real_name = $itemData['name'] ?? $itemData['weaponName'] ?? $itemData['charmName'] ?? 'Unknown Item';
 
                 if (isset($itemData['skill']['name'])) {
-                    $name = $itemData['skill']['name'];
-                    $lvl = $itemData['level'] ?? 1;
-                    $totalSkills[$name] = ($totalSkills[$name] ?? 0) + $lvl;
-                } elseif (isset($itemData['skills']) && is_array($itemData['skills'])) {
+                    $name = trim($itemData['skill']['name']);
+                    $totalSkills[$name] = ($totalSkills[$name] ?? 0) + ($itemData['level'] ?? 1);
+                } elseif (isset($itemData['skills'])) {
                     foreach ($itemData['skills'] as $s) {
-                        $name = $s['skill']['name'] ?? $s['name'] ?? null;
+                        $name = trim($s['skill']['name'] ?? $s['name'] ?? '');
                         if ($name) {
-                            $lvl = $s['level'] ?? 1;
-                            $totalSkills[$name] = ($totalSkills[$name] ?? 0) + $lvl;
+                            $totalSkills[$name] = ($totalSkills[$name] ?? 0) + ($s['level'] ?? 1);
                         }
                     }
                 }
@@ -143,17 +144,12 @@ class BuildEditorController extends Controller
             foreach ($decos as $d) {
                 $decoInfo = collect($allDecorations)->firstWhere('id', $d->decoration_id);
                 if ($decoInfo) {
-                    $eq->attached_decos[] = [
-                        'name' => $decoInfo['name'] ?? 'Jewel',
-                        'level' => $decoInfo['slot'] ?? 1
-                    ];
-
-                    if (isset($decoInfo['skills']) && is_array($decoInfo['skills'])) {
+                    $eq->attached_decos[] = ['name' => $decoInfo['name'], 'level' => $decoInfo['slot']];
+                    if (isset($decoInfo['skills'])) {
                         foreach ($decoInfo['skills'] as $ds) {
-                            $dName = $ds['skill']['name'] ?? $ds['name'] ?? null;
-                            if ($dName) {
-                                $dLvl = $ds['level'] ?? 1;
-                                $totalSkills[$dName] = ($totalSkills[$dName] ?? 0) + $dLvl;
+                            $dn = trim($ds['skill']['name'] ?? $ds['name'] ?? '');
+                            if ($dn) {
+                                $totalSkills[$dn] = ($totalSkills[$dn] ?? 0) + ($ds['level'] ?? 1);
                             }
                         }
                     }
@@ -162,7 +158,8 @@ class BuildEditorController extends Controller
         }
 
         arsort($totalSkills);
-        return view('seccion.buildEditorShow', compact('build', 'equipments', 'totalSkills', 'skillMaxLevels'));
+
+        return view('seccion.buildEditorShow', compact('build', 'equipments', 'totalSkills', 'skillMaxLevels', 'skillsData'));
     }
 
     private function getNormalizedCharms() {
