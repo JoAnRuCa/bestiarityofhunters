@@ -1,11 +1,8 @@
 /* ============================================================
-   BUILD EDITOR — OPTIMIZED VERSION (NO CONSOLE LOGS)
+   BUILD ARCHITECT — CORE ENGINE
    ============================================================ */
 
-/* ------------------------------------------------------------
-   0. Load data via AJAX (only once)
-   ------------------------------------------------------------ */
-
+// Data Stores
 let weapons = [];
 let armors = [];
 let charms = [];
@@ -13,284 +10,249 @@ let decorationsData = [];
 let skillsData = [];
 let dataLoaded = false;
 
+// Dictionaries for fast lookup
 let skillMaxLevels = {};
-let skillDescriptions = {};
-let decoCache = { weapon: { 1: [], 2: [], 3: [] }, armor: { 1: [], 2: [], 3: [] } };
+let decoCache = {
+    weapon: { 1: [], 2: [], 3: [] },
+    armor: { 1: [], 2: [], 3: [] }
+};
 
+/**
+ * Initial data fetch from the API
+ */
 async function loadBuildData() {
-    const res = await fetch('api/build-data');
-    const data = await res.json();
+    try {
+        const res = await fetch('api/build-data');
+        const data = await res.json();
 
-    weapons = data.weapons;
-    armors = data.armors;
-    charms = data.charms;
-    decorationsData = data.decorations;
-    skillsData = data.skills;
+        weapons = data.weapons;
+        armors = data.armors;
+        charms = data.charms;
+        decorationsData = data.decorations;
+        skillsData = data.skills;
 
-    prepareSkillDictionaries();
-    prepareDecoCache();
+        // Map max levels for progress bars
+        skillsData.forEach(s => {
+            if (s.name && s.ranks) {
+                skillMaxLevels[s.name] = s.ranks.length;
+            }
+        });
 
-    dataLoaded = true;
+        // Cache decorations by slot level and type (kind)
+        decorationsData.forEach(d => {
+            for (let lvl = d.slot; lvl <= 3; lvl++) {
+                if (decoCache[d.kind] && decoCache[d.kind][lvl]) {
+                    decoCache[d.kind][lvl].push(d);
+                }
+            }
+        });
+
+        dataLoaded = true;
+        console.log("Forge data loaded successfully.");
+    } catch (e) {
+        console.error("Critical error loading build data:", e);
+    }
 }
 
-/* ------------------------------------------------------------
-   1. Prepare skill dictionaries
-   ------------------------------------------------------------ */
-
-function prepareSkillDictionaries() {
-    skillMaxLevels = {};
-    skillDescriptions = {};
-
-    skillsData.forEach(s => {
-        if (s.name && Array.isArray(s.ranks)) {
-            skillMaxLevels[s.name] = s.ranks.length;
-            skillDescriptions[s.name] = {};
-
-            s.ranks.forEach(r => {
-                skillDescriptions[s.name][r.level] = r.description;
-            });
-        }
-    });
-}
-
-/* ------------------------------------------------------------
-   2. Pre-cache decorations by level
-   ------------------------------------------------------------ */
-
-function prepareDecoCache() {
-    decorationsData.forEach(d => {
-        for (let lvl = d.slot; lvl <= 3; lvl++) {
-            decoCache[d.kind][lvl].push(d);
-        }
-    });
-}
-
-/* ------------------------------------------------------------
-   3. Build state
-   ------------------------------------------------------------ */
-
+/* --- Current Build State --- */
 let build = {
-    weapon1: null,
-    weapon2: null,
-    head: null,
-    chest: null,
-    arms: null,
-    waist: null,
-    legs: null,
-    charm: null
+    weapon1: null, weapon2: null, head: null, chest: null,
+    arms: null, waist: null, legs: null, charm: null
 };
 
 let decorations = {
-    weapon1: [],
-    weapon2: [],
-    head: [],
-    chest: [],
-    arms: [],
-    waist: [],
-    legs: [],
-    charm: []
+    weapon1: [], weapon2: [], head: [], chest: [],
+    arms: [], waist: [], legs: [], charm: []
 };
 
 let activeSlot = null;
 let activeDecoIndex = null;
-let activeDecoLevel = null;
-let modalMode = null;
+let modalMode = null; // 'piece' or 'decoration'
 let currentList = [];
 
-/* ------------------------------------------------------------
-   4. Helpers
-   ------------------------------------------------------------ */
+/* --- Utilities --- */
 
 function getName(item) {
-    if (!item) return "—";
-    return item.name ?? item.weaponName ?? item.charmName ?? item.title ?? "Unnamed";
+    if (!item) return "— Select Piece —";
+    return item.name ?? item.weaponName ?? item.charmName ?? "Unnamed";
 }
 
 function extractSkills(item) {
     if (!item) return [];
-
-    if (item.skill && item.level) {
-        return [{ name: item.skill.name, level: item.level }];
-    }
-
+    // Handle single skill objects (like charms)
+    if (item.skill && item.level) return [{ name: item.skill.name, level: item.level }];
+    // Handle armor skill arrays
     if (Array.isArray(item.skills)) {
-        return item.skills.map(s => ({
-            name: s.skill.name,
-            level: s.level
-        }));
+        return item.skills.map(s => ({ name: s.skill.name, level: s.level }));
     }
-
     return [];
 }
 
-/* ------------------------------------------------------------
-   5. Skill calculation
-   ------------------------------------------------------------ */
+/* --- UI Rendering --- */
 
-function calculateTotalSkills() {
-    const totals = {};
-
-    for (const slot in build) {
-        if (slot === "weapon2") continue;
-
-        const item = build[slot];
-        const skills = extractSkills(item);
-
-        skills.forEach(s => {
-            if (!totals[s.name]) totals[s.name] = 0;
-            totals[s.name] += s.level;
-        });
-
-        if (decorations[slot]) {
-            decorations[slot].forEach(deco => {
-                if (!deco) return;
-                deco.skills.forEach(s => {
-                    if (!totals[s.skill.name]) totals[s.skill.name] = 0;
-                    totals[s.skill.name] += s.level;
-                });
-            });
-        }
-    }
-
-    for (const name in totals) {
-        if (skillMaxLevels[name]) {
-            totals[name] = Math.min(totals[name], skillMaxLevels[name]);
-        }
-    }
-
-    return totals;
-}
-
-function renderSkillTotals() {
-    const totals = calculateTotalSkills();
-    const box = document.getElementById("skillTotals");
-
-    if (Object.keys(totals).length === 0) {
-        box.textContent = "—";
-        return;
-    }
-
-    let html = "";
-    for (const [name, lvl] of Object.entries(totals)) {
-        html += `<strong>${name}: ${lvl}</strong><br>`;
-        const desc = skillDescriptions[name]?.[lvl];
-        html += `<span style="margin-left:10px;">→ ${desc ?? "No description available"}</span><br><br>`;
-    }
-    box.innerHTML = html;
-}
-
-/* ------------------------------------------------------------
-   6. Update UI
-   ------------------------------------------------------------ */
-
+/**
+ * Main update function to sync the UI with the 'build' state
+ */
 function updateSelected() {
     for (const slot in build) {
-        const span = document.getElementById(slot);
-        if (span) span.textContent = getName(build[slot]);
+        const nameElement = document.getElementById(slot + "_name");
+        if (nameElement) {
+            nameElement.textContent = getName(build[slot]);
+        }
         renderSlots(slot);
     }
     renderSkillTotals();
 }
 
-function clearSlot(slot, index = null) {
-    // Si index es null → limpiar pieza completa
-    if (index === null) {
-        build[slot] = null;
-        decorations[slot] = [];
-        updateSelected();
-        return;
-    }
-
-    // Si index tiene valor → limpiar solo esa decoración
-    decorations[slot][index] = null;
-    updateSelected();
-}
-
-
-
-/* ------------------------------------------------------------
-   7. Slot rendering
-   ------------------------------------------------------------ */
-
+/**
+ * Renders the decoration slots for a specific equipment piece
+ */
 function renderSlots(slot) {
     const item = build[slot];
-    const containerId = slot + "_slots";
-
-    let container = document.getElementById(containerId);
-    if (!container) {
-        container = document.createElement("div");
-        container.id = containerId;
-        document.getElementById(slot).parentNode.appendChild(container);
-    }
-
-    container.innerHTML = "";
+    const container = document.getElementById(slot + "_slots");
+    if (!container) return;
 
     if (!item || !item.slots || item.slots.length === 0) {
-        container.innerHTML = "<em>No slots</em>";
-        decorations[slot] = [];
+        container.innerHTML = "";
+        container.classList.add("hidden");
         return;
     }
 
-    if (!decorations[slot] || decorations[slot].length !== item.slots.length) {
-        decorations[slot] = Array(item.slots.length).fill(null);
-    }
+    container.classList.remove("hidden");
+    container.innerHTML = "";
 
     item.slots.forEach((slotLevel, index) => {
         const deco = decorations[slot][index];
-        const name = deco ? deco.name : "Empty";
+        const row = document.createElement("div");
 
-        const div = document.createElement("div");
+        // Use 'deco-row' class for CSS-based hover (background & border)
+        row.className = `deco-row flex items-center justify-between p-2 rounded-xl border border-dashed mb-1.5 cursor-pointer transition-all duration-200
+            ${deco ? 'bg-[#6B8E23]/5 border-[#6B8E23]/30' : 'bg-gray-50 border-gray-200'}`;
 
-        div.innerHTML = `
-        Slot ${index + 1} (Lv${slotLevel}): 
-        <button onclick="selectDecoration('${slot}', ${index}, ${slotLevel})">${name}</button>
-        <button style="margin-left:6px;" onclick="clearSlot('${slot}', ${index})">Clear</button>
-    `;
+        row.onclick = (e) => {
+            e.stopPropagation();
+            selectDecoration(slot, index, slotLevel);
+        };
 
-        container.appendChild(div);
+        const decoName = deco ? deco.name : `Empty Slot (Lv${slotLevel})`;
+        // Use 'deco-text' class for CSS-based hover (color & opacity)
+        const textStyle = deco ? "text-[#2F2F2F]" : "text-[#2F2F2F]/40 italic";
+
+        row.innerHTML = `
+            <div class="flex items-center gap-3">
+                <div class="w-5 h-5 rounded-full border-2 border-[#6B8E23] flex items-center justify-center text-[9px] font-black text-[#6B8E23] bg-white shadow-sm">
+                    ${slotLevel}
+                </div>
+                <span class="deco-text text-xs font-bold ${textStyle} transition-colors">
+                    ${decoName}
+                </span>
+            </div>
+        `;
+
+        if (deco) {
+            const deleteBtn = document.createElement("button");
+            deleteBtn.className = "delete-btn text-gray-400 p-1.5 rounded-md transition-all";
+            deleteBtn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2.5" stroke-linecap="round"/></svg>`;
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                clearSlot(slot, index);
+            };
+            row.appendChild(deleteBtn);
+        }
+
+        container.appendChild(row);
     });
-
 }
 
-/* ------------------------------------------------------------
-   8. Decoration selection
-   ------------------------------------------------------------ */
+function clearSlot(slot, index = null) {
+    if (index === null) {
+        build[slot] = null;
+        decorations[slot] = [];
+    } else {
+        decorations[slot][index] = null;
+    }
+    updateSelected();
+}
+
+/**
+ * Calculates and renders the cumulative skills of the build
+ */
+function renderSkillTotals() {
+    const totals = {};
+
+    // 1. Gather skills from pieces and decorations
+    for (const slot in build) {
+        const item = build[slot];
+        if (!item) continue;
+
+        extractSkills(item).forEach(s => {
+            totals[s.name] = (totals[s.name] || 0) + s.level;
+        });
+
+        if (decorations[slot]) {
+            decorations[slot].forEach(deco => {
+                if (deco && deco.skills) {
+                    deco.skills.forEach(ds => {
+                        totals[ds.skill.name] = (totals[ds.skill.name] || 0) + ds.level;
+                    });
+                }
+            });
+        }
+    }
+
+    const box = document.getElementById("skillTotals");
+    let html = "";
+
+    // 2. Generate HTML with progress bars
+    for (const [name, lvl] of Object.entries(totals)) {
+        const max = skillMaxLevels[name] || 5;
+        const cappedLvl = Math.min(lvl, max);
+        const percent = (cappedLvl / max) * 100;
+
+        html += `
+            <div class="mb-4">
+                <div class="flex justify-between items-end mb-1">
+                    <span class="font-black uppercase text-[11px] tracking-wider">${name}</span>
+                    <span class="text-[#6B8E23] font-black text-xs">Lv ${cappedLvl}/${max}</span>
+                </div>
+                <div class="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                    <div class="h-full bg-[#6B8E23] transition-all duration-500" style="width: ${percent}%"></div>
+                </div>
+            </div>`;
+    }
+
+    box.innerHTML = html || `<p class="italic text-sm opacity-50 text-center py-10 font-bold uppercase">No Skills Detected</p>`;
+}
+
+/* --- Modal Logic --- */
+
+function openSelector(slot) {
+    if (!dataLoaded) return;
+    activeSlot = slot;
+    modalMode = "piece";
+    document.getElementById("modalTitle").textContent = "Select " + slot;
+
+    let list = [];
+    if (slot.includes("weapon")) list = weapons;
+    else if (slot === "charm") list = charms;
+    else list = armors.filter(a => a.kind === slot);
+
+    currentList = list;
+    renderList(list);
+    openModal();
+}
 
 function selectDecoration(slot, index, slotLevel) {
     activeSlot = slot;
     activeDecoIndex = index;
-    activeDecoLevel = slotLevel;
-
     modalMode = "decoration";
-    document.getElementById("modalTitle").textContent = "Select Decoration";
+    document.getElementById("modalTitle").textContent = "Select Jewel (Lv" + slotLevel + ")";
 
-    const type = (slot === "weapon1" || slot === "weapon2") ? "weapon" : "armor";
-
+    const type = slot.includes("weapon") ? "weapon" : "armor";
     currentList = decoCache[type][slotLevel];
-
-    document.getElementById("searchInput").value = "";
     renderList(currentList);
+    openModal();
 }
-
-/* ------------------------------------------------------------
-   9. Modal
-   ------------------------------------------------------------ */
-
-function openModal() {
-    document.getElementById("modal").style.display = "flex";
-}
-
-function closeModal() {
-    document.getElementById("modal").style.display = "none";
-}
-
-document.getElementById("modal").addEventListener("click", function (e) {
-    if (e.target === this) closeModal();
-});
-
-/* ------------------------------------------------------------
-   10. Render list
-   ------------------------------------------------------------ */
 
 function renderList(list) {
     const container = document.getElementById("modalList");
@@ -298,106 +260,66 @@ function renderList(list) {
 
     list.forEach(item => {
         const div = document.createElement("div");
-        div.textContent = getName(item);
-        div.style.cursor = "pointer";
-        div.style.padding = "4px";
-        div.style.borderBottom = "1px solid #ccc";
+        div.className = "p-3 mb-2 bg-white border border-[#6B8E23]/10 rounded-xl hover:border-[#6B8E23] hover:bg-[#6B8E23]/5 cursor-pointer transition-all shadow-sm";
 
-        div.addEventListener("click", () => {
+        const skillsHtml = extractSkills(item).map(s =>
+            `<span class="text-[9px] font-bold text-[#C67C48] bg-[#C67C48]/5 px-2 py-0.5 rounded-full mr-1 inline-block">◈ ${s.name}</span>`
+        ).join("");
 
+        div.innerHTML = `
+            <div class="text-[#2F2F2F] font-bold text-sm">${getName(item)}</div>
+            <div class="mt-1 flex flex-wrap">${skillsHtml}</div>
+        `;
+
+        div.onclick = () => {
             if (modalMode === "piece") {
                 build[activeSlot] = item;
-                decorations[activeSlot] = [];
-                updateSelected();
-                closeModal();
-                return;
-            }
-
-            if (modalMode === "decoration") {
+                // Initialize deco array based on item's slots
+                decorations[activeSlot] = new Array(item.slots ? item.slots.length : 0).fill(null);
+            } else {
                 decorations[activeSlot][activeDecoIndex] = item;
-                updateSelected();
-                closeModal();
-                return;
             }
-        });
-
+            updateSelected();
+            closeModal();
+        };
         container.appendChild(div);
     });
-
-    openModal();
 }
 
-/* ------------------------------------------------------------
-   11. Search filter
-   ------------------------------------------------------------ */
-
+// Live Search
 document.getElementById("searchInput").addEventListener("input", function () {
-    const term = this.value.toLowerCase();
-
-    const filtered = currentList.filter(item => {
-        if (getName(item).toLowerCase().includes(term)) return true;
-
-        if (item.skills && Array.isArray(item.skills)) {
-            for (const s of item.skills) {
-                const skillName = s.skill?.name?.toLowerCase() ?? "";
-                if (skillName.includes(term)) return true;
-            }
-        }
-
-        return false;
-    });
-
+    const term = this.value.toLowerCase().trim();
+    const filtered = currentList.filter(item => getName(item).toLowerCase().includes(term));
     renderList(filtered);
 });
 
-/* ------------------------------------------------------------
-   12. OPEN SELECTOR — NOW INSTANT (NO AJAX)
-   ------------------------------------------------------------ */
+/* --- UI Controls --- */
 
-function openSelector(slot) {
-    if (!dataLoaded) return;
-
-    activeSlot = slot;
-    modalMode = "piece";
-
-    document.getElementById("modalTitle").textContent = "Select " + slot;
-
-    let list = [];
-
-    if (slot === "weapon1" || slot === "weapon2") {
-        list = weapons;
-    } else if (slot === "charm") {
-        list = charms;
-    } else {
-        list = armors.filter(a => a.kind === slot);
-    }
-
-    currentList = list;
-
+function openModal() {
+    document.getElementById("modal").classList.remove("hidden");
     document.getElementById("searchInput").value = "";
-    renderList(list);
+    document.getElementById("searchInput").focus();
 }
 
-/* ------------------------------------------------------------
-   13. SAVE BUILD (AJAX)
-   ------------------------------------------------------------ */
+function closeModal() {
+    document.getElementById("modal").classList.add("hidden");
+}
 
 async function saveBuild() {
-    const res = await fetch('api/save-build', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        },
-        body: JSON.stringify({ build, decorations })
-    });
-
-    await res.json();
-    alert("Build guardado correctamente");
+    try {
+        const res = await fetch('api/save-build', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ build, decorations })
+        });
+        if (res.ok) alert("Build stored in the forge!");
+    } catch (e) {
+        alert("The forge is cold. Error saving build.");
+    }
 }
 
-/* ------------------------------------------------------------
-   14. INIT
-   ------------------------------------------------------------ */
-
+// Boot
 loadBuildData();
