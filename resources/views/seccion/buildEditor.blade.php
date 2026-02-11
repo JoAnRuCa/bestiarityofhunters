@@ -21,12 +21,10 @@
                         <input type="text" name="name" id="buildName" 
                             class="w-full bg-white border-2 border-[#6B8E23]/30 rounded-xl py-3 px-4 font-bold text-[#2F2F2F] outline-none focus:border-[#6B8E23] transition-all"
                             placeholder="Enter build name...">
-                        {{-- ERROR NOMBRE --}}
                         <p id="error-name" class="text-red-600 text-xs font-bold mt-2 hidden italic"></p>
                     </div>
                     <div id="tagContainer" class="bg-white/40 p-5 rounded-2xl border border-[#6B8E23]/10">
                         <x-tag-selector :showAll="false" />
-                        {{-- ERROR TAGS --}}
                         <p id="error-tags" class="text-red-600 text-xs font-bold mt-2 hidden italic"></p>
                     </div>
                 </div>
@@ -48,19 +46,19 @@
                     
                     <div id="selected" class="grid gap-4">
                         @foreach (['weapon1', 'weapon2', 'head', 'chest', 'arms', 'waist', 'legs', 'charm'] as $slot)
-                            <div> {{-- Wrapper para el error --}}
-                                <div id="slot_container_{{ $slot }}" class="bg-white/50 border border-[#6B8E23]/10 p-5 rounded-2xl shadow-sm transition-all duration-300 hover:border-[#6B8E23]/40">
+                            <div>
+                                <div id="slot_container_{{ $slot }}" class="bg-white/50 border border-[#6B8E23]/10 p-5 rounded-2xl shadow-sm transition-all duration-300">
                                     <div class="flex items-center justify-between">
-                                        <div class="flex flex-col flex-1 group cursor-pointer" onclick="openSelector('{{ $slot }}')">
-                                            <span class="text-[10px] uppercase font-black text-[#6B8E23] tracking-wider mb-1 opacity-70 italic block">
+                                        <div class="flex flex-col flex-1 cursor-pointer group" onclick="openSelector('{{ $slot }}')">
+                                            <span class="text-[10px] uppercase font-black text-[#6B8E23] tracking-wider mb-1 opacity-70 italic block transition-colors group-hover:text-[#4A6318]">
                                                 {{ str_replace(['1','2'], [' Primary',' Secondary'], $slot) }}
                                             </span>
-                                            <span id="{{ $slot }}_name" class="font-bold text-lg leading-none">
+                                            <span id="{{ $slot }}_name" class="font-bold text-lg leading-none transition-colors group-hover:text-[#6B8E23]">
                                                 — Select Piece —
                                             </span>
                                         </div>
                                         <button type="button" onclick="event.stopPropagation(); clearSlot('{{ $slot }}')" 
-                                            class="text-gray-300 hover:text-red-500 p-2 transition-colors">
+                                            class="text-gray-300 hover:text-red-500 p-2 transition-colors flex-shrink-0">
                                             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                             </svg>
@@ -68,7 +66,6 @@
                                     </div>
                                     <div id="{{ $slot }}_slots" class="mt-4 flex flex-col gap-2 pt-3 border-t border-[#6B8E23]/10 hidden"></div>
                                 </div>
-                                {{-- ERROR PIEZA ESPECÍFICA (ID dinámico para el script) --}}
                                 <p id="error-{{ $slot }}" class="text-red-600 text-[10px] font-black uppercase mt-2 hidden italic ml-2"></p>
                             </div>
                         @endforeach
@@ -86,7 +83,6 @@
                             placeholder="Describe how to play this build..." 
                             class="w-full bg-transparent outline-none font-medium text-[#2F2F2F] text-lg resize-none placeholder:opacity-30"></textarea>
                     </div>
-                    {{-- ERROR PLAYSTYLE --}}
                     <p id="error-playstyle" class="text-red-600 text-xs font-bold mt-2 hidden italic"></p>
                 </section>
             </div>
@@ -105,7 +101,6 @@
     </div>
 </form>
 
-{{-- MODAL --}}
 <div id="modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
     <div class="bg-[#F4EBD0] w-full max-w-xl rounded-[2.5rem] shadow-2xl border-4 border-[#6B8E23] flex flex-col overflow-hidden max-h-[85vh]">
         <div class="bg-[#6B8E23] p-6 text-white flex justify-between items-center">

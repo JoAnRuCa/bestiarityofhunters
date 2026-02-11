@@ -58,6 +58,16 @@ function updateSelected() {
     for (const slot in build) {
         const nameEl = document.getElementById(slot + "_name");
         if (nameEl) nameEl.textContent = getName(build[slot]);
+
+        // Limpiar errores visuales si se ha seleccionado algo
+        if (build[slot]) {
+            const errEl = document.getElementById(`error-${slot}`);
+            if (errEl) {
+                errEl.innerText = "";
+                errEl.classList.add('hidden');
+            }
+        }
+
         renderSlots(slot);
     }
     renderSkillTotals();
@@ -81,17 +91,19 @@ function renderSlots(slot) {
     item.slots.forEach((slotLevel, index) => {
         const deco = decorations[slot][index];
         const row = document.createElement("div");
-        row.className = "flex items-center justify-between p-2 rounded-xl border mb-1.5 " +
+        row.className = "flex items-center justify-between p-2 rounded-xl border mb-1.5 transition-colors " +
             (deco ? 'bg-[#6B8E23]/5 border-[#6B8E23]/30' : 'bg-gray-50 border-dashed border-gray-300');
 
         const decoName = deco ? deco.name : "Empty Slot (Lv" + slotLevel + ")";
+
+        // textStyle sin cambios de grosor en hover para evitar saltos
         const textStyle = deco
             ? "text-[#2F2F2F] group-hover:text-[#6B8E23]"
-            : "text-[#2F2F2F]/40 italic group-hover:text-[#6B8E23] group-hover:not-italic";
+            : "text-[#2F2F2F]/40 italic group-hover:text-[#6B8E23]";
 
         row.innerHTML = `
-            <div class="flex items-center gap-3 cursor-pointer group transition-colors" onclick="event.stopPropagation(); selectDecoration('${slot}', ${index}, ${slotLevel})">
-                <div class="w-5 h-5 rounded-full border-2 border-[#6B8E23] flex items-center justify-center text-[9px] font-black text-[#6B8E23] bg-white">
+            <div class="flex items-center gap-3 cursor-pointer group transition-colors w-full" onclick="event.stopPropagation(); selectDecoration('${slot}', ${index}, ${slotLevel})">
+                <div class="w-5 h-5 flex-shrink-0 rounded-full border-2 border-[#6B8E23] flex items-center justify-center text-[9px] font-black text-[#6B8E23] bg-white transition-colors group-hover:bg-[#6B8E23] group-hover:text-white">
                     ${slotLevel}
                 </div>
                 <span class="text-xs font-bold transition-colors tracking-tight ${textStyle}">
@@ -102,7 +114,7 @@ function renderSlots(slot) {
 
         if (deco) {
             const btn = document.createElement("button");
-            btn.className = "text-gray-400 hover:text-red-500 p-1.5 transition-colors";
+            btn.className = "text-gray-400 hover:text-red-500 p-1.5 transition-colors flex-shrink-0";
             btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2.5"/></svg>';
             btn.onclick = (e) => { e.stopPropagation(); clearSlot(slot, index); };
             row.appendChild(btn);
@@ -224,19 +236,14 @@ function syncWeaponTags() {
     });
 }
 
-// ============================================================
-// ENVÍO DE FORMULARIO CON MANEJO DE ERRORES EN EL DOM
-// ============================================================
 document.getElementById('forgeForm').onsubmit = function (e) {
     e.preventDefault();
 
-    // Limpiar errores visuales previos
     document.querySelectorAll('[id^="error-"]').forEach(el => {
         el.innerText = "";
         el.classList.add('hidden');
     });
 
-    // Sincronizar datos del editor
     document.getElementById('buildDataInput').value = JSON.stringify(build);
     document.getElementById('decoDataInput').value = JSON.stringify(decorations);
 
@@ -252,34 +259,22 @@ document.getElementById('forgeForm').onsubmit = function (e) {
     })
         .then(async res => {
             const data = await res.json();
-
             if (res.status === 422) {
                 Object.keys(data.errors).forEach(key => {
-                    // Esto convierte "build_data_array.weapon1" en simplemente "weapon1"
                     const cleanKey = key.includes('.') ? key.split('.').pop() : key;
-
                     const errorEl = document.getElementById(`error-${cleanKey}`);
                     if (errorEl) {
                         errorEl.innerText = "• " + data.errors[key][0];
                         errorEl.classList.remove('hidden');
                     }
                 });
-
-                // Opcional: Hacer scroll hasta el primer error visible
                 const firstError = document.querySelector('[id^="error-"]:not(.hidden)');
                 if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
             } else if (res.ok && data.success) {
-                // Éxito: redirección
                 window.location.href = data.redirect_url;
-            } else {
-                // Error de servidor u otro error
-                console.error("Server error:", data);
             }
         })
-        .catch(err => {
-            console.error("Forge error:", err);
-        });
+        .catch(err => console.error("Forge error:", err));
 };
 
 loadBuildData();
