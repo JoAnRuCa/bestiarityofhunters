@@ -54,7 +54,7 @@ Route::get('/api/build-data', [BuildApiController::class, 'getBuildData']);
 // Ruta para procesar el guardado (la que te falta)
 Route::post('/save-build', [BuildEditorController::class, 'store'])->name('builds.store');
 // Ruta para visualizar una build específica por su slug
-Route::get('/builds/{slug}', [BuildEditorController::class, 'show'])->name('builds.show');
+Route::get('/build-editor/{slug}', [BuildEditorController::class, 'show'])->name('build-editor.show');
 
 
 Route::view('/privacy', 'seccion.privacyPolicy')->name('privacy');

@@ -161,7 +161,7 @@ public function show($slug)
     }
 
     $header = $build->titulo;
-    return view('seccion.buildShow', compact('build', 'equipments', 'totalSkills', 'header'));
+    return view('seccion.buildEditorShow', compact('build', 'equipments', 'totalSkills', 'header'));
 }
 /**
  * Función auxiliar para normalizar talismanes igual que en el ApiController
