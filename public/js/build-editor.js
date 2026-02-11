@@ -168,10 +168,26 @@ function renderSkillTotals() {
 
     const box = document.getElementById("skillTotals");
     let html = "";
-    Object.keys(totals).sort().forEach(name => {
-        const lvl = totals[name], max = skillMaxLevels[name] || 5, capped = Math.min(lvl, max);
+
+    // Obtenemos las llaves y aplicamos el sort personalizado
+    Object.keys(totals).sort((a, b) => {
+        const levelA = totals[a];
+        const levelB = totals[b];
+
+        // 1. Si los niveles son distintos, ponemos el mayor arriba (B - A)
+        if (levelB !== levelA) {
+            return levelB - levelA;
+        }
+
+        // 2. Si los niveles son iguales, ordenamos alfabéticamente (A vs B)
+        return a.localeCompare(b);
+    }).forEach(name => {
+        const lvl = totals[name];
+        const max = skillMaxLevels[name] || 5;
+        const capped = Math.min(lvl, max);
         const skill = skillsData.find(s => s.name === name);
         const desc = (skill?.ranks?.[capped - 1]) ? skill.ranks[capped - 1].description : "...";
+
         html += `
             <div class="mb-5 border-b border-[#6B8E23]/10 pb-4">
                 <div class="flex justify-between items-end mb-1">
@@ -184,6 +200,7 @@ function renderSkillTotals() {
                 <p class="text-[10px] leading-tight text-[#2F2F2F] font-bold uppercase opacity-80">${desc}</p>
             </div>`;
     });
+
     box.innerHTML = html || '<p class="italic text-xs opacity-50 text-center py-10 font-bold uppercase">No Skills Detected</p>';
 }
 
