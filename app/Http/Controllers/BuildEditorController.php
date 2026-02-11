@@ -96,12 +96,10 @@ public function show($slug)
         $build = Build::with('tags')->where('slug', $slug)->firstOrFail();
         $equipments = DB::table('builds_equipments')->where('build_id', $build->id)->get();
 
-        // Carga de JSONs
         $weapons = json_decode(Storage::get('data/weapons.json'), true) ?: [];
         $armors = json_decode(Storage::get('data/armors.json'), true) ?: [];
         $charms = $this->getNormalizedCharms();
         $allDecorations = json_decode(Storage::get('data/decorations.json'), true) ?: [];
-        
         $skillsData = json_decode(Storage::get('data/skills.json'), true) ?: [];
         
         $skillMaxLevels = [];
@@ -114,7 +112,6 @@ public function show($slug)
         $totalSkills = [];
 
         foreach ($equipments as $eq) {
-            // Cambio de match por switch para PHP 7.4
             $source = [];
             switch ((int)$eq->tipo) {
                 case 1: $source = $weapons; break;
@@ -125,6 +122,8 @@ public function show($slug)
             $itemData = collect($source)->firstWhere('id', $eq->equipment_id);
             if ($itemData) {
                 $eq->real_name = $itemData['name'] ?? $itemData['weaponName'] ?? $itemData['charmName'] ?? 'Unknown Item';
+                // Guardamos los huecos que define el JSON original para esta pieza
+                $eq->total_slots = $itemData['slots'] ?? [];
 
                 if (isset($itemData['skill']['name'])) {
                     $name = trim($itemData['skill']['name']);
@@ -132,33 +131,51 @@ public function show($slug)
                 } elseif (isset($itemData['skills'])) {
                     foreach ($itemData['skills'] as $s) {
                         $name = trim($s['skill']['name'] ?? $s['name'] ?? '');
-                        if ($name) {
-                            $totalSkills[$name] = ($totalSkills[$name] ?? 0) + ($s['level'] ?? 1);
+                        if ($name) $totalSkills[$name] = ($totalSkills[$name] ?? 0) + ($s['level'] ?? 1);
+                    }
+                }
+            }
+
+            // Procesar Decoraciones
+            $savedDecos = DB::table('builds_equipments_decorations')->where('build_equipment_id', $eq->id)->get();
+            $eq->attached_decos = [];
+            
+            // 1. Añadimos las equipadas
+            foreach ($savedDecos as $d) {
+                $decoInfo = collect($allDecorations)->firstWhere('id', $d->decoration_id);
+                if ($decoInfo) {
+                    $eq->attached_decos[] = [
+                        'name' => $decoInfo['name'],
+                        'level' => $decoInfo['slot'] ?? 1,
+                        'is_empty' => false
+                    ];
+                    if (isset($decoInfo['skills'])) {
+                        foreach ($decoInfo['skills'] as $ds) {
+                            $dn = trim($ds['skill']['name'] ?? $ds['name'] ?? '');
+                            if ($dn) $totalSkills[$dn] = ($totalSkills[$dn] ?? 0) + ($ds['level'] ?? 1);
                         }
                     }
                 }
             }
 
-            $decos = DB::table('builds_equipments_decorations')->where('build_equipment_id', $eq->id)->get();
-            $eq->attached_decos = [];
-            foreach ($decos as $d) {
-                $decoInfo = collect($allDecorations)->firstWhere('id', $d->decoration_id);
-                if ($decoInfo) {
-                    $eq->attached_decos[] = ['name' => $decoInfo['name'], 'level' => $decoInfo['slot']];
-                    if (isset($decoInfo['skills'])) {
-                        foreach ($decoInfo['skills'] as $ds) {
-                            $dn = trim($ds['skill']['name'] ?? $ds['name'] ?? '');
-                            if ($dn) {
-                                $totalSkills[$dn] = ($totalSkills[$dn] ?? 0) + ($ds['level'] ?? 1);
-                            }
-                        }
+            // 2. Rellenamos huecos vacíos comparando con total_slots
+            if (isset($eq->total_slots) && is_array($eq->total_slots)) {
+                $numEquipadas = count($eq->attached_decos);
+                $numTotales = count($eq->total_slots);
+                
+                if ($numEquipadas < $numTotales) {
+                    for ($i = $numEquipadas; $i < $numTotales; $i++) {
+                        $eq->attached_decos[] = [
+                            'name' => null,
+                            'level' => $eq->total_slots[$i], // El nivel del hueco (1, 2, 3 o 4)
+                            'is_empty' => true
+                        ];
                     }
                 }
             }
         }
 
         arsort($totalSkills);
-
         return view('seccion.buildEditorShow', compact('build', 'equipments', 'totalSkills', 'skillMaxLevels', 'skillsData'));
     }
 
