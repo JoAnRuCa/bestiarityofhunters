@@ -9,6 +9,23 @@ let decoCache = { weapon: { 1: [], 2: [], 3: [] }, armor: { 1: [], 2: [], 3: [] 
 
 const weaponNames = ['Great Sword', 'Long Sword', 'Bow', 'Hammer', 'Lance', 'Gunlance', 'Switch Axe', 'Charge Blade', 'Insect Glaive', 'Light Bowgun', 'Heavy Bowgun', 'Sword and Shield', 'Dual Blades', 'Hunting Horn'];
 
+const weaponTagMap = {
+    'great-sword': 'Great Sword',
+    'long-sword': 'Long Sword',
+    'sword-shield': 'Sword and Shield',
+    'dual-blades': 'Dual Blades',
+    'hammer': 'Hammer',
+    'hunting-horn': 'Hunting Horn',
+    'lance': 'Lance',
+    'gunlance': 'Gunlance',
+    'switch-axe': 'Switch Axe',
+    'charge-blade': 'Charge Blade',
+    'insect-glaive': 'Insect Glaive',
+    'bow': 'Bow',
+    'light-bowgun': 'Light Bowgun',
+    'heavy-bowgun': 'Heavy Bowgun'
+};
+
 async function loadBuildData() {
     try {
         const res = await fetch('api/build-data');
@@ -59,7 +76,6 @@ function updateSelected() {
         const nameEl = document.getElementById(slot + "_name");
         if (nameEl) nameEl.textContent = getName(build[slot]);
 
-        // Limpiar errores visuales si se ha seleccionado algo
         if (build[slot]) {
             const errEl = document.getElementById(`error-${slot}`);
             if (errEl) {
@@ -67,11 +83,10 @@ function updateSelected() {
                 errEl.classList.add('hidden');
             }
         }
-
         renderSlots(slot);
     }
     renderSkillTotals();
-    syncWeaponTags();
+    syncWeaponTags(); // Sincroniza los tags automáticamente al actualizar piezas
 }
 
 function renderSlots(slot) {
@@ -95,8 +110,6 @@ function renderSlots(slot) {
             (deco ? 'bg-[#6B8E23]/5 border-[#6B8E23]/30' : 'bg-gray-50 border-dashed border-gray-300');
 
         const decoName = deco ? deco.name : "Empty Slot (Lv" + slotLevel + ")";
-
-        // textStyle sin cambios de grosor en hover para evitar saltos
         const textStyle = deco
             ? "text-[#2F2F2F] group-hover:text-[#6B8E23]"
             : "text-[#2F2F2F]/40 italic group-hover:text-[#6B8E23]";
@@ -136,19 +149,14 @@ function clearSlot(slot, index) {
 function renderSkillTotals() {
     const totals = {};
     for (const slot in build) {
-        // --- NUEVA CONDICIÓN: Ignorar arma secundaria en el conteo de habilidades ---
-        if (slot === 'weapon2') continue;
-        // --------------------------------------------------------------------------
-
+        if (slot === 'weapon2') continue; // El arma secundaria no suma habilidades
         const item = build[slot];
         if (!item) continue;
 
-        // Extraer habilidades de la pieza (Arma 1, Armaduras, Amuleto)
         extractSkills(item).forEach(s => {
             totals[s.name] = (totals[s.name] || 0) + s.level;
         });
 
-        // Extraer habilidades de las decoraciones de esa pieza
         if (decorations[slot]) {
             decorations[slot].forEach(d => {
                 if (d && d.skills) d.skills.forEach(ds => {
@@ -210,7 +218,8 @@ function renderList(list) {
             } else {
                 decorations[activeSlot][activeDecoIndex] = item;
             }
-            updateSelected(); closeModal();
+            updateSelected();
+            closeModal();
         };
         container.appendChild(div);
     });
@@ -232,42 +241,54 @@ document.getElementById('modal').addEventListener('click', function (e) { if (e.
 document.addEventListener('keydown', (e) => { if (e.key === "Escape") closeModal(); });
 
 function syncWeaponTags() {
-    const cont = document.getElementById('tagContainer'); if (!cont) return;
-    const mapping = { 'great-sword': 'Great Sword', 'long-sword': 'Long Sword', 'sword-and-shield': 'Sword and Shield', 'dual-blades': 'Dual Blades', 'hunting-horn': 'Hunting Horn', 'switch-axe': 'Switch Axe', 'charge-blade': 'Charge Blade', 'insect-glaive': 'Insect Glaive', 'light-bowgun': 'Light Bowgun', 'heavy-bowgun': 'Heavy Bowgun', 'bow': 'Bow', 'hammer': 'Hammer', 'lance': 'Lance', 'gunlance': 'Gunlance' };
-    const equipped = [];
-    if (build.weapon1?.type) equipped.push(mapping[build.weapon1.type]);
-    if (build.weapon2?.type) equipped.push(mapping[build.weapon2.type]);
-    cont.querySelectorAll('input[name="tags[]"]').forEach(cb => {
-        const name = cb.getAttribute('data-name');
-        if (weaponNames.includes(name)) {
-            cb.checked = equipped.includes(name);
-            const label = cb.nextElementSibling;
-            if (cb.checked) label?.classList.add('text-[#6B8E23]', 'font-bold');
-            else label?.classList.remove('text-[#6B8E23]', 'font-bold');
+    const container = document.getElementById('tagContainer');
+    if (!container) return;
+
+    const equippedNames = [];
+
+    // USAMOS .kind EN LUGAR DE .type
+    if (build.weapon1 && build.weapon1.kind) {
+        const name = weaponTagMap[build.weapon1.kind];
+        if (name) equippedNames.push(name);
+    }
+    if (build.weapon2 && build.weapon2.kind) {
+        const name = weaponTagMap[build.weapon2.kind];
+        if (name) equippedNames.push(name);
+    }
+
+    container.querySelectorAll('input[name="tags[]"]').forEach(checkbox => {
+        const tagName = checkbox.getAttribute('data-name');
+
+        // Verificamos si es un tag de arma
+        if (weaponNames.includes(tagName)) {
+            const isEquipped = equippedNames.includes(tagName);
+            checkbox.checked = isEquipped;
+
+            // Feedback visual
+            const span = checkbox.nextElementSibling;
+            if (span) {
+                if (isEquipped) {
+                    span.classList.add('text-[#6B8E23]', 'font-bold');
+                } else {
+                    span.classList.remove('text-[#6B8E23]', 'font-bold');
+                }
+            }
         }
     });
 }
 
 document.getElementById('forgeForm').onsubmit = function (e) {
     e.preventDefault();
-
-    document.querySelectorAll('[id^="error-"]').forEach(el => {
-        el.innerText = "";
-        el.classList.add('hidden');
-    });
+    document.querySelectorAll('[id^="error-"]').forEach(el => { el.innerText = ""; el.classList.add('hidden'); });
 
     document.getElementById('buildDataInput').value = JSON.stringify(build);
     document.getElementById('decoDataInput').value = JSON.stringify(decorations);
 
     const formData = new FormData(this);
-
     fetch(this.action, {
         method: 'POST',
         body: formData,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-            'Accept': 'application/json'
-        }
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
     })
         .then(async res => {
             const data = await res.json();
