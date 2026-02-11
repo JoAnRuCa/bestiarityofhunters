@@ -14,17 +14,28 @@ async function loadBuildData() {
         const res = await fetch('api/build-data');
         if (!res.ok) throw new Error("Error HTTP: " + res.status);
         const data = await res.json();
-        weapons = data.weapons; armors = data.armors; charms = data.charms;
-        decorationsData = data.decorations; skillsData = data.skills;
 
-        skillsData.forEach(s => { if (s.name && s.ranks) skillMaxLevels[s.name] = s.ranks.length; });
+        weapons = data.weapons;
+        armors = data.armors;
+        charms = data.charms;
+        decorationsData = data.decorations;
+        skillsData = data.skills;
+
+        skillsData.forEach(s => {
+            if (s.name && s.ranks) skillMaxLevels[s.name] = s.ranks.length;
+        });
+
         decorationsData.forEach(d => {
             for (let lvl = d.slot; lvl <= 3; lvl++) {
-                if (decoCache[d.kind] && decoCache[d.kind][lvl]) decoCache[d.kind][lvl].push(d);
+                if (decoCache[d.kind] && decoCache[d.kind][lvl]) {
+                    decoCache[d.kind][lvl].push(d);
+                }
             }
         });
         dataLoaded = true;
-    } catch (e) { console.error("Data error:", e); }
+    } catch (e) {
+        console.error("Data error:", e);
+    }
 }
 
 let build = { weapon1: null, weapon2: null, head: null, chest: null, arms: null, waist: null, legs: null, charm: null };
@@ -57,9 +68,13 @@ function renderSlots(slot) {
     const item = build[slot];
     const container = document.getElementById(slot + "_slots");
     if (!container) return;
+
     if (!item || !item.slots || item.slots.length === 0) {
-        container.innerHTML = ""; container.classList.add("hidden"); return;
+        container.innerHTML = "";
+        container.classList.add("hidden");
+        return;
     }
+
     container.classList.remove("hidden");
     container.innerHTML = "";
 
@@ -97,8 +112,12 @@ function renderSlots(slot) {
 }
 
 function clearSlot(slot, index) {
-    if (index === undefined || index === null) { build[slot] = null; decorations[slot] = []; }
-    else { decorations[slot][index] = null; }
+    if (index === undefined || index === null) {
+        build[slot] = null;
+        decorations[slot] = [];
+    } else {
+        decorations[slot][index] = null;
+    }
     updateSelected();
 }
 
@@ -108,7 +127,11 @@ function renderSkillTotals() {
         const item = build[slot]; if (!item) continue;
         extractSkills(item).forEach(s => { totals[s.name] = (totals[s.name] || 0) + s.level; });
         if (decorations[slot]) {
-            decorations[slot].forEach(d => { if (d && d.skills) d.skills.forEach(ds => { totals[ds.skill.name] = (totals[ds.skill.name] || 0) + ds.level; }); });
+            decorations[slot].forEach(d => {
+                if (d && d.skills) d.skills.forEach(ds => {
+                    totals[ds.skill.name] = (totals[ds.skill.name] || 0) + ds.level;
+                });
+            });
         }
     }
     const box = document.getElementById("skillTotals");
@@ -157,8 +180,12 @@ function renderList(list) {
             <div class="mt-2 flex flex-wrap gap-1 opacity-70 transition-opacity group-hover:opacity-100">${skillsHtml}</div>
         `;
         div.onclick = () => {
-            if (modalMode === "piece") { build[activeSlot] = item; decorations[activeSlot] = new Array(item.slots?.length || 0).fill(null); }
-            else { decorations[activeSlot][activeDecoIndex] = item; }
+            if (modalMode === "piece") {
+                build[activeSlot] = item;
+                decorations[activeSlot] = new Array(item.slots?.length || 0).fill(null);
+            } else {
+                decorations[activeSlot][activeDecoIndex] = item;
+            }
             updateSelected(); closeModal();
         };
         container.appendChild(div);
@@ -167,18 +194,17 @@ function renderList(list) {
 
 document.getElementById("searchInput").oninput = function () {
     const t = this.value.toLowerCase();
-    renderList(currentList.filter(i => getName(i).toLowerCase().includes(t)));
+    renderList(currentList.filter(item => {
+        const nameMatch = getName(item).toLowerCase().includes(t);
+        const skillMatch = extractSkills(item).some(s => s.name.toLowerCase().includes(t));
+        return nameMatch || skillMatch;
+    }));
 };
 
 function openModal() { document.getElementById("modal").classList.remove("hidden"); }
-function closeModal() { document.getElementById("modal").classList.add("hidden"); }
+function closeModal() { document.getElementById("modal").classList.add("hidden"); document.getElementById("searchInput").value = ""; }
 
-/* LOGICA DE CIERRE EXTERNO */
-document.getElementById('modal').addEventListener('click', function (e) {
-    if (e.target === this) closeModal();
-});
-
-// Tecla Escape para cerrar
+document.getElementById('modal').addEventListener('click', function (e) { if (e.target === this) closeModal(); });
 document.addEventListener('keydown', (e) => { if (e.key === "Escape") closeModal(); });
 
 function syncWeaponTags() {
@@ -198,83 +224,62 @@ function syncWeaponTags() {
     });
 }
 
-
+// ============================================================
+// ENVÍO DE FORMULARIO CON MANEJO DE ERRORES EN EL DOM
+// ============================================================
 document.getElementById('forgeForm').onsubmit = function (e) {
     e.preventDefault();
 
-    let hasErrors = false;
-    const requiredSlots = ['weapon1', 'weapon2', 'head', 'chest', 'arms', 'waist', 'legs', 'charm'];
-
-    // 1. Validar Piezas
-    requiredSlots.forEach(function (slot) {
-        const container = document.getElementById('slot_container_' + slot);
-        if (!build[slot]) {
-            container.classList.remove('border-[#6B8E23]/10');
-            container.classList.add('border-red-500', 'bg-red-50/50', 'ring-2', 'ring-red-200');
-            hasErrors = true;
-        } else {
-            container.classList.remove('border-red-500', 'bg-red-50/50', 'ring-2', 'ring-red-200');
-            container.classList.add('border-[#6B8E23]/10');
-        }
+    // Limpiar errores visuales previos
+    document.querySelectorAll('[id^="error-"]').forEach(el => {
+        el.innerText = "";
+        el.classList.add('hidden');
     });
 
-    // 2. Validar Playstyle
-    const playstyleField = document.getElementById('playstyleField');
-    const playstyleCont = document.getElementById('playstyle_container');
-    if (!playstyleField.value.trim()) {
-        playstyleCont.classList.add('border-red-500', 'bg-red-50/50', 'ring-2', 'ring-red-200');
-        hasErrors = true;
-    } else {
-        playstyleCont.classList.remove('border-red-500', 'bg-red-50/50', 'ring-2', 'ring-red-200');
-    }
-
-    if (hasErrors) {
-        alert("The forge requires a complete set. Please fill in the missing pieces and your strategy.");
-        return;
-    }
-
-    // 3. Envío (Lógica existente)
+    // Sincronizar datos del editor
     document.getElementById('buildDataInput').value = JSON.stringify(build);
     document.getElementById('decoDataInput').value = JSON.stringify(decorations);
 
     const formData = new FormData(this);
+
     fetch(this.action, {
         method: 'POST',
         body: formData,
-        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
     })
-        .then(function (res) { return res.json(); })
-        .then(function (data) {
-            if (data.success) {
-                window.location.href = data.redirect_url || (window.location.origin + '/builds/' + data.slug);
+        .then(async res => {
+            const data = await res.json();
+
+            if (res.status === 422) {
+                Object.keys(data.errors).forEach(key => {
+                    // Esto convierte "build_data_array.weapon1" en simplemente "weapon1"
+                    const cleanKey = key.includes('.') ? key.split('.').pop() : key;
+
+                    const errorEl = document.getElementById(`error-${cleanKey}`);
+                    if (errorEl) {
+                        errorEl.innerText = "• " + data.errors[key][0];
+                        errorEl.classList.remove('hidden');
+                    }
+                });
+
+                // Opcional: Hacer scroll hasta el primer error visible
+                const firstError = document.querySelector('[id^="error-"]:not(.hidden)');
+                if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            } else if (res.ok && data.success) {
+                // Éxito: redirección
+                window.location.href = data.redirect_url;
             } else {
-                alert("Forge error: " + (data.error || "Unknown error occurred."));
+                // Error de servidor u otro error
+                console.error("Server error:", data);
             }
         })
-        .catch(function (err) {
-            alert("The forge is offline.");
+        .catch(err => {
+            console.error("Forge error:", err);
         });
 };
-
-
-function clearVisualErrors() {
-    const requiredSlots = ['weapon1', 'weapon2', 'head', 'chest', 'arms', 'waist', 'legs', 'charm'];
-    requiredSlots.forEach(function (slot) {
-        if (build[slot]) {
-            const container = document.getElementById('slot_container_' + slot);
-            if (container) {
-                container.classList.remove('border-red-500', 'bg-red-50/50', 'ring-2', 'ring-red-200');
-                container.classList.add('border-[#6B8E23]/10');
-            }
-        }
-    });
-
-    const playstyleField = document.getElementById('playstyleField');
-    if (playstyleField && playstyleField.value.trim()) {
-        document.getElementById('playstyle_container').classList.remove('border-red-500', 'bg-red-50/50', 'ring-2', 'ring-red-200');
-    }
-}
-
-
 
 loadBuildData();

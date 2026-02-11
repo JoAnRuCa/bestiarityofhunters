@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Build;
+use App\Http\Requests\StoreBuildRequest; // Importamos tu nuevo Request
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -16,19 +17,19 @@ class BuildEditorController extends Controller
         return view('seccion.buildEditor');
     }
 
-    public function store(Request $request)
+    /**
+     * Guarda la build usando el StoreBuildRequest para validación automática.
+     */
+    public function store(StoreBuildRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'playstyle' => 'nullable|string',
-            'build_data' => 'required',
-            'decorations_data' => 'required',
-            'tags' => 'nullable|array'
-        ]);
-
         try {
+            // Los datos ya están validados aquí gracias a StoreBuildRequest
             $buildData = json_decode($request->input('build_data'), true);
             $decoData = json_decode($request->input('decorations_data'), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return response()->json(['success' => false, 'error' => 'Invalid JSON format'], 400);
+            }
 
             $categoryMap = [
                 'weapon1' => 1, 'weapon2' => 1,
@@ -47,7 +48,7 @@ class BuildEditorController extends Controller
                 foreach ($buildData as $slot => $item) {
                     if (!$item || !isset($item['id'])) continue;
 
-                    $tipoNumerico = isset($categoryMap[$slot]) ? $categoryMap[$slot] : 0;
+                    $tipoNumerico = $categoryMap[$slot] ?? 0;
 
                     $buildEquipmentId = DB::table('builds_equipments')->insertGetId([
                         'build_id'     => $build->id,
@@ -57,6 +58,7 @@ class BuildEditorController extends Controller
                         'updated_at'   => now(),
                     ]);
 
+                    // Procesar decoraciones si existen para este slot
                     if (isset($decoData[$slot]) && is_array($decoData[$slot])) {
                         foreach ($decoData[$slot] as $deco) {
                             if ($deco && isset($deco['id'])) {
@@ -71,6 +73,7 @@ class BuildEditorController extends Controller
                     }
                 }
 
+                // Sincronizar etiquetas de armas
                 if ($request->has('tags')) {
                     $build->tags()->sync($request->tags);
                 }
@@ -90,8 +93,8 @@ class BuildEditorController extends Controller
             ], 500);
         }
     }
-    
-public function show($slug)
+
+    public function show($slug)
     {
         $build = Build::with('tags')->where('slug', $slug)->firstOrFail();
         $equipments = DB::table('builds_equipments')->where('build_id', $build->id)->get();
@@ -122,7 +125,6 @@ public function show($slug)
             $itemData = collect($source)->firstWhere('id', $eq->equipment_id);
             if ($itemData) {
                 $eq->real_name = $itemData['name'] ?? $itemData['weaponName'] ?? $itemData['charmName'] ?? 'Unknown Item';
-                // Guardamos los huecos que define el JSON original para esta pieza
                 $eq->total_slots = $itemData['slots'] ?? [];
 
                 if (isset($itemData['skill']['name'])) {
@@ -136,11 +138,9 @@ public function show($slug)
                 }
             }
 
-            // Procesar Decoraciones
             $savedDecos = DB::table('builds_equipments_decorations')->where('build_equipment_id', $eq->id)->get();
             $eq->attached_decos = [];
             
-            // 1. Añadimos las equipadas
             foreach ($savedDecos as $d) {
                 $decoInfo = collect($allDecorations)->firstWhere('id', $d->decoration_id);
                 if ($decoInfo) {
@@ -158,7 +158,6 @@ public function show($slug)
                 }
             }
 
-            // 2. Rellenamos huecos vacíos comparando con total_slots
             if (isset($eq->total_slots) && is_array($eq->total_slots)) {
                 $numEquipadas = count($eq->attached_decos);
                 $numTotales = count($eq->total_slots);
@@ -167,7 +166,7 @@ public function show($slug)
                     for ($i = $numEquipadas; $i < $numTotales; $i++) {
                         $eq->attached_decos[] = [
                             'name' => null,
-                            'level' => $eq->total_slots[$i], // El nivel del hueco (1, 2, 3 o 4)
+                            'level' => $eq->total_slots[$i],
                             'is_empty' => true
                         ];
                     }
@@ -179,7 +178,8 @@ public function show($slug)
         return view('seccion.buildEditorShow', compact('build', 'equipments', 'totalSkills', 'skillMaxLevels', 'skillsData'));
     }
 
-    private function getNormalizedCharms() {
+    private function getNormalizedCharms() 
+    {
         $charmsRaw = json_decode(Storage::get('data/charms.json'), true) ?: [];
         $normalized = [];
         foreach ($charmsRaw as $charm) {
