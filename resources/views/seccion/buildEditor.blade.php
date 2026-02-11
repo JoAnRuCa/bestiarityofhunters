@@ -30,15 +30,17 @@
                 </div>
             </div>
             
-<button type="submit" 
-    class="bg-[#6B8E23] hover:bg-[#C67C48] text-white px-10 py-5 rounded-2xl font-black uppercase shadow-[0_5px_0_0_#4A6318] hover:shadow-[0_5px_0_0_#A05E31] active:translate-y-1 active:shadow-none transition-all duration-300">
-    Forge Build
-</button>
+            {{-- Botón con Hover Cobrizo --}}
+            <button type="submit" 
+                class="bg-[#6B8E23] hover:bg-[#C67C48] text-white px-10 py-5 rounded-2xl font-black uppercase shadow-[0_5px_0_0_#4A6318] hover:shadow-[0_5px_0_0_#A05E31] active:translate-y-1 active:shadow-none transition-all duration-300">
+                Forge Build
+            </button>
         </div>
 
         <div class="w-full h-px bg-[#6B8E23]/30 my-8"></div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
+            {{-- Columna Izquierda: Equipamiento --}}
             <div class="lg:col-span-2 space-y-12">
                 <section>
                     <h3 class="font-black uppercase text-sm tracking-widest mb-6 flex items-center">
@@ -88,12 +90,14 @@
                 </section>
             </div>
 
+            {{-- Columna Derecha: Habilidades (Sin Scroll Interno) --}}
             <div class="space-y-6">
                 <div class="bg-white/40 border-2 border-[#6B8E23]/20 rounded-3xl p-6 shadow-inner sticky top-6">
                     <h3 class="font-black uppercase text-sm tracking-widest mb-6 flex items-center">
                         <span class="w-10 h-1 bg-[#6B8E23] mr-3"></span> Active Skills
                     </h3>
-                    <div id="skillTotals" class="space-y-6 max-h-[65vh] overflow-y-auto custom-scrollbar pr-2">
+                    {{-- Eliminamos max-h y overflow para que crezca hacia abajo --}}
+                    <div id="skillTotals" class="space-y-6">
                         <p class="py-10 text-center italic text-xs opacity-50 font-bold uppercase tracking-widest">Equip items to see skills</p>
                     </div>
                 </div>
@@ -102,6 +106,7 @@
     </div>
 </form>
 
+{{-- MODAL --}}
 <div id="modal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
     <div class="bg-[#F4EBD0] w-full max-w-xl rounded-[2.5rem] shadow-2xl border-4 border-[#6B8E23] flex flex-col overflow-hidden max-h-[85vh]">
         <div class="bg-[#6B8E23] p-6 text-white flex justify-between items-center">
