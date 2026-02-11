@@ -1,5 +1,5 @@
 /* ============================================================
-   BUILD ARCHITECT — CORE ENGINE (LARAVEL 8 / PHP 7.4)
+    BUILD ARCHITECT — CORE ENGINE (Tailwind 3.0.18 Optimized)
    ============================================================ */
 
 // Data Stores
@@ -13,11 +13,10 @@ let decoCache = {
     armor: { 1: [], 2: [], 3: [] }
 };
 
-// Weapon names for tag synchronization
 const weaponNames = ['Great Sword', 'Long Sword', 'Bow', 'Hammer', 'Lance', 'Gunlance', 'Switch Axe', 'Charge Blade', 'Insect Glaive', 'Light Bowgun', 'Heavy Bowgun', 'Sword and Shield', 'Dual Blades', 'Hunting Horn'];
 
 /**
- * Initial data fetch from the API
+ * Initial data fetch
  */
 async function loadBuildData() {
     try {
@@ -31,14 +30,12 @@ async function loadBuildData() {
         decorationsData = data.decorations;
         skillsData = data.skills;
 
-        // Mapeo de niveles máximos
         skillsData.forEach(function (s) {
             if (s.name && s.ranks) {
                 skillMaxLevels[s.name] = s.ranks.length;
             }
         });
 
-        // Cache de decoraciones
         decorationsData.forEach(function (d) {
             for (let lvl = d.slot; lvl <= 3; lvl++) {
                 if (decoCache[d.kind] && decoCache[d.kind][lvl]) {
@@ -98,6 +95,9 @@ function updateSelected() {
     syncWeaponTags();
 }
 
+/**
+ * Renderizado de slots: El HOVER ahora es específico del nombre
+ */
 function renderSlots(slot) {
     const item = build[slot];
     const container = document.getElementById(slot + "_slots");
@@ -116,26 +116,33 @@ function renderSlots(slot) {
         const deco = decorations[slot][index];
         const row = document.createElement("div");
 
-        row.className = "deco-row flex items-center justify-between p-2 rounded-xl border border-dashed mb-1.5 cursor-pointer transition-all duration-200 " +
-            (deco ? 'bg-[#6B8E23]/5 border-[#6B8E23]/30' : 'bg-gray-50 border-gray-200');
-
-        row.onclick = function (e) {
-            e.stopPropagation();
-            selectDecoration(slot, index, slotLevel);
-        };
+        // El contenedor ahora es estático (sin hover general)
+        row.className = "flex items-center justify-between p-2 rounded-xl border mb-1.5 " +
+            (deco ? 'bg-[#6B8E23]/5 border-[#6B8E23]/30' : 'bg-gray-50 border-dashed border-gray-300');
 
         const decoName = deco ? deco.name : "Empty Slot (Lv" + slotLevel + ")";
-        const textStyle = deco ? "text-[#2F2F2F]" : "text-[#2F2F2F]/40 italic";
 
-        row.innerHTML = '<div class="flex items-center gap-3">' +
-            '<div class="w-5 h-5 rounded-full border-2 border-[#6B8E23] flex items-center justify-center text-[9px] font-black text-[#6B8E23] bg-white shadow-sm">' + slotLevel + '</div>' +
-            '<span class="deco-text text-xs font-bold ' + textStyle + ' transition-colors">' + decoName + '</span>' +
-            '</div>';
+        // El hover se aplica SOLO al div que envuelve el icono y el texto
+        const textWrapperClass = "flex items-center gap-3 cursor-pointer transition-all duration-200 hover:translate-x-1 group";
+        const textStyle = deco
+            ? "text-[#2F2F2F] group-hover:text-black"
+            : "text-[#2F2F2F]/40 italic group-hover:text-[#6B8E23] group-hover:not-italic";
+
+        row.innerHTML = `
+            <div class="${textWrapperClass}" onclick="event.stopPropagation(); selectDecoration('${slot}', ${index}, ${slotLevel})">
+                <div class="w-5 h-5 rounded-full border-2 border-[#6B8E23] flex items-center justify-center text-[9px] font-black text-[#6B8E23] bg-white shadow-sm">
+                    ${slotLevel}
+                </div>
+                <span class="text-xs font-bold ${textStyle} transition-colors tracking-tight">
+                    ${decoName}
+                </span>
+            </div>
+        `;
 
         if (deco) {
             const deleteBtn = document.createElement("button");
             deleteBtn.type = "button";
-            deleteBtn.className = "delete-btn text-gray-400 p-1.5 rounded-md transition-all";
+            deleteBtn.className = "text-gray-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-all";
             deleteBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2.5" stroke-linecap="round"/></svg>';
             deleteBtn.onclick = function (e) {
                 e.stopPropagation();
@@ -157,9 +164,6 @@ function clearSlot(slot, index) {
     updateSelected();
 }
 
-/**
- * Renderizado de habilidades con descripción (#2F2F2F, negrita, no cursiva)
- */
 function renderSkillTotals() {
     const totals = {};
     for (const slot in build) {
@@ -190,22 +194,22 @@ function renderSkillTotals() {
         const cappedLvl = Math.min(lvl, max);
         const percent = (cappedLvl / max) * 100;
 
-        // Buscar descripción del rango actual
         const skillInfo = skillsData.find(function (s) { return s.name === name; });
         const desc = (skillInfo && skillInfo.ranks && skillInfo.ranks[cappedLvl - 1])
             ? skillInfo.ranks[cappedLvl - 1].description
             : "No description available.";
 
-        html += '<div class="mb-5 border-b border-[#6B8E23]/10 pb-4">' +
-            '<div class="flex justify-between items-end mb-1">' +
-            '<span class="font-black uppercase text-[11px] text-[#2F2F2F] tracking-wider">' + name + '</span>' +
-            '<span class="text-[#6B8E23] font-black text-xs">Lv ' + cappedLvl + '/' + max + '</span>' +
-            '</div>' +
-            '<div class="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden mb-2">' +
-            '<div class="h-full bg-[#6B8E23] transition-all duration-500" style="width: ' + percent + '%"></div>' +
-            '</div>' +
-            '<p class="text-[10px] leading-tight text-[#2F2F2F] font-bold uppercase opacity-80" style="font-style: normal;">' + desc + '</p>' +
-            '</div>';
+        html += `
+            <div class="mb-5 border-b border-[#6B8E23]/10 pb-4">
+                <div class="flex justify-between items-end mb-1">
+                    <span class="font-black uppercase text-[11px] text-[#2F2F2F] tracking-wider">${name}</span>
+                    <span class="text-[#6B8E23] font-black text-xs">Lv ${cappedLvl}/${max}</span>
+                </div>
+                <div class="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden mb-2">
+                    <div class="h-full bg-[#6B8E23] transition-all duration-700 ease-out" style="width: ${percent}%"></div>
+                </div>
+                <p class="text-[10px] leading-tight text-[#2F2F2F] font-bold uppercase opacity-80">${desc}</p>
+            </div>`;
     });
 
     box.innerHTML = html || '<p class="italic text-sm opacity-50 text-center py-10 font-bold uppercase">No Skills Detected</p>';
@@ -245,14 +249,19 @@ function renderList(list) {
 
     list.forEach(function (item) {
         const div = document.createElement("div");
-        div.className = "p-3 mb-2 bg-white border border-[#6B8E23]/10 rounded-xl hover:border-[#6B8E23] hover:bg-[#6B8E23]/5 cursor-pointer transition-all shadow-sm";
+        // Hover específico para el contenido del modal
+        div.className = "p-4 mb-2 bg-white border border-[#6B8E23]/10 rounded-2xl cursor-pointer transition-all duration-200 group hover:border-[#6B8E23] hover:bg-[#6B8E23]/5";
 
         const skillsHtml = extractSkills(item).map(function (s) {
-            return '<span class="text-[9px] font-bold text-[#6B8E23] bg-[#6B8E23]/5 px-2 py-0.5 rounded-full mr-1 inline-block">◈ ' + s.name + '</span>';
+            return `<span class="text-[9px] font-bold text-[#6B8E23] bg-[#6B8E23]/10 px-2 py-0.5 rounded-full mr-1 inline-block uppercase">◈ ${s.name}</span>`;
         }).join("");
 
-        div.innerHTML = '<div class="text-[#2F2F2F] font-bold text-sm">' + getName(item) + '</div>' +
-            '<div class="mt-1 flex flex-wrap">' + skillsHtml + '</div>';
+        div.innerHTML = `
+            <div class="text-[#2F2F2F] font-black text-sm uppercase tracking-tight group-hover:translate-x-1 transition-transform group-hover:text-black">
+                ${getName(item)}
+            </div>
+            <div class="mt-2 flex flex-wrap gap-1 opacity-70 group-hover:opacity-100 transition-opacity">${skillsHtml}</div>
+        `;
 
         div.onclick = function () {
             if (modalMode === "piece") {
@@ -285,7 +294,6 @@ function closeModal() {
     document.getElementById("modal").classList.add("hidden");
 }
 
-/* --- Sincronizador de Tags --- */
 function syncWeaponTags() {
     const container = document.getElementById('tagContainer');
     if (!container) return;
@@ -316,11 +324,8 @@ function syncWeaponTags() {
     });
 }
 
-/* --- GESTIÓN UNIFICADA DEL FORMULARIO (SAVE) --- */
-
 document.getElementById('forgeForm').addEventListener('submit', function (e) {
     e.preventDefault();
-
     const buildName = document.getElementById('buildName').value.trim();
     if (!buildName) {
         alert("Please assign a name to your build.");
@@ -337,21 +342,15 @@ document.getElementById('forgeForm').addEventListener('submit', function (e) {
         body: formData,
         headers: { 'X-Requested-With': 'XMLHttpRequest' }
     })
-        .then(function (res) { return res.json(); })
-        .then(function (data) {
+        .then(res => res.json())
+        .then(data => {
             if (data.success) {
-                // REDIRECCIÓN DINÁMICA: Si el servidor envía redirect_url, úsala.
-                // Si no, usa el slug.
-                if (data.redirect_url) {
-                    window.location.href = data.redirect_url;
-                } else {
-                    window.location.href = window.location.origin + window.location.pathname.replace('/create', '') + '/' + data.slug;
-                }
+                window.location.href = data.redirect_url || (window.location.origin + '/builds/' + data.slug);
             } else {
                 alert("Forge error: " + (data.error || "Unknown error occurred."));
             }
         })
-        .catch(function (err) {
+        .catch(err => {
             console.error("Submission error:", err);
             alert("The forge is offline.");
         });

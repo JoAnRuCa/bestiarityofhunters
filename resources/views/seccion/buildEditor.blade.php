@@ -34,22 +34,32 @@
             {{-- LOADOUT --}}
             <div class="lg:col-span-2 space-y-8">
                 <div id="selected" class="grid gap-3">
-                    @foreach (['weapon1', 'weapon2', 'head', 'chest', 'arms', 'waist', 'legs', 'charm'] as $slot)
-                        <div class="bg-white border border-[#6B8E23]/10 p-5 rounded-2xl shadow-sm">
-                            <div class="flex items-center justify-between group cursor-pointer" onclick="openSelector('{{ $slot }}')">
-                                <div class="flex flex-col flex-1">
-                                    <span class="text-[10px] uppercase font-black text-[#6B8E23] italic">
-                                        {{ str_replace(['1','2'], [' Primary',' Secondary'], $slot) }}
-                                    </span>
-                                    <span id="{{ $slot }}_name" class="text-[#2F2F2F] font-bold text-lg">— Select Piece —</span>
-                                </div>
-                                <button type="button" onclick="event.stopPropagation(); clearSlot('{{ $slot }}')" class="text-gray-300 hover:text-red-500 p-2">
-                                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                </button>
-                            </div>
-                            <div id="{{ $slot }}_slots" class="mt-4 space-y-1.5 border-t border-gray-100 pt-3 hidden"></div>
-                        </div>
-                    @endforeach
+@foreach (['weapon1', 'weapon2', 'head', 'chest', 'arms', 'waist', 'legs', 'charm'] as $slot)
+    <div class="bg-white border border-[#6B8E23]/10 p-5 rounded-2xl shadow-sm transition-all duration-200">
+        <div class="flex items-center justify-between">
+            
+            {{-- Contenedor de texto con hover de color --}}
+            <div class="flex flex-col flex-1 group cursor-pointer" onclick="openSelector('{{ $slot }}')">
+                <span class="text-[10px] uppercase font-black text-[#6B8E23] italic transition-colors group-hover:text-[#4A6318]">
+                    {{ str_replace(['1','2'], [' Primary',' Secondary'], $slot) }}
+                </span>
+                <span id="{{ $slot }}_name" class="text-[#2F2F2F] font-bold text-lg leading-tight transition-colors group-hover:text-[#6B8E23]">
+                    — Select Piece —
+                </span>
+            </div>
+            
+            {{-- Botón de borrar --}}
+            <button type="button" onclick="event.stopPropagation(); clearSlot('{{ $slot }}')" 
+                class="text-gray-300 hover:text-red-500 p-2 transition-colors hover:bg-red-50 rounded-lg">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+            </button>
+        </div>
+
+        <div id="{{ $slot }}_slots" class="mt-4 space-y-1.5 border-t border-gray-100 pt-3 hidden"></div>
+    </div>
+@endforeach
                 </div>
 
                 {{-- PLAYSTYLE (OPCIONAL) --}}
