@@ -55,9 +55,9 @@ Route::view('/about', 'seccion.aboutUs')->name('about');
 Route::view('/disclaimer', 'seccion.disclaimer')->name('disclaimer');
 Route::view('/terms', 'seccion.termsOfUse')->name('terms');
 
-Route::get('/guide-editor', [GuideEditorController::class, 'index']) ->name('guide.editor'); 
-Route::post('/guide-editor/store', [GuideEditorController::class, 'store']) ->name('guide.editor.store'); 
-Route::get('/contact', [ContactUsController::class, 'index'])->name('contact.index');
+Route::get('/guide-editor', [GuideEditorController::class, 'index'])->name('guide.editor');
+Route::post('/guide-editor/store', [GuideEditorController::class, 'store'])->name('guide.editor.store');
+Route::get('/contact', [ContactUsController::class, 'index'])->name('contact');
 Route::post('/contact', [ContactUsController::class, 'store'])->name('contact.store');
 
 Route::get('/guides', [GuideListController::class, 'index'])->name('guides.index');
@@ -68,14 +68,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/votar', [VoteController::class, 'votar'])->name('votar');
 
     Route::post('/comments/store', [CommentController::class, 'store'])->name('comments.store');
-    
+
     // Página de Guías Guardadas
     Route::get('/saved-guides', [SavedItemController::class, 'indexGuides'])
         ->name('saved.guides');
 
     // Acción Universal de Guardar (AJAX)
     Route::post('/saved/toggle/{type}/{id}', [SavedItemController::class, 'toggle'])
-        ->name('saved.toggle'); 
+        ->name('saved.toggle');
 
     Route::get('/my-guides', [GuideListController::class, 'myGuides'])->name('my.guides');
     Route::delete('/guides/{id}', [GuideListController::class, 'destroy'])->name('guides.destroy');
@@ -94,4 +94,4 @@ Route::middleware(['auth'])->group(function () {
 |--------------------------------------------------------------------------
 */
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

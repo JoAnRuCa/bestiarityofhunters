@@ -18,7 +18,7 @@ class ContactUsController extends Controller
             return view('layouts.partials.guest');
         }
 
-        return view('seccion.contact.index', [
+        return view('seccion.contactUs', [
             'user' => Auth::user()
         ]);
     }
@@ -26,18 +26,18 @@ class ContactUsController extends Controller
     /**
      * Store a new contact message.
      */
-public function store(ContactUsRequest $request)
-{
-    ContactMessage::create([
-        'name'    => auth()->user()->name,
-        'email'   => auth()->user()->email,
-        'subject' => $request->subject,
-        'message' => $request->message,
-    ]);
+    public function store(ContactUsRequest $request)
+    {
+        ContactMessage::create([
+            'name' => auth()->user()->name,
+            'email' => auth()->user()->email,
+            'subject' => $request->subject,
+            'message' => $request->message,
+        ]);
 
-    return redirect()
-        ->back()
-        ->with('success', 'Your message has been sent successfully.');
-}
+        return redirect()
+            ->back()
+            ->with('success', 'Your message has been sent successfully.');
+    }
 
 }
