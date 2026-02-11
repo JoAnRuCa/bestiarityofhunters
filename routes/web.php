@@ -49,6 +49,10 @@ Route::get('/decorations', [DecorationController::class, 'index'])->name('decora
 Route::get('/decorations/{slug}', [DecorationController::class, 'show'])->name('decorations.show');
 
 Route::get('/build-editor', [BuildEditorController::class, 'index'])->name('build.editor');
+// Añade esto cerca de tus rutas de build-editor
+Route::get('/api/build-data', [BuildApiController::class, 'getBuildData']);
+// Ruta para procesar el guardado (la que te falta)
+Route::post('/save-build', [BuildEditorController::class, 'store'])->name('builds.store');
 
 Route::view('/privacy', 'seccion.privacyPolicy')->name('privacy');
 Route::view('/about', 'seccion.aboutUs')->name('about');

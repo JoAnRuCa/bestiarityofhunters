@@ -1,5 +1,5 @@
 /* ============================================================
-   BUILD ARCHITECT — CORE ENGINE
+   BUILD ARCHITECT — CORE ENGINE (UPDATED)
    ============================================================ */
 
 // Data Stores
@@ -13,12 +13,21 @@ let decoCache = {
     armor: { 1: [], 2: [], 3: [] }
 };
 
+// Weapon names for tag synchronization
+const weaponNames = ['Great Sword', 'Long Sword', 'Bow', 'Hammer', 'Lance', 'Gunlance', 'Switch Axe', 'Charge Blade', 'Insect Glaive', 'Light Bowgun', 'Heavy Bowgun', 'Sword and Shield', 'Dual Blades', 'Hunting Horn'];
+
 /**
  * Initial data fetch from the API
  */
 async function loadBuildData() {
     try {
+        // Quitamos la '/' inicial para que sea relativa a la URL actual
+        // Si estás en localhost/bestiarityofhunters/public/build-editor
+        // buscará en localhost/bestiarityofhunters/public/api/build-data
         const res = await fetch('api/build-data');
+
+        if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
+
         const data = await res.json();
 
         weapons = data.weapons;
@@ -27,14 +36,14 @@ async function loadBuildData() {
         decorationsData = data.decorations;
         skillsData = data.skills;
 
-        // Map max levels for progress bars
+        // Mapeo de niveles máximos para las barras de progreso
         skillsData.forEach(s => {
             if (s.name && s.ranks) {
                 skillMaxLevels[s.name] = s.ranks.length;
             }
         });
 
-        // Cache decorations by slot level and type (kind)
+        // Cache de decoraciones por nivel de slot y tipo
         decorationsData.forEach(d => {
             for (let lvl = d.slot; lvl <= 3; lvl++) {
                 if (decoCache[d.kind] && decoCache[d.kind][lvl]) {
@@ -44,6 +53,7 @@ async function loadBuildData() {
         });
 
         dataLoaded = true;
+        console.log("Forge Data Loaded Successfully");
     } catch (e) {
         console.error("Critical error loading build data:", e);
     }
@@ -92,6 +102,7 @@ function updateSelected() {
         renderSlots(slot);
     }
     renderSkillTotals();
+    syncWeaponTags(); // Sincronizar checkboxes de armas
 }
 
 function renderSlots(slot) {
@@ -136,6 +147,7 @@ function renderSlots(slot) {
 
         if (deco) {
             const deleteBtn = document.createElement("button");
+            deleteBtn.type = "button"; // Importante para no disparar el submit
             deleteBtn.className = "delete-btn text-gray-400 p-1.5 rounded-md transition-all";
             deleteBtn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2.5" stroke-linecap="round"/></svg>`;
             deleteBtn.onclick = (e) => {
@@ -276,87 +288,78 @@ function closeModal() {
     document.getElementById("modal").classList.add("hidden");
 }
 
-/**
- * SINCRONIZADOR DE TAGS MEJORADO
- * Maneja las discrepancias de nombres entre la API y el TagSelector
- */
+/* --- Sincronizador de Tags --- */
 function syncWeaponTags() {
     const container = document.getElementById('tagContainer');
     if (!container) return;
 
     const weaponMapping = {
-        'great-sword': 'Great Sword',
-        'long-sword': 'Long Sword',
-        'sword-and-shield': 'Sword and Shield',
-        'dual-blades': 'Dual Blades',
-        'hunting-horn': 'Hunting Horn',
-        'switch-axe': 'Switch Axe',
-        'charge-blade': 'Charge Blade',
-        'insect-glaive': 'Insect Glaive',
-        'light-bowgun': 'Light Bowgun',
-        'heavy-bowgun': 'Heavy Bowgun',
-        'bow': 'Bow',
-        'hammer': 'Hammer',
-        'lance': 'Lance',
-        'gunlance': 'Gunlance'
+        'great-sword': 'Great Sword', 'long-sword': 'Long Sword', 'sword-and-shield': 'Sword and Shield',
+        'dual-blades': 'Dual Blades', 'hunting-horn': 'Hunting Horn', 'switch-axe': 'Switch Axe',
+        'charge-blade': 'Charge Blade', 'insect-glaive': 'Insect Glaive', 'light-bowgun': 'Light Bowgun',
+        'heavy-bowgun': 'Heavy Bowgun', 'bow': 'Bow', 'hammer': 'Hammer', 'lance': 'Lance', 'gunlance': 'Gunlance'
     };
 
     const equippedTypes = [];
     if (build.weapon1 && build.weapon1.type) equippedTypes.push(weaponMapping[build.weapon1.type] || build.weapon1.type);
     if (build.weapon2 && build.weapon2.type) equippedTypes.push(weaponMapping[build.weapon2.type] || build.weapon2.type);
 
-    // Buscamos todos los checkboxes dentro del selector
     const checkboxes = container.querySelectorAll('input[name="tags[]"]');
     checkboxes.forEach(checkbox => {
         const tagName = checkbox.getAttribute('data-name');
-
         if (weaponNames.includes(tagName)) {
-            // Se marca si el arma está equipada
             checkbox.checked = equippedTypes.includes(tagName);
-
-            // Opcional: darle un estilo visual al texto si está marcado (aunque esté oculto)
             const labelText = checkbox.nextElementSibling;
             if (checkbox.checked) {
-                labelText.classList.add('text-[#6B8E23]', 'font-bold');
+                labelText?.classList.add('text-[#6B8E23]', 'font-bold');
             } else {
-                labelText.classList.remove('text-[#6B8E23]', 'font-bold');
+                labelText?.classList.remove('text-[#6B8E23]', 'font-bold');
             }
         }
     });
 }
 
-/* --- Save Build --- */
+/* --- GESTIÓN UNIFICADA DEL FORMULARIO (SAVE) --- */
 
-async function saveBuild() {
+document.getElementById('forgeForm').addEventListener('submit', function (e) {
+    e.preventDefault(); // Evitamos el recargo de página
+
     const buildName = document.getElementById('buildName').value.trim();
-    const playstyle = document.getElementById('buildPlaystyle').value.trim();
-
-    if (!buildName) return alert("Please assign a name to your build.");
-
-    try {
-        const res = await fetch('api/save-build', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ""
-            },
-            body: JSON.stringify({
-                name: buildName,
-                playstyle: playstyle,
-                build,
-                decorations
-            })
-        });
-
-        if (res.ok) {
-            alert("Build successfully forged!");
-        } else {
-            alert("The forge failed to save your build. Check server logs.");
-        }
-    } catch (e) {
-        alert("Forge error: Network connection lost.");
+    if (!buildName) {
+        alert("Please assign a name to your build.");
+        return;
     }
-}
 
-// Initialize
+    // Volcar datos de JS a los inputs ocultos del formulario
+    document.getElementById('buildDataInput').value = JSON.stringify(build);
+    document.getElementById('decoDataInput').value = JSON.stringify(decorations);
+
+    // Preparar el envío vía AJAX
+    const formData = new FormData(this);
+
+    fetch(this.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+            // El token CSRF ya se incluye automáticamente si usaste @csrf en la vista
+        }
+    })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                // Redirigir a la vista de la build usando el slug devuelto por el controlador
+                window.location.href = '/builds/' + data.slug;
+            } else {
+                alert("Forge error: " + (data.error || "Unknown error occurred."));
+            }
+        })
+        .catch(err => {
+            console.error("Submission error:", err);
+            alert("The forge is offline. Please check your connection.");
+        });
+});
+
+// Initialize logic
 loadBuildData();
