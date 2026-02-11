@@ -27,13 +27,13 @@
     {{-- LÍNEA 1 --}}
     <div class="w-full h-px bg-[#6B8E23]/30 my-8"></div>
 
-    {{-- SECCIÓN TAGS --}}
+    {{-- SECCIÓN TAGS (Estilo exacto a tus filtros activos) --}}
     @if($build->tags && $build->tags->count() > 0)
     <div class="px-2">
-        <div class="flex flex-wrap gap-3">
+        <div class="flex flex-wrap gap-2">
             @foreach($build->tags as $tag)
-                <span class="px-4 py-1.5 bg-[#6B8E23]/10 border border-[#6B8E23]/40 text-[#6B8E23] text-xs font-black uppercase tracking-widest rounded-lg">
-                    # {{ $tag->name }}
+                <span class="px-3 py-1 bg-[#C67C48] text-white border border-[#C67C48] text-[10px] font-bold uppercase rounded shadow-md tracking-widest">
+                    {{ $tag->name }}
                 </span>
             @endforeach
         </div>

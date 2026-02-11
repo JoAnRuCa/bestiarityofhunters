@@ -93,9 +93,7 @@ class BuildEditorController extends Controller
     
     public function show($slug)
     {
-        // IMPORTANTE: .with('tags') carga los nombres de los tags
         $build = Build::with('tags')->where('slug', $slug)->firstOrFail();
-        
         $equipments = DB::table('builds_equipments')->where('build_id', $build->id)->get();
 
         $weapons = json_decode(Storage::get('data/weapons.json'), true) ?: [];
@@ -122,22 +120,19 @@ class BuildEditorController extends Controller
             }
 
             $itemData = collect($source)->firstWhere('id', $eq->equipment_id);
-            
             if ($itemData) {
-                $eq->real_name = isset($itemData['name']) ? $itemData['name'] : 
-                                (isset($itemData['weaponName']) ? $itemData['weaponName'] : 
-                                (isset($itemData['charmName']) ? $itemData['charmName'] : 'Unknown Item'));
+                $eq->real_name = $itemData['name'] ?? $itemData['weaponName'] ?? $itemData['charmName'] ?? 'Unknown Item';
 
                 if (isset($itemData['skill']['name'])) {
                     $name = $itemData['skill']['name'];
-                    $lvl = isset($itemData['level']) ? $itemData['level'] : 1;
-                    $totalSkills[$name] = (isset($totalSkills[$name]) ? $totalSkills[$name] : 0) + $lvl;
+                    $lvl = $itemData['level'] ?? 1;
+                    $totalSkills[$name] = ($totalSkills[$name] ?? 0) + $lvl;
                 } elseif (isset($itemData['skills']) && is_array($itemData['skills'])) {
                     foreach ($itemData['skills'] as $s) {
-                        $name = isset($s['skill']['name']) ? $s['skill']['name'] : (isset($s['name']) ? $s['name'] : null);
+                        $name = $s['skill']['name'] ?? $s['name'] ?? null;
                         if ($name) {
-                            $lvl = isset($s['level']) ? $s['level'] : 1;
-                            $totalSkills[$name] = (isset($totalSkills[$name]) ? $totalSkills[$name] : 0) + $lvl;
+                            $lvl = $s['level'] ?? 1;
+                            $totalSkills[$name] = ($totalSkills[$name] ?? 0) + $lvl;
                         }
                     }
                 }
@@ -149,16 +144,16 @@ class BuildEditorController extends Controller
                 $decoInfo = collect($allDecorations)->firstWhere('id', $d->decoration_id);
                 if ($decoInfo) {
                     $eq->attached_decos[] = [
-                        'name' => isset($decoInfo['name']) ? $decoInfo['name'] : 'Jewel',
-                        'level' => isset($decoInfo['slot']) ? $decoInfo['slot'] : 1
+                        'name' => $decoInfo['name'] ?? 'Jewel',
+                        'level' => $decoInfo['slot'] ?? 1
                     ];
 
                     if (isset($decoInfo['skills']) && is_array($decoInfo['skills'])) {
                         foreach ($decoInfo['skills'] as $ds) {
-                            $dName = isset($ds['skill']['name']) ? $ds['skill']['name'] : (isset($ds['name']) ? $ds['name'] : null);
+                            $dName = $ds['skill']['name'] ?? $ds['name'] ?? null;
                             if ($dName) {
-                                $dLvl = isset($ds['level']) ? $ds['level'] : 1;
-                                $totalSkills[$dName] = (isset($totalSkills[$dName]) ? $totalSkills[$dName] : 0) + $dLvl;
+                                $dLvl = $ds['level'] ?? 1;
+                                $totalSkills[$dName] = ($totalSkills[$dName] ?? 0) + $dLvl;
                             }
                         }
                     }
