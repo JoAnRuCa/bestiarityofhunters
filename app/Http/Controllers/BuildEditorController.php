@@ -107,52 +107,68 @@ public function show($slug)
     $build = Build::where('slug', $slug)->firstOrFail();
     $equipments = DB::table('builds_equipments')->where('build_id', $build->id)->get();
 
-    $weapons = json_decode(\Storage::get('data/weapons.json'), true);
-    $armors = json_decode(\Storage::get('data/armors.json'), true);
+    // Cargar datos base
+    $weapons = json_decode(\Storage::get('data/weapons.json'), true) ?: [];
+    $armors = json_decode(\Storage::get('data/armors.json'), true) ?: [];
     $charms = $this->getNormalizedCharms();
-    $allDecorations = json_decode(\Storage::get('data/decorations.json'), true);
+    $allDecorations = json_decode(\Storage::get('data/decorations.json'), true) ?: [];
+    
+    // CARGAR NIVELES MÁXIMOS (Sincronizado con skills.json)
+    $skillsData = json_decode(\Storage::get('data/skills.json'), true) ?: [];
+    $skillMaxLevels = [];
+    foreach ($skillsData as $s) {
+        if (isset($s['name']) && isset($s['ranks'])) {
+            $skillMaxLevels[$s['name']] = count($s['ranks']);
+        }
+    }
 
     $totalSkills = [];
 
     foreach ($equipments as $eq) {
-        // 1. Determinar fuente de datos
         $source = [];
-        if ($eq->tipo == 1) $source = $weapons;
-        elseif ($eq->tipo == 2) $source = $armors;
-        elseif ($eq->tipo == 3) $source = $charms;
+        // Reemplazamos match por switch para PHP 7.4
+        switch ((int)$eq->tipo) {
+            case 1: $source = $weapons; break;
+            case 2: $source = $armors; break;
+            case 3: $source = $charms; break;
+        }
 
         $itemData = collect($source)->firstWhere('id', $eq->equipment_id);
         
-        // Asignar nombre (si no existe el item, queda como null)
-        $eq->real_name = $itemData['name'] ?? $itemData['weaponName'] ?? $itemData['charmName'] ?? null;
+        if ($itemData) {
+            $eq->real_name = isset($itemData['name']) ? $itemData['name'] : 
+                            (isset($itemData['weaponName']) ? $itemData['weaponName'] : 
+                            (isset($itemData['charmName']) ? $itemData['charmName'] : null));
 
-        // 2. Sumar habilidades de la pieza (Seguro)
-        if (isset($itemData['skills']) && is_array($itemData['skills'])) {
-            foreach ($itemData['skills'] as $s) {
-                // Buscamos el nombre en cualquiera de las posibles llaves
-                $sName = $s['name'] ?? $s['skillName'] ?? null;
-                if ($sName) {
-                    $level = $s['level'] ?? $s['modifier'] ?? 1;
-                    $totalSkills[$sName] = ($totalSkills[$sName] ?? 0) + $level;
+            // Lógica de habilidades del equipo (Casos A y B de tu JS)
+            if (isset($itemData['skill']['name'])) {
+                $name = $itemData['skill']['name'];
+                $lvl = isset($itemData['level']) ? $itemData['level'] : 1;
+                $totalSkills[$name] = ($totalSkills[$name] ?? 0) + $lvl;
+            } elseif (isset($itemData['skills']) && is_array($itemData['skills'])) {
+                foreach ($itemData['skills'] as $s) {
+                    $name = isset($s['skill']['name']) ? $s['skill']['name'] : (isset($s['name']) ? $s['name'] : null);
+                    if ($name) {
+                        $lvl = isset($s['level']) ? $s['level'] : 1;
+                        $totalSkills[$name] = ($totalSkills[$name] ?? 0) + $lvl;
+                    }
                 }
             }
         }
 
-        // 3. Sumar habilidades de las decoraciones
-        $decos = DB::table('builds_equipments_decorations')
-            ->where('build_equipment_id', $eq->id)
-            ->get();
-        
+        // Decoraciones
+        $decos = DB::table('builds_equipments_decorations')->where('build_equipment_id', $eq->id)->get();
         $eq->attached_decos = [];
         foreach ($decos as $d) {
             $decoInfo = collect($allDecorations)->firstWhere('id', $d->decoration_id);
             if ($decoInfo) {
-                $eq->attached_decos[] = $decoInfo['name'] ?? 'Deco';
+                $eq->attached_decos[] = isset($decoInfo['name']) ? $decoInfo['name'] : 'Jewel';
                 if (isset($decoInfo['skills']) && is_array($decoInfo['skills'])) {
                     foreach ($decoInfo['skills'] as $ds) {
-                        $dsName = $ds['name'] ?? $ds['skillName'] ?? null;
-                        if ($dsName) {
-                            $totalSkills[$dsName] = ($totalSkills[$dsName] ?? 0) + ($ds['level'] ?? 1);
+                        $dName = isset($ds['skill']['name']) ? $ds['skill']['name'] : (isset($ds['name']) ? $ds['name'] : null);
+                        if ($dName) {
+                            $dLvl = isset($ds['level']) ? $ds['level'] : 1;
+                            $totalSkills[$dName] = ($totalSkills[$dName] ?? 0) + $dLvl;
                         }
                     }
                 }
@@ -160,8 +176,8 @@ public function show($slug)
         }
     }
 
-    $header = $build->titulo;
-    return view('seccion.buildEditorShow', compact('build', 'equipments', 'totalSkills', 'header'));
+    arsort($totalSkills);
+    return view('seccion.buildEditorShow', compact('build', 'equipments', 'totalSkills', 'skillMaxLevels'));
 }
 /**
  * Función auxiliar para normalizar talismanes igual que en el ApiController
