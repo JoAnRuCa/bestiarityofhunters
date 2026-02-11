@@ -102,4 +102,50 @@ class BuildEditorController extends Controller
         }
     }
     
+public function show($slug)
+{
+    $build = Build::where('slug', $slug)->firstOrFail();
+    $equipments = DB::table('builds_equipments')->where('build_id', $build->id)->get();
+
+    $weapons = json_decode(\Storage::get('data/weapons.json'), true);
+    $armors = json_decode(\Storage::get('data/armors.json'), true);
+    $charms = $this->getNormalizedCharms();
+
+    foreach ($equipments as $eq) {
+        $source = [];
+        if ($eq->tipo == 1) $source = $weapons;
+        elseif ($eq->tipo == 2) $source = $armors;
+        elseif ($eq->tipo == 3) $source = $charms;
+
+        // Si el equipment_id es 0 o null, evitamos la búsqueda
+        if (!$eq->equipment_id) {
+            $eq->real_name = 'Vacío / No equipado';
+            continue;
+        }
+
+        $itemData = collect($source)->firstWhere('id', $eq->equipment_id);
+
+        // Si no lo encuentra en el JSON por alguna razón
+        $eq->real_name = $itemData['name'] ?? $itemData['weaponName'] ?? $itemData['charmName'] ?? 'Pieza no encontrada';
+    }
+
+    $header = $build->titulo;
+    return view('seccion.buildShow', compact('build', 'equipments', 'header'));
+}
+/**
+ * Función auxiliar para normalizar talismanes igual que en el ApiController
+ */
+private function getNormalizedCharms() {
+    $charmsRaw = json_decode(\Storage::get('data/charms.json'), true);
+    $normalized = [];
+    foreach ($charmsRaw as $charm) {
+        if (isset($charm['ranks'])) {
+            foreach ($charm['ranks'] as $rank) {
+                $normalized[] = $rank;
+            }
+        }
+    }
+    return $normalized;
+}
+
 }

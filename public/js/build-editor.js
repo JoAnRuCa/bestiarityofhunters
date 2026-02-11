@@ -350,7 +350,7 @@ document.getElementById('forgeForm').addEventListener('submit', function (e) {
             if (data.success) {
                 alert(data.message);
                 // Redirigir a la vista de la build usando el slug devuelto por el controlador
-                window.location.href = '/builds/' + data.slug;
+                window.location.href = 'builds/' + data.slug;
             } else {
                 alert("Forge error: " + (data.error || "Unknown error occurred."));
             }
