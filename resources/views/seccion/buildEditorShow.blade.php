@@ -22,7 +22,7 @@
     <div class="w-full h-px bg-[#6B8E23]/30 my-8"></div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        {{-- COLUMNA IZQUIERDA --}}
+        {{-- COLUMNA IZQUIERDA: EQUIPAMIENTO --}}
         <div class="lg:col-span-2 space-y-8">
             <section>
                 <h3 class="font-black uppercase text-sm tracking-widest mb-6 flex items-center">
@@ -40,12 +40,30 @@
                             <span class="font-bold text-lg leading-none">{{ $eq->real_name }}</span>
 
                             @if(!empty($eq->attached_decos))
-                            <div class="mt-4 flex flex-wrap gap-2 pt-3 border-t border-[#6B8E23]/10">
+                            {{-- Contenedor en columna para que salgan uno debajo del otro --}}
+                            <div class="mt-4 flex flex-col gap-2 pt-3 border-t border-[#6B8E23]/10">
                                 @foreach($eq->attached_decos as $deco)
-                                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-[#6B8E23]/20 bg-white/80">
-                                        <div class="w-5 h-5 rounded-full border-2 border-[#6B8E23] flex items-center justify-center text-[10px] font-black">{{ $deco['level'] }}</div>
-                                        <span class="text-[10px] font-bold uppercase tracking-tight">{{ $deco['name'] }}</span>
-                                    </div>
+                                    @if(isset($deco['is_empty']) && $deco['is_empty'])
+                                        {{-- HUECO VACÍO --}}
+                                        <div class="flex items-center gap-3 w-full px-3 py-2 rounded-xl border border-[#6B8E23]/10 bg-white/20">
+                                            <div class="flex items-center justify-center w-6 h-6 rounded-full border-2 border-[#6B8E23]/30 bg-transparent">
+                                                <span class="text-[10px] font-black text-[#6B8E23]/50">{{ $deco['level'] }}</span>
+                                            </div>
+                                            <span class="text-[10px] font-bold italic text-[#6B8E23]/40 uppercase tracking-widest">
+                                                Empty Slot (Lv{{ $deco['level'] }})
+                                            </span>
+                                        </div>
+                                    @else
+                                        {{-- JOYA EQUIPADA --}}
+                                        <div class="flex items-center gap-3 w-full px-3 py-2 rounded-xl border border-[#6B8E23]/20 bg-white/80 shadow-sm">
+                                            <div class="w-6 h-6 rounded-full border-2 border-[#6B8E23] flex items-center justify-center text-[10px] font-black text-[#6B8E23]">
+                                                {{ $deco['level'] }}
+                                            </div>
+                                            <span class="text-[10px] font-black uppercase tracking-tight text-[#2F2F2F]">
+                                                {{ $deco['name'] }}
+                                            </span>
+                                        </div>
+                                    @endif
                                 @endforeach
                             </div>
                             @endif
@@ -70,7 +88,6 @@
                             $currentLvl = (int)min($lvl, $max);
                             $percent = ($currentLvl / $max) * 100;
 
-                            // Búsqueda compatible con PHP 7.4
                             $skillInfo = collect($skillsData)->first(function($item) use ($skillNameClean) {
                                 return trim($item['name']) === $skillNameClean;
                             });
