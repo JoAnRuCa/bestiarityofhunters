@@ -2,9 +2,7 @@
     <div id="no-guides-msg" class="py-12 text-center border-2 border-dashed border-[#6B8E23]/10 rounded-lg">
         <p class="text-gray-600 italic font-serif text-lg">No guides match your search.</p>
         
-        {{-- Verificamos si estamos en "My Guides" para mostrar el botón de crear --}}
         @if(request()->routeIs('my.guides'))
-            {{-- Usamos url() para evitar el error de RouteNotFoundException --}}
             <a href="{{ url('/guide-editor') }}" class="mt-4 inline-block text-[#C67C48] font-bold uppercase hover:underline tracking-widest text-xs">
                 Write your own scroll →
             </a>
