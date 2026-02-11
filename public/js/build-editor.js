@@ -1,5 +1,5 @@
 /* ============================================================
-    BUILD ARCHITECT — CORE ENGINE (FINAL VERSION)
+    BUILD ARCHITECT — CORE ENGINE (FINAL VERSION CORREGIDA)
    ============================================================ */
 
 let weapons = [], armors = [], charms = [], decorationsData = [], skillsData = [];
@@ -29,7 +29,7 @@ const weaponTagMap = {
 // Carga de datos desde la API
 async function loadBuildData() {
     try {
-        const res = await fetch('api/build-data'); // Ajusta esta ruta según tu api.php
+        const res = await fetch('api/build-data');
         if (!res.ok) throw new Error("Error HTTP: " + res.status);
         const data = await res.json();
 
@@ -39,12 +39,10 @@ async function loadBuildData() {
         decorationsData = data.decorations;
         skillsData = data.skills;
 
-        // Mapeo de niveles máximos
         skillsData.forEach(s => {
             if (s.name && s.ranks) skillMaxLevels[s.name.trim()] = s.ranks.length;
         });
 
-        // Cache de decoraciones: Una joya de nivel 1 entra en slots 1, 2, 3 y 4
         decorationsData.forEach(d => {
             const kind = d.kind === 'weapon' ? 'weapon' : 'armor';
             for (let slotLvl = d.slot; slotLvl <= 4; slotLvl++) {
@@ -60,7 +58,6 @@ async function loadBuildData() {
     }
 }
 
-// Estado de la Build
 let build = { weapon1: null, weapon2: null, head: null, chest: null, arms: null, waist: null, legs: null, charm: null };
 let decorations = { weapon1: [], weapon2: [], head: [], chest: [], arms: [], waist: [], legs: [], charm: [] };
 let activeSlot = null, activeDecoIndex = null, modalMode = null, currentList = [];
@@ -87,7 +84,6 @@ function updateSelected() {
         const nameEl = document.getElementById(slot + "_name");
         if (nameEl) nameEl.textContent = getName(build[slot]);
 
-        // Limpiar errores visuales al seleccionar algo
         if (build[slot]) {
             const errEl = document.getElementById(`error-${slot}`);
             if (errEl) { errEl.innerText = ""; errEl.classList.add('hidden'); }
@@ -98,7 +94,7 @@ function updateSelected() {
     syncWeaponTags();
 }
 
-/* --- Renderizado de UI --- */
+/* --- Renderizado de UI (CORREGIDO PARA CÍRCULOS) --- */
 
 function renderSlots(slot) {
     const item = build[slot];
@@ -117,18 +113,30 @@ function renderSlots(slot) {
     item.slots.forEach((slotLevel, index) => {
         const deco = decorations[slot][index];
         const row = document.createElement("div");
-        row.className = `flex items-center justify-between p-2 rounded-xl border mb-1.5 transition-all ${deco ? 'bg-[#6B8E23]/10 border-[#6B8E23]/30 shadow-sm' : 'bg-white/40 border-dashed border-gray-300'
+
+        // Contenedor de la fila
+        row.className = `flex items-center justify-between px-3 py-2 rounded-xl border mb-2 transition-all ${deco ? 'bg-white/80 border-[#6B8E23]/20 shadow-sm' : 'bg-white/20 border-[#6B8E23]/10'
             }`;
 
         const decoName = deco ? deco.name : `Empty Slot (Lv${slotLevel})`;
-        const textStyle = deco ? "text-[#2F2F2F] font-bold" : "text-gray-400 italic";
+        const textStyle = deco ? "text-[#2F2F2F] font-black" : "text-[#6B8E23]/40 font-bold italic";
 
+        // NOTA: Usamos inline styles para 'aspect-ratio' y 'min-width' como seguro médico 
+        // por si Tailwind tiene conflictos con otras clases.
         row.innerHTML = `
             <div class="flex items-center gap-3 cursor-pointer group w-full" onclick="event.stopPropagation(); selectDecoration('${slot}', ${index}, ${slotLevel})">
-                <div class="w-6 h-6 flex-shrink-0 rounded-md border-2 border-[#6B8E23] flex items-center justify-center text-[10px] font-black text-[#6B8E23] bg-white group-hover:bg-[#6B8E23] group-hover:text-white transition-colors">
-                    ${slotLevel}
+                
+                <div class="flex-shrink-0 flex items-center justify-center rounded-full border-2 transition-all duration-300 group-hover:scale-110"
+                     style="width: 28px; height: 28px; min-width: 28px; min-height: 28px; aspect-ratio: 1/1; 
+                            border-color: ${deco ? '#6B8E23' : 'rgba(107, 142, 35, 0.3)'}; 
+                            background-color: white;">
+                    <span class="text-[10px] font-black leading-none" 
+                          style="color: ${deco ? '#6B8E23' : 'rgba(107, 142, 35, 0.5)'}; margin-top: 1px;">
+                        ${slotLevel}
+                    </span>
                 </div>
-                <span class="text-xs transition-colors group-hover:text-[#6B8E23] ${textStyle}">
+
+                <span class="text-[10px] uppercase tracking-widest transition-colors group-hover:text-[#6B8E23] ${textStyle}">
                     ${decoName}
                 </span>
             </div>
@@ -137,11 +145,12 @@ function renderSlots(slot) {
         if (deco) {
             const btn = document.createElement("button");
             btn.type = "button";
-            btn.className = "text-gray-400 hover:text-red-500 p-1 transition-colors";
+            btn.className = "text-gray-300 hover:text-red-500 p-1 transition-colors ml-2 flex-shrink-0";
             btn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2.5"/></svg>';
             btn.onclick = (e) => { e.stopPropagation(); clearDeco(slot, index); };
             row.appendChild(btn);
         }
+
         container.appendChild(row);
     });
 }
@@ -151,7 +160,7 @@ function renderSkillTotals() {
     const weaponSkillNames = new Set();
 
     for (const slot in build) {
-        if (slot === 'weapon2') continue; // Lógica estándar: solo cuenta arma activa
+        if (slot === 'weapon2') continue;
         const item = build[slot];
         if (!item) continue;
 
@@ -208,7 +217,7 @@ function renderSkillTotals() {
     box.innerHTML = html || '<p class="italic text-xs opacity-50 text-center py-10 font-bold uppercase">No Skills Detected</p>';
 }
 
-/* --- Gestión de Inventario / Modal --- */
+/* --- Resto del código se mantiene igual --- */
 
 function openSelector(slot) {
     if (!dataLoaded) return;
@@ -250,8 +259,6 @@ function renderList(list) {
     });
 }
 
-/* --- Lógica de Borrado y Sincronización --- */
-
 function clearSlot(slot) {
     build[slot] = null;
     decorations[slot] = [];
@@ -283,36 +290,19 @@ function syncWeaponTags() {
     });
 }
 
-/* --- Eventos de Búsqueda y Modal --- */
-
 document.getElementById("searchInput").oninput = function () {
-    // 1. Limpiamos la búsqueda: "Great Sword" -> "greatsword"
     const searchTerm = this.value.toLowerCase().trim().replace(/[\s-]/g, '');
-
-    if (!searchTerm) {
-        renderList(currentList);
-        return;
-    }
+    if (!searchTerm) { renderList(currentList); return; }
 
     const filtered = currentList.filter(item => {
-        // 2. Limpiamos el nombre del ítem: "Buster Sword I" -> "busterswordi"
         const itemName = getName(item).toLowerCase().replace(/[\s-]/g, '');
-
-        // 3. Limpiamos el tipo (kind): "great-sword" -> "greatsword"
         const itemKind = (item.kind || "").toLowerCase().replace(/[\s-]/g, '');
-
-        // 4. Comprobamos habilidades (limpiando cada una)
         const skillMatch = extractSkills(item).some(s => {
             const sName = (s.name || "").toLowerCase().replace(/[\s-]/g, '');
             return sName.includes(searchTerm);
         });
-
-        // Retornamos true si coincide en cualquiera de los 3 campos
-        return itemName.includes(searchTerm) ||
-            itemKind.includes(searchTerm) ||
-            skillMatch;
+        return itemName.includes(searchTerm) || itemKind.includes(searchTerm) || skillMatch;
     });
-
     renderList(filtered);
 };
 
@@ -321,18 +311,11 @@ function closeModal() { document.getElementById("modal").classList.add("hidden")
 document.getElementById('modal').onclick = function (e) { if (e.target === this) closeModal(); };
 document.addEventListener('keydown', (e) => { if (e.key === "Escape") closeModal(); });
 
-/* --- Envío del Formulario (AJAX) --- */
-
 document.getElementById('forgeForm').onsubmit = function (e) {
     e.preventDefault();
-
-    // Reset errores
     document.querySelectorAll('[id^="error-"]').forEach(el => { el.innerText = ""; el.classList.add('hidden'); });
-
-    // Preparar inputs ocultos para el controlador PHP
     document.getElementById('buildDataInput').value = JSON.stringify(build);
     document.getElementById('decoDataInput').value = JSON.stringify(decorations);
-
     const formData = new FormData(this);
 
     fetch(this.action, {
@@ -342,7 +325,7 @@ document.getElementById('forgeForm').onsubmit = function (e) {
     })
         .then(async res => {
             const data = await res.json();
-            if (res.status === 422) { // Errores de validación Laravel
+            if (res.status === 422) {
                 Object.keys(data.errors).forEach(key => {
                     const cleanKey = key.includes('.') ? key.split('.').pop() : key;
                     const errorEl = document.getElementById(`error-${cleanKey}`);
@@ -362,5 +345,4 @@ document.getElementById('forgeForm').onsubmit = function (e) {
         .catch(err => console.error("Critical Forge Error:", err));
 };
 
-// Arrancar motor
 loadBuildData();

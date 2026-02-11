@@ -88,17 +88,32 @@ class BuildEditorController extends Controller
         }
     }
 
+    /**
+     * Muestra la build terminada.
+     * Restringido únicamente al creador de la misma.
+     */
     public function show($slug)
     {
+        // 1. Obtener la build o fallar si no existe
         $build = Build::with('tags')->where('slug', $slug)->firstOrFail();
+
+        // 2. SEGURIDAD: Solo el autor puede entrar. 
+        // Si no hay usuario logueado o el ID no coincide, lanzamos un 403.
+        if (!Auth::check() || Auth::id() !== $build->user_id) {
+            abort(403, 'Unauthorized access. This build belongs to another hunter.');
+        }
+
+        // 3. Cargar equipamiento asociado
         $equipments = DB::table('builds_equipments')->where('build_id', $build->id)->get();
 
+        // 4. Cargar datos maestros de los JSON
         $weapons = json_decode(Storage::get('data/weapons.json'), true) ?: [];
         $armors = json_decode(Storage::get('data/armors.json'), true) ?: [];
         $charms = $this->getNormalizedCharms();
         $allDecorations = json_decode(Storage::get('data/decorations.json'), true) ?: [];
         $skillsData = json_decode(Storage::get('data/skills.json'), true) ?: [];
         
+        // 5. Mapear niveles máximos de habilidades
         $skillMaxLevels = [];
         foreach ($skillsData as $s) {
             if (isset($s['name']) && isset($s['ranks'])) {
@@ -108,15 +123,12 @@ class BuildEditorController extends Controller
 
         $totalSkillsRaw = [];
         $weaponSkills = []; 
-
-        // Definimos etiquetas de tipo para limpiar el Blade
         $tipoLabels = [1 => 'Weapon', 2 => 'Armor Piece', 3 => 'Charm'];
 
+        // 6. Procesar cada pieza de equipo guardada
         foreach ($equipments as $eq) {
             $source = [];
             $isWeapon = ((int)$eq->tipo === 1);
-            
-            // Inyectamos la etiqueta de texto en el objeto
             $eq->tipo_label = $tipoLabels[(int)$eq->tipo] ?? 'Equipment';
 
             switch ((int)$eq->tipo) {
@@ -131,6 +143,7 @@ class BuildEditorController extends Controller
                 $eq->real_name = $itemData['name'] ?? $itemData['weaponName'] ?? $itemData['charmName'] ?? 'Unknown Item';
                 $eq->total_slots = $itemData['slots'] ?? [];
 
+                // Extraer habilidades base del equipo
                 if (isset($itemData['skill']['name'])) {
                     $name = trim($itemData['skill']['name']);
                     $totalSkillsRaw[$name] = ($totalSkillsRaw[$name] ?? 0) + ($itemData['level'] ?? 1);
@@ -146,6 +159,7 @@ class BuildEditorController extends Controller
                 }
             }
 
+            // 7. Procesar decoraciones (Joyas) de esta pieza
             $savedDecos = DB::table('builds_equipments_decorations')->where('build_equipment_id', $eq->id)->get();
             $eq->attached_decos = [];
             
@@ -170,6 +184,7 @@ class BuildEditorController extends Controller
                 }
             }
 
+            // Rellenar huecos vacíos visualmente
             if (isset($eq->total_slots) && is_array($eq->total_slots)) {
                 $numEquipadas = count($eq->attached_decos);
                 $numTotales = count($eq->total_slots);
@@ -186,7 +201,7 @@ class BuildEditorController extends Controller
             }
         }
 
-        // ⭐ LÓGICA DE ORDENAMIENTO Y MAPEO FINAL ⭐
+        // 8. Cálculo final de niveles y descripciones de habilidades
         $totalSkills = collect($totalSkillsRaw)
             ->map(function($lvl, $name) use ($skillMaxLevels, $weaponSkills, $skillsData) {
                 $nameClean = trim($name);

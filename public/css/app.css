@@ -2454,10 +2454,6 @@ select {
     width: 20rem;
   }
 
-  .sm\:w-auto {
-    width: auto;
-  }
-
   .sm\:max-w-md {
     max-width: 28rem;
   }
@@ -2537,6 +2533,10 @@ select {
     width: 11rem;
   }
 
+  .md\:w-\[500px\] {
+    width: 500px;
+  }
+
   .md\:w-\[60\%\] {
     width: 60%;
   }
@@ -2559,14 +2559,6 @@ select {
 
   .md\:flex-row {
     flex-direction: row;
-  }
-
-  .md\:items-start {
-    align-items: flex-start;
-  }
-
-  .md\:justify-end {
-    justify-content: flex-end;
   }
 
   .md\:rounded-lg {
