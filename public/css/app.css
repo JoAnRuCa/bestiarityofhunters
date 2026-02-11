@@ -908,9 +908,6 @@ select {
 .h-px {
   height: 1px;
 }
-.max-h-\[65vh\] {
-  max-height: 65vh;
-}
 .max-h-\[85vh\] {
   max-height: 85vh;
 }
@@ -1661,9 +1658,6 @@ select {
 }
 .pr-10 {
   padding-right: 2.5rem;
-}
-.pr-2 {
-  padding-right: 0.5rem;
 }
 .pr-32 {
   padding-right: 8rem;
@@ -2460,6 +2454,10 @@ select {
     width: 20rem;
   }
 
+  .sm\:w-auto {
+    width: auto;
+  }
+
   .sm\:max-w-md {
     max-width: 28rem;
   }
@@ -2563,6 +2561,14 @@ select {
     flex-direction: row;
   }
 
+  .md\:items-start {
+    align-items: flex-start;
+  }
+
+  .md\:justify-end {
+    justify-content: flex-end;
+  }
+
   .md\:rounded-lg {
     border-radius: 0.5rem;
   }
@@ -2585,6 +2591,10 @@ select {
 
   .md\:p-12 {
     padding: 3rem;
+  }
+
+  .md\:text-left {
+    text-align: left;
   }
 
   .md\:text-5xl {

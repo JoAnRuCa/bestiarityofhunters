@@ -9,35 +9,51 @@
 
     <div class="w-[95%] max-w-7xl mx-auto mt-12 mb-12 p-8 rounded-3xl shadow-2xl bg-[#F4EBD0] border border-[#6B8E23]/20 text-[#2F2F2F]">
         
-        {{-- HEADER --}}
-        <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
-            <div class="w-full md:w-auto">
-                <h1 class="text-5xl font-black tracking-tighter uppercase italic leading-none">
-                    Build <span class="text-[#6B8E23]">Architect</span>
-                </h1>
-                <div class="mt-6 flex flex-col gap-6">
-                    <div class="w-full sm:w-80">
-                        <label class="text-[10px] uppercase font-black text-[#6B8E23] tracking-widest mb-1 block ml-1">Build Designation</label>
-                        <input type="text" name="name" id="buildName" 
-                            class="w-full bg-white border-2 border-[#6B8E23]/30 rounded-xl py-3 px-4 font-bold text-[#2F2F2F] outline-none focus:border-[#6B8E23] transition-all"
-                            placeholder="Enter build name...">
-                        <p id="error-name" class="text-red-600 text-xs font-bold mt-2 hidden italic"></p>
-                    </div>
-                    <div id="tagContainer" class="bg-white/40 p-5 rounded-2xl border border-[#6B8E23]/10">
-                        <x-tag-selector :showAll="false" />
-                        <p id="error-tags" class="text-red-600 text-xs font-bold mt-2 hidden italic"></p>
-                    </div>
-                </div>
+{{-- HEADER --}}
+<div class="flex flex-col md:flex-row items-center gap-6 mb-8">
+    
+    {{-- Lado Izquierdo: Titulo y Formulario --}}
+    <div class="w-full md:w-auto">
+        <h1 class="text-5xl font-black tracking-tighter uppercase italic leading-none text-center md:text-left">
+            Build <span class="text-[#6B8E23]">Architect</span>
+        </h1>
+        
+        <div class="mt-6 flex flex-col gap-6">
+            {{-- Input con ancho controlado --}}
+            <div class="w-full sm:w-80">
+                <label class="text-[10px] uppercase font-black text-[#6B8E23] tracking-widest mb-1 block ml-1">Build Designation</label>
+                <input type="text" name="name" id="buildName" 
+                    class="w-full bg-white border-2 border-[#6B8E23]/30 rounded-xl py-3 px-4 font-bold text-[#2F2F2F] outline-none focus:border-[#6B8E23] transition-all"
+                    placeholder="Enter build name...">
+                <p id="error-name" class="text-red-600 text-xs font-bold mt-2 hidden italic"></p>
             </div>
-            
-            {{-- Botón con Hover Cobrizo --}}
-            @auth
-            <button type="submit" 
-                class="bg-[#6B8E23] hover:bg-[#C67C48] text-white px-10 py-5 rounded-2xl font-black uppercase shadow-[0_5px_0_0_#4A6318] hover:shadow-[0_5px_0_0_#A05E31] active:translate-y-1 active:shadow-none transition-all duration-300">
-                Forge Build
-            </button>
-            @endauth
+
+            {{-- Selector de Tags --}}
+            <div id="tagContainer" class="bg-white/40 p-5 rounded-2xl border border-[#6B8E23]/10 w-full md:w-[500px]">
+                <x-tag-selector :showAll="false" />
+                <p id="error-tags" class="text-red-600 text-xs font-bold mt-2 hidden italic"></p>
+            </div>
         </div>
+    </div>
+    
+    {{-- Lado Derecho: Botón centrado en el espacio restante --}}
+    <div class="flex-1 flex items-center justify-center">
+        @auth
+        <button type="submit" 
+            class="bg-[#6B8E23] hover:bg-[#C67C48] text-white px-10 py-5 rounded-2xl font-black uppercase shadow-[0_5px_0_0_#4A6318] hover:shadow-[0_5px_0_0_#A05E31] active:translate-y-1 active:shadow-none transition-all duration-300">
+            Forge Build
+        </button>
+        @endauth
+        
+        @guest
+        <a href="{{ route('login') }}" 
+            class="bg-[#6B8E23] hover:bg-[#C67C48] text-white px-10 py-5 rounded-2xl font-black uppercase shadow-[0_5px_0_0_#4A6318] hover:shadow-[0_5px_0_0_#A05E31] active:translate-y-1 active:shadow-none transition-all duration-300">
+            Login to Forge
+        </a>
+        @endguest
+    </div>
+
+</div>
 
         <div class="w-full h-px bg-[#6B8E23]/30 my-8"></div>
 
