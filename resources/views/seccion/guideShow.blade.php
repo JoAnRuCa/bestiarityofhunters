@@ -15,9 +15,27 @@
                 <x-vote-block :item="$guide" type="guide" />
             </div>
             
-            <h1 class="text-4xl md:text-5xl font-extrabold text-[#6B8E23] pr-32 leading-tight">
-                {{ $guide->titulo }}
-            </h1>
+            <div class="flex flex-col gap-3">
+                <h1 class="text-4xl md:text-5xl font-extrabold text-[#6B8E23] pr-32 leading-tight">
+                    {{ $guide->titulo }}
+                </h1>
+
+                {{-- SECCIÓN DE TAGS (ESTILO #C67C48) --}}
+                <div class="flex flex-wrap gap-2">
+                    @forelse($guide->tags as $tag)
+                        <div class="flex items-center gap-2 bg-[#C67C48] text-white px-3 py-1.5 rounded-xl shadow-sm">
+                            <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-[10px] font-black uppercase italic tracking-tight">
+                                {{ $tag->name }}
+                            </span>
+                        </div>
+                    @empty
+                        {{-- Opcional: podrías dejarlo vacío o con el mensaje de "No tags" --}}
+                    @endforelse
+                </div>
+            </div>
         </div>
 
         <div class="prose max-w-none text-gray-900 leading-relaxed mb-4">
