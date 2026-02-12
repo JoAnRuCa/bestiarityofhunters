@@ -60,43 +60,44 @@ class BuildListController extends Controller
     /**
      * Lógica de filtrado (Igual que en Guides)
      */
-    private function applyFiltersAndSorting(Request $request, $userId = null)
-    {
-        $query = Build::with(['tags', 'user', 'votos'])
-            ->withSum('votos as score_sum', 'tipo');
+ private function applyFiltersAndSorting(Request $request, $userId = null)
+{
+    $query = Build::with(['tags', 'user', 'votos'])
+        ->withSum('votos as score_sum', 'tipo');
 
-        if ($userId) {
-            $query->where('builds.user_id', $userId);
-        }
-
-        if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('builds.titulo', 'like', '%' . $request->search . '%')
-                  ->orWhere('builds.playstyle', 'like', '%' . $request->search . '%');
-            });
-        }
-
-        if (!$userId && $request->filled('autor')) {
-            $query->whereHas('user', function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->autor . '%');
-            });
-        }
-
-        if ($request->filled('tag')) {
-            $tags = (array) $request->tag;
-            foreach ($tags as $tag) {
-                $query->whereHas('tags', function ($q) use ($tag) {
-                    $q->where('name', $tag);
-                });
-            }
-        }
-
-        if ($request->orden === 'votados') {
-            $query->orderByDesc('score_sum');
-        } else {
-            $query->orderBy('builds.created_at', 'desc');
-        }
-
-        return $query;
+    if ($userId) {
+        $query->where('builds.user_id', $userId);
     }
+
+    // 1. Búsqueda simplificada: SOLO por título
+    if ($request->filled('search')) {
+        $query->where('builds.titulo', 'like', '%' . $request->search . '%');
+    }
+
+    if (!$userId && $request->filled('autor')) {
+        $query->whereHas('user', function ($q) use ($request) {
+            $q->where('name', 'like', '%' . $request->autor . '%');
+        });
+    }
+
+    if ($request->filled('tag')) {
+        $tags = (array) $request->tag;
+        foreach ($tags as $tag) {
+            $query->whereHas('tags', function ($q) use ($tag) {
+                $q->where('name', $tag);
+            });
+        }
+    }
+
+    // 2. Ordenamiento corregido
+    if ($request->orden === 'votados') {
+        // Coalesce asegura que si no hay votos (NULL), se trate como 0
+        // Así el 0 quedará por encima del -1
+        $query->orderByRaw('COALESCE(score_sum, 0) DESC');
+    } else {
+        $query->orderBy('builds.created_at', 'desc');
+    }
+
+    return $query;
+}
 }

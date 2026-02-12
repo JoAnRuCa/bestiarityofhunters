@@ -16,8 +16,6 @@
                     Browse the best equipment loadouts from the community
                 </p>
             </div>
-            
-            {{-- HEMOS ELIMINADO EL BOTÓN "FORGE NEW BUILD" PARA EVITAR EL ERROR DE RUTA --}}
         </div>
 
         {{-- Panel de Filtros --}}
@@ -27,15 +25,11 @@
                    class="bg-white border-2 border-[#6B8E23]/20 px-4 py-2 rounded-xl text-xs font-bold text-[#2F2F2F] focus:border-[#6B8E23] outline-none placeholder:text-gray-400 w-full md:w-auto shadow-sm transition-all">
         </x-filter-panel>
 
-        {{-- Resultados --}}
+        {{-- Contenedor Único para AJAX --}}
         <div id="guides-wrapper" class="mt-8 transition-opacity duration-300">
-            {{-- Mantenemos el ID "guides-wrapper" para que tu list.js actual funcione --}}
             <x-build-grid :builds="$builds" :editable="false" />
         </div>
         
-        <div class="mt-8">
-            {{ $builds->links() }}
-        </div>
     </div>
     @endsection
 
