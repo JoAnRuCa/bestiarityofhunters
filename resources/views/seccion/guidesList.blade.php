@@ -5,7 +5,6 @@
     @section('title', 'Guides')
 
     @section('content')
-    {{-- He unificado: w-[95%], max-w-7xl, rounded-3xl y shadow-2xl --}}
     <div class="w-[95%] md:w-[70%] max-w-7xl mx-auto mt-12 mb-20 p-8 bg-[#F4EBD0] rounded-3xl shadow-2xl border border-[#6B8E23]/20">
         
         <div class="flex flex-col md:flex-row justify-between items-end mb-8 border-b-2 border-[#6B8E23]/20 pb-6 gap-4">
@@ -26,7 +25,7 @@
         </x-filter-panel>
 
         <div id="guides-wrapper" class="mt-8 transition-opacity duration-300">
-            <x-guide-grid :guides="$guides" :editable="true" />
+            <x-guide-grid :guides="$guides" />
         </div>
     </div>
     @endsection
