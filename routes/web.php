@@ -17,6 +17,7 @@ use App\Http\Controllers\VoteController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\SavedItemController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\BuildListController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,7 +54,9 @@ Route::get('/build-editor', [BuildEditorController::class, 'index'])->name('buil
 Route::get('/api/build-data', [BuildApiController::class, 'getBuildData']);
 // Ruta para procesar el guardado (la que te falta)
 Route::post('/save-build', [BuildEditorController::class, 'store'])->name('builds.store');
-// Ruta para visualizar una build específica por su slug
+
+
+
 
 
 
@@ -68,6 +71,8 @@ Route::get('/contact', [ContactUsController::class, 'index'])->name('contact');
 Route::post('/contact', [ContactUsController::class, 'store'])->name('contact.store');
 
 Route::get('/guides', [GuideListController::class, 'index'])->name('guides.index');
+Route::get('/builds', [BuildListController::class, 'index'])->name('builds.index');
+Route::get('/builds/{slug}', [BuildListController::class, 'show'])->name('builds.show');
 Route::get('/guides/{slug}', [GuideListController::class, 'show'])->name('guides.show');
 
 
@@ -94,6 +99,8 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     Route::get('/build-editor/{slug}', [BuildEditorController::class, 'show'])->name('build-editor.show');
+
+
 });
 
 

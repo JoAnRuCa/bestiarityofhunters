@@ -8,16 +8,20 @@ use Illuminate\Support\Facades\Auth;
 class VoteController extends Controller
 {
     /**
-     * Método universal para procesar votos de guías y comentarios.
+     * Método universal para procesar votos de guías, comentarios y builds.
      */
     public function votar(Request $request)
     {
-        // 1. Validación de entrada
+        // 1. Validación de entrada (añadimos 'build')
         $request->validate([
             'id'    => 'required|integer',
             'tipo'  => 'required|in:1,-1',
-            'model' => 'required|in:guide,comment' // Define aquí los tipos permitidos
+            'model' => 'required|in:guide,comment,build' 
         ]);
+
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
 
         $userId = Auth::id();
 
@@ -33,13 +37,18 @@ class VoteController extends Controller
                 'entityModel' => \App\Models\GuidesComment::class,
                 'foreignKey'  => 'comment_id'
             ],
+            'build' => [
+                'voteModel'   => \App\Models\BuildVote::class,
+                'entityModel' => \App\Models\Build::class,
+                'foreignKey'  => 'build_id'
+            ],
         ];
 
         $setup = $config[$request->model];
         $voteModel = $setup['voteModel'];
         $foreignKey = $setup['foreignKey'];
 
-        // 3. Lógica de votación (antes estaba en el Service)
+        // 3. Lógica de votación
         $voto = $voteModel::where('user_id', $userId)
                           ->where($foreignKey, $request->id)
                           ->first();

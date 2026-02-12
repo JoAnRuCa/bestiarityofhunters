@@ -1,6 +1,5 @@
 function initVotes() {
     document.querySelectorAll('.vote-container').forEach(container => {
-        // Evitar duplicar eventos si ya se inicializó
         if (container.dataset.initialized) return;
         container.dataset.initialized = "true";
 
@@ -11,7 +10,10 @@ function initVotes() {
         const downSvg = container.querySelector('.arrow-down');
 
         const ejecutarVoto = (tipo) => {
-            fetch(container.dataset.url, {
+            // La URL suele ser '/votar', asegúrate de que coincida con tu ruta en web.php
+            const url = container.dataset.url || '/votar';
+
+            fetch(url, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -24,20 +26,40 @@ function initVotes() {
                     model: container.dataset.model
                 })
             })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.voto !== undefined) {
-                        upSvg.setAttribute("fill", data.voto === 1 ? "#6B8E23" : "none");
-                        downSvg.setAttribute("fill", data.voto === -1 ? "#2F2F2F" : "none");
-                        scoreBox.textContent = data.score;
-                        scoreBox.style.color = data.score > 0 ? "#6B8E23" : (data.score < 0 ? "#2F2F2F" : "#555");
+                .then(res => {
+                    if (res.status === 401) {
+                        window.location.href = '/login';
+                        return;
                     }
-                });
+                    return res.json();
+                })
+                .then(data => {
+                    if (data && data.voto !== undefined) {
+                        // Colores: Verde (#6B8E23) para arriba, Oscuro (#2F2F2F) o Rojo para abajo
+                        upSvg.setAttribute("fill", data.voto === 1 ? "#6B8E23" : "none");
+                        downSvg.setAttribute("fill", data.voto === -1 ? "#C67C48" : "none"); // Usando el ocre/naranja para el negativo
+
+                        // Actualizar número y su color
+                        scoreBox.textContent = data.score;
+                        if (data.score > 0) {
+                            scoreBox.style.color = "#6B8E23";
+                        } else if (data.score < 0) {
+                            scoreBox.style.color = "#C67C48";
+                        } else {
+                            scoreBox.style.color = "#555";
+                        }
+                    }
+                })
+                .catch(err => console.error("Error en el sistema de votos:", err));
         };
 
-        upBtn.onclick = () => ejecutarVoto(1);
-        downBtn.onclick = () => ejecutarVoto(-1);
+        upBtn.onclick = (e) => { e.preventDefault(); ejecutarVoto(1); };
+        downBtn.onclick = (e) => { e.preventDefault(); ejecutarVoto(-1); };
     });
 }
 
+// Inicializar al cargar
 document.addEventListener('DOMContentLoaded', initVotes);
+
+// Re-inicializar si usas AJAX para cargar las listas
+window.addEventListener('contentUpdated', initVotes);
