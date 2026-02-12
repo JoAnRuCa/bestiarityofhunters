@@ -9,42 +9,43 @@
         @endif
     </div>
 @else
-    {{-- Resto del código del grid... --}}
     <div id="guides-container" class="grid grid-cols-1 md:grid-cols-2 gap-8">
         @foreach($guides as $guide)
-            {{-- EL ID ES CLAVE: Permite al JS encontrar esta tarjeta específica --}}
             <div id="guide-card-{{ $guide->id }}" 
-                 class="group/card p-6 bg-transparent flex justify-between items-stretch border-b border-[#6B8E23]/10 md:border md:border-[#6B8E23]/5 md:rounded-lg transition-all hover:bg-[#6B8E23]/5 duration-300">
+                 class="group/card p-6 bg-white/40 flex justify-between items-stretch border border-[#6B8E23]/10 rounded-2xl transition-all hover:bg-[#6B8E23]/5 duration-300 shadow-sm hover:shadow-md">
                 
                 {{-- Columna Izquierda: Información --}}
                 <div class="flex-1">
-                    <h2 class="text-2xl font-bold mb-2">
-                        <a href="{{ route('guides.show', ['slug' => $guide->slug]) }}" class="text-[#6B8E23] hover:text-[#C67C48] transition-colors">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-[10px] font-black text-[#6B8E23] uppercase tracking-tighter italic">Guide</span>
+                    </div>
+                    <h2 class="text-2xl font-black uppercase italic leading-none mb-3">
+                        <a href="{{ route('guides.show', ['slug' => $guide->slug]) }}" class="text-[#2F2F2F] hover:text-[#6B8E23] transition-colors">
                             {{ $guide->titulo }}
                         </a>
                     </h2>
                     
-                    <p class="text-gray-700 mb-4 leading-snug text-sm">
+                    <p class="text-gray-700 mb-4 leading-snug text-sm italic line-clamp-2">
                         {{ Str::limit($guide->contenido, 120) }}
                     </p>
                     
                     <div class="flex flex-wrap gap-2 mb-4">
                         @foreach($guide->tags as $tag)
-                            <span class="px-2 py-0.5 bg-[#C67C48] text-white text-[10px] font-bold uppercase rounded shadow-sm">
+                            <span class="px-2 py-0.5 bg-[#6B8E23] text-white text-[9px] font-black uppercase rounded shadow-sm">
                                 {{ $tag->name }}
                             </span>
                         @endforeach
                     </div>
                     
-                    <div class="flex items-center justify-between">
-                        <p class="text-[11px] text-[#2F2F2F] font-medium tracking-wider">
-                            By <span class="text-[#C67C48]">{{ $guide->user->name }}</span> • {{ $guide->created_at->diffForHumans() }}
+                    <div class="flex items-center">
+                        <p class="text-[11px] text-[#2F2F2F] font-bold tracking-wider uppercase opacity-70">
+                            By <span class="text-[#C67C48]">{{ $guide->user->name }}</span> <span class="mx-1 text-[8px]">•</span> {{ $guide->created_at->diffForHumans() }}
                         </p>
                     </div>
                 </div>
 
                 {{-- Columna Derecha: Interacción --}}
-                <div class="flex flex-col items-end justify-between min-w-[80px] ml-4">
+                <div class="flex flex-col items-end justify-between min-w-[80px] ml-4 border-l border-[#6B8E23]/10 pl-4">
                     
                     {{-- Bloque de Votos --}}
                     <div class="flex justify-end w-full">
@@ -54,10 +55,7 @@
                     {{-- Acciones del Propietario --}}
                     @if(isset($editable) && $editable && auth()->id() === $guide->user_id)
                         <div class="flex flex-row items-center justify-end gap-2 w-full mt-auto">
-                            {{-- Componente de Editar --}}
                             <x-edit-button :url="route('guides.edit', $guide->id)" :editable="$editable" />
-                            
-                            {{-- Componente de Borrar con ID --}}
                             <x-delete-button :action="route('guides.destroy', $guide->id)" :id="$guide->id" />
                         </div>
                     @endif
@@ -67,7 +65,7 @@
     </div>
 
     {{-- Paginación AJAX --}}
-    <div class="mt-12 pagination-ajax">
+    <div class="mt-12 pagination-ajax flex justify-end">
         {{ $guides->links() }}
     </div>
 @endif
