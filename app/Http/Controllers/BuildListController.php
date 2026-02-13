@@ -44,9 +44,9 @@ class BuildListController extends Controller
     /**
      * Muestra el formulario de edición
      */
-public function edit($id)
+public function edit($slug)
 {
-    $build = Build::findOrFail($id);
+    $build = Build::where('slug', $slug)->firstOrFail();
 
     if ($build->user_id !== Auth::id()) {
         abort(403);
@@ -97,10 +97,10 @@ private function getArmorSlotName($id) {
     return null;
 }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $slug)
     {
         try {
-            $build = Build::findOrFail($id);
+            $build = Build::where('slug', $slug)->firstOrFail();
 
             if ($build->user_id !== Auth::id()) {
                 return response()->json(['success' => false, 'error' => 'Unauthorized'], 403);
@@ -191,49 +191,62 @@ private function getArmorSlotName($id) {
     /**
      * Elimina la build y todas sus dependencias técnicas
      */
-    public function destroy($id)
-    {
-        $build = Build::findOrFail($id);
+   public function destroy($slug) // <--- El parámetro debe coincidir con la ruta {slug}
+{
+    // 1. Buscamos la build por slug
+    $build = Build::where('slug', $slug)->firstOrFail();
 
-        if ($build->user_id !== Auth::id()) {
-            return response()->json(['success' => false, 'error' => 'Unauthorized'], 403);
-        }
-
-        try {
-            DB::beginTransaction();
-
-            // 1. Obtener IDs de los equipos vinculados (Plural corregido: builds_equipments)
-            $equipmentIds = DB::table('builds_equipments')->where('build_id', $id)->pluck('id');
-
-            // 2. Borrar decoraciones (Plural corregido: builds_equipments_decorations)
-            DB::table('builds_equipments_decorations')->whereIn('build_equipment_id', $equipmentIds)->delete();
-
-            // 3. Borrar registros de equipos
-            DB::table('builds_equipments')->where('build_id', $id)->delete();
-
-            // 4. Limpiar favoritos/guardados
-            DB::table('saved_builds')->where('build_id', $id)->delete();
-
-            // 5. Borrar Votos y Tags
-            $build->votos()->delete(); 
-            if (method_exists($build, 'tags')) {
-                $build->tags()->detach();
-            }
-
-            // 6. Borrado final del modelo
-            $build->delete();
-
-            DB::commit();
-            return response()->json(['success' => true]);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false, 
-                'error' => 'Database error: ' . $e->getMessage()
-            ], 500);
-        }
+    // 2. Verificación de seguridad
+    if ($build->user_id !== Auth::id()) {
+        return response()->json(['success' => false, 'error' => 'Unauthorized'], 403);
     }
+
+    try {
+        DB::beginTransaction();
+
+        // Usamos $build->id (el ID real de la base de datos) para limpiar las relaciones
+        $internalId = $build->id;
+
+        // 1. Obtener IDs de los equipos vinculados
+        $equipmentIds = DB::table('builds_equipments')
+            ->where('build_id', $internalId)
+            ->pluck('id');
+
+        // 2. Borrar decoraciones
+        DB::table('builds_equipments_decorations')
+            ->whereIn('build_equipment_id', $equipmentIds)
+            ->delete();
+
+        // 3. Borrar registros de equipos
+        DB::table('builds_equipments')
+            ->where('build_id', $internalId)
+            ->delete();
+
+        // 4. Limpiar favoritos/guardados
+        DB::table('saved_builds')
+            ->where('build_id', $internalId)
+            ->delete();
+
+        // 5. Borrar Votos y Tags (usando las relaciones del modelo)
+        $build->votos()->delete(); 
+        if (method_exists($build, 'tags')) {
+            $build->tags()->detach();
+        }
+
+        // 6. Borrado final del registro de la Build
+        $build->delete();
+
+        DB::commit();
+        return response()->json(['success' => true]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json([
+            'success' => false, 
+            'error' => 'Database error: ' . $e->getMessage()
+        ], 500);
+    }
+}
 
     public function show($slug)
     {

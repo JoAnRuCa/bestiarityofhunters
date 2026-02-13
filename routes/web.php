@@ -113,17 +113,17 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/build-editor/{slug}', [BuildEditorController::class, 'show'])->name('build-editor.show');
     
     // AQUÍ ESTÁN LAS RUTAS QUE TE FALTABAN PARA LAS BUILDS:
-    Route::get('/builds/{id}/edit', [BuildListController::class, 'edit'])->name('builds.edit');
-    Route::put('/builds/{id}', [BuildListController::class, 'update'])->name('builds.update');
-    Route::delete('/builds/{id}', [BuildListController::class, 'destroy'])->name('builds.destroy');
+    Route::get('/builds/{slug}/edit', [BuildListController::class, 'edit'])->name('builds.edit');
+    Route::put('/builds/{slug}', [BuildListController::class, 'update'])->name('builds.update');
+    Route::delete('/builds/{slug}', [BuildListController::class, 'destroy'])->name('builds.destroy');
 
     // --- MI LIBRERÍA (GUIDE MANAGEMENT) ---
     Route::get('/my-guides', [GuideListController::class, 'myGuides'])->name('my.guides');
     Route::get('/guide-editor', [GuideEditorController::class, 'index'])->name('guide.editor');
     Route::post('/guide-editor/store', [GuideEditorController::class, 'store'])->name('guide.editor.store');
-    Route::get('/guides/{id}/edit', [GuideListController::class, 'edit'])->name('guides.edit');
-    Route::put('/guides/{id}', [GuideListController::class, 'update'])->name('guides.update');
-    Route::delete('/guides/{id}', [GuideListController::class, 'destroy'])->name('guides.destroy');
+    Route::get('/guides/{slug}/edit', [GuideListController::class, 'edit'])->name('guides.edit');
+    Route::put('/guides/{slug}', [GuideListController::class, 'update'])->name('guides.update');
+    Route::delete('/guides/{slug}', [GuideListController::class, 'destroy'])->name('guides.destroy');
 
 });
 

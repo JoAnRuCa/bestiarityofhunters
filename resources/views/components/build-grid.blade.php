@@ -3,14 +3,11 @@
         <p class="text-gray-600 italic font-serif text-lg">No builds found in the archives.</p>
     </div>
 @else
-    {{-- Añadimos una clase de transición al grid mismo por si acaso --}}
     <div id="builds-container" class="grid grid-cols-1 md:grid-cols-2 gap-8 transition-all duration-500">
         @foreach($builds as $build)
-            {{-- Añadimos la clase 'group' a secas para que el JS la detecte --}}
             <div id="build-card-{{ $build->id }}" 
                  class="group group/card p-6 bg-white/40 flex justify-between items-stretch border border-[#6B8E23]/10 rounded-2xl transition-all hover:bg-[#6B8E23]/5 duration-300 shadow-sm hover:shadow-md min-h-[160px]">
                 
-                {{-- ... resto de tu código de columna izquierda ... --}}
                 <div class="flex-1 flex flex-col pr-4">
                     <div class="flex items-center gap-2 mb-1">
                         <span class="text-[10px] font-black text-[#6B8E23] uppercase tracking-tighter italic">Loadout</span>
@@ -55,11 +52,11 @@
                         </div>
                     </div>
 
+                    {{-- CAMBIO AQUÍ: Usamos $build->slug en lugar de $build->id --}}
                     @if(isset($editable) && $editable && auth()->check() && auth()->id() === $build->user_id)
                         <div class="flex flex-row items-center justify-end gap-2 w-full mt-auto">
-                            <x-edit-button :url="route('builds.edit', $build->id)" :editable="true" />
-                            {{-- Asegúrate que este componente x-delete-button genere un form con la clase 'delete-form-ajax' --}}
-                            <x-delete-button :action="route('builds.destroy', $build->id)" :id="$build->id" />
+                            <x-edit-button :url="route('builds.edit', $build->slug)" :editable="true" />
+                            <x-delete-button :action="route('builds.destroy', $build->slug)" :id="$build->id" />
                         </div>
                     @endif
                 </div>

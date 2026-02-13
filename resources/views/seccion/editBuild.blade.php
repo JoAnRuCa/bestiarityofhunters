@@ -2,7 +2,7 @@
 @section('title', 'Edit Build — ' . $build->titulo)
 
 @section('content')
-<form id="forgeForm" action="{{ route('builds.update', $build->id) }}" method="POST">
+<form id="forgeForm" action="{{ route('builds.update', $build->slug) }}" method="POST">
     @csrf
     @method('PUT')
     <input type="hidden" name="build_data" id="buildDataInput">
