@@ -25,7 +25,7 @@
                     
                     <div class="flex flex-wrap gap-2 mb-4">
                         @foreach($build->tags as $tag)
-                            <span class="px-2 py-0.5 bg-[#6B8E23] text-white text-[9px] font-black uppercase rounded shadow-sm">
+                            <span class="px-2 py-0.5 bg-[#C67C48] text-white text-[9px] font-black uppercase rounded shadow-sm">
                                 {{ $tag->name }}
                             </span>
                         @endforeach
