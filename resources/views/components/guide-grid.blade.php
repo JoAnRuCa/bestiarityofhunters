@@ -11,7 +11,7 @@
 @else
     <div id="guides-container" class="grid grid-cols-1 md:grid-cols-2 gap-8">
         @foreach($guides as $guide)
-            <div id="guide-card-{{ $guide->id }}" 
+            <div id="guide-card-{{ $guide->slug }}" 
                  class="group/card p-6 bg-white/40 flex justify-between items-stretch border border-[#6B8E23]/10 rounded-2xl transition-all hover:bg-[#6B8E23]/5 duration-300 shadow-sm hover:shadow-md min-h-[160px]">
                 
                 {{-- Columna Izquierda: Información --}}
@@ -55,8 +55,8 @@
                     {{-- Acciones del Propietario --}}
                     @if(isset($editable) && $editable && auth()->id() === $guide->user_id)
                         <div class="flex flex-row items-center justify-end gap-2 w-full mt-auto">
-                            <x-edit-button :url="route('guides.edit', $guide->id)" :editable="$editable" />
-                            <x-delete-button :action="route('guides.destroy', $guide->id)" :id="$guide->id" />
+                            <x-edit-button :url="route('guides.edit', $guide->slug)" :editable="$editable" />
+                            <x-delete-button :action="route('guides.destroy', $guide->slug)" :id="$guide->slug" />
                         </div>
                     @endif
                 </div>

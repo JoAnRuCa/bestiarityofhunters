@@ -15,7 +15,7 @@
         </p>
     @endif
 
-    <form action="{{ route('guides.update', $guide->id) }}" method="POST" class="space-y-8">
+    <form action="{{ route('guides.update', $guide->slug) }}" method="POST" class="space-y-8">
         @csrf
         @method('PUT')
 

@@ -121,9 +121,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/my-guides', [GuideListController::class, 'myGuides'])->name('my.guides');
     Route::get('/guide-editor', [GuideEditorController::class, 'index'])->name('guide.editor');
     Route::post('/guide-editor/store', [GuideEditorController::class, 'store'])->name('guide.editor.store');
-    Route::get('/guides/{slug}/edit', [GuideListController::class, 'edit'])->name('guides.edit');
-    Route::put('/guides/{slug}', [GuideListController::class, 'update'])->name('guides.update');
-    Route::delete('/guides/{slug}', [GuideListController::class, 'destroy'])->name('guides.destroy');
+  Route::put('/guides/{guide}', [GuideListController::class, 'update'])->name('guides.update');
+Route::get('/guides/{guide}/edit', [GuideListController::class, 'edit'])->name('guides.edit');
+Route::delete('/guides/{guide}', [GuideListController::class, 'destroy'])->name('guides.destroy');
 
 });
 

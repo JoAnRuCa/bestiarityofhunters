@@ -49,98 +49,72 @@ class GuideListController extends Controller
     /**
      * Muestra el formulario de edición
      */
-    public function edit($id)
-    {
-        $guide = Guide::findOrFail($id);
+ // Cambia $id por $slug en los parámetros de estas funciones:
 
-        // Comprobación de seguridad: Solo el dueño edita
-        if ($guide->user_id !== Auth::id()) {
-            abort(403, 'No tienes permiso para editar este contenido.');
-        }
-        
-        return view('seccion.editGuide', compact('guide'));
-    }
-
-    /**
-     * Procesa la actualización de la guía
-     */
-    public function update(Request $request, $id)
-    {
-        $guide = Guide::findOrFail($id);
-
-        // Comprobación de seguridad
-        if ($guide->user_id !== Auth::id()) {
-            abort(403, 'Acción no autorizada.');
-        }
-        
-        $validated = $request->validate([
-            'titulo' => 'required|string|max:255',
-            'contenido' => 'required|string',
-            'tags' => 'nullable|array',
-        ]);
-
-        // 1. Datos básicos y slug
-        $guide->titulo = $validated['titulo'];
-        $guide->contenido = $validated['contenido'];
-        $guide->slug = Str::slug($validated['titulo']);
-        $guide->save();
-
-        // 2. Sincronización de Tags (Relación Many-to-Many)
-        if ($request->has('tags')) {
-            $guide->tags()->sync($request->tags);
-        } else {
-            $guide->tags()->detach();
-        }
-
-        return redirect()->route('my.guides')->with('success', 'Scroll updated successfully.');
-    }
-
-    /**
-     * Elimina la guía y sus relaciones
-     */
-   /**
- * Elimina la guía y sus relaciones
- */
-public function destroy($id)
+public function edit($slug)
 {
-    $guide = Guide::findOrFail($id);
+    $guide = Guide::where('slug', $slug)->firstOrFail();
+
+    if ($guide->user_id !== Auth::id()) {
+        abort(403);
+    }
+    
+    return view('seccion.editGuide', compact('guide'));
+}
+
+public function update(Request $request, Guide $guide) // <--- Laravel ya sabe buscar por slug gracias a getRouteKeyName()
+{
+    if ($guide->user_id !== Auth::id()) {
+        abort(403);
+    }
+
+    $validated = $request->validate([
+        'titulo' => 'required|string|max:255',
+        'contenido' => 'required|string',
+        'tags' => 'nullable|array',
+    ]);
+
+    $guide->update([
+        'titulo' => $validated['titulo'],
+        'contenido' => $validated['contenido'],
+    ]);
+
+    $guide->tags()->sync($request->tags ?? []);
+
+    return redirect()->route('my.guides')->with('success', 'Scroll updated successfully.');
+}
+
+public function destroy($slug)
+{
+    $guide = Guide::where('slug', $slug)->firstOrFail();
 
     if ($guide->user_id !== Auth::id()) {
         return response()->json(['success' => false, 'error' => 'Unauthorized'], 403);
     }
 
     try {
-        // --- LIMPIEZA DE DEPENDENCIAS ---
+        // Usamos el ID interno para las consultas de DB manuales
+        $internalId = $guide->id;
 
-        // 1. Borrar de la tabla de "Guardados" (Favoritos)
-        \DB::table('saved_guides')->where('guide_id', $id)->delete();
-
-        // 2. Borrar Votos
-        $guide->votos()->delete(); 
-
-        // 3. Borrar Comentarios y sus Respuestas
-        foreach ($guide->comments as $comment) {
-            if (method_exists($comment, 'respuestas')) {
-                $comment->respuestas()->delete();
+        \DB::transaction(function () use ($guide, $internalId) {
+            \DB::table('saved_guides')->where('guide_id', $internalId)->delete();
+            $guide->votos()->delete(); 
+            
+            foreach ($guide->comments as $comment) {
+                if (method_exists($comment, 'respuestas')) {
+                    $comment->respuestas()->delete();
+                }
+                $comment->delete();
             }
-            $comment->delete();
-        }
 
-        // 4. Limpieza de Tags
-        if (method_exists($guide, 'tags')) {
             $guide->tags()->detach();
-        }
-
-        // --- BORRADO FINAL ---
-        $guide->delete();
+            $guide->delete();
+        });
 
         return response()->json(['success' => true]);
 
     } catch (\Exception $e) {
-        return response()->json([
-            'success' => false, 
-            'error' => 'Error de integridad: ' . $e->getMessage()
-        ], 500);
+        return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
     }
 }
     /**

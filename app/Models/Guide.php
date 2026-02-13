@@ -91,4 +91,8 @@ public function comments()
     // Usamos el nombre del modelo que creamos: GuidesComment
     return $this->hasMany(GuidesComment::class, 'guide_id');
 }
+public function getRouteKeyName()
+{
+    return 'slug';
+}
 }
