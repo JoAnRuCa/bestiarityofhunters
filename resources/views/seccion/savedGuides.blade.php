@@ -4,10 +4,8 @@
 @section('title', 'Saved Guides')
 
 @section('content')
-{{-- He cambiado w-[90%] md:w-[60%] max-w-6xl por los valores de 'My Library' --}}
 <div class="w-[95%] md:w-[70%] max-w-7xl mx-auto mt-12 mb-20 p-8 bg-[#F4EBD0] rounded-3xl shadow-2xl border border-[#6B8E23]/20">
     
-    {{-- Cabecera ajustada al estilo visual de la imagen --}}
     <div class="mb-8 border-b-2 border-[#6B8E23]/20 pb-6">
         <h1 class="text-5xl font-black tracking-tighter uppercase italic text-[#2F2F2F]">
             Saved <span class="text-[#6B8E23]">Guides</span>
@@ -17,7 +15,6 @@
         </p>
     </div>
 
-    {{-- Panel de Filtros --}}
     <div class="mb-12">
         <x-filter-panel 
             :action="route('saved.guides')" 
@@ -45,14 +42,16 @@
                     </a>
                 </div>
             @else
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-14">
+                {{-- He ajustado el gap para que respete el nuevo diseño de tarjetas --}}
+                <div id="guides-container" class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     @foreach($savedData as $item)
                         @php $guide = $item->guide; @endphp
                         
                         {{-- ID CRUCIAL PARA borrar.js --}}
-                        <div id="guide-card-{{ $guide->id }}" class="group p-2 flex justify-between items-start relative bg-transparent transition-all duration-300">
+                        {{-- AÑADIDO: bg-white/40, border, rounded-2xl y hover --}}
+                        <div id="guide-card-{{ $guide->id }}" class="group p-6 flex justify-between items-stretch relative bg-white/40 border border-[#6B8E23]/10 rounded-2xl transition-all hover:bg-[#6B8E23]/5 duration-300 shadow-sm hover:shadow-md min-h-[160px]">
                             
-                            <div class="flex-1 pr-4">
+                            <div class="flex-1 pr-4 flex flex-col">
                                 <h2 class="text-2xl font-bold mb-2 leading-tight">
                                     <a href="{{ route('guides.show', $guide->slug) }}" class="text-[#6B8E23] hover:text-[#C67C48] transition-colors tracking-tight font-serif">
                                         {{ $guide->titulo }}
@@ -66,13 +65,13 @@
                                     @endforeach
                                 </div>
                                 
-                                <p class="text-[11px] text-[#2F2F2F] font-bold tracking-wider opacity-80">
+                                <p class="mt-auto text-[11px] text-[#2F2F2F] font-bold tracking-wider opacity-80 uppercase">
                                     By <span class="text-[#C67C48]">{{ $guide->user->name }}</span> • 
                                     <span class="text-[#2F2F2F]">{{ $guide->created_at->diffForHumans() }}</span>
                                 </p>
                             </div>
 
-                            <div class="flex flex-col items-end gap-6 min-w-[80px]">
+                            <div class="flex flex-col items-end justify-between min-w-[80px]">
                                 {{-- Controles: Guardar y Votar --}}
                                 <div class="flex flex-col items-center gap-4">
                                     <div class="save-container">
@@ -86,19 +85,19 @@
                                     </div>
                                 </div>
 
-                               {{-- ACCIONES DE PROPIETARIO --}}
-                                    @if(auth()->check() && auth()->id() === $guide->user_id)
-                                        <div class="flex flex-row items-center justify-end gap-2 w-full mt-auto">
-                                            <x-edit-button :url="route('guides.edit', $guide->id)" :editable="true" />
-                                            <x-delete-button :action="route('guides.destroy', $guide->id)" :id="$guide->id" />
-                                        </div>
-                                    @endif
+                                {{-- ACCIONES DE PROPIETARIO --}}
+                                @if(auth()->check() && auth()->id() === $guide->user_id)
+                                    <div class="flex flex-row items-center justify-end gap-2 w-full mt-auto">
+                                        <x-edit-button :url="route('guides.edit', $guide->id)" :editable="true" />
+                                        <x-delete-button :action="route('guides.destroy', $guide->id)" :id="$guide->id" />
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     @endforeach 
                 </div>
 
-                <div class="mt-12 pagination-ajax">{{ $savedData->links() }}</div>
+                <div class="mt-12 pagination-ajax flex justify-end">{{ $savedData->links() }}</div>
             @endif
 
 @if(!isset($only_content))
@@ -106,11 +105,7 @@
     </div>
 </div>
 
-<style>
-    .save-container { position: static !important; }
-    /* Ajuste para que los botones de editar/borrar no rompan el layout si el título es muy largo */
-    [id^="guide-card-"] { min-height: 180px; }
-</style>
+
 @endsection
 
 @section('scripts')
