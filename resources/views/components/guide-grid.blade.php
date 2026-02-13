@@ -44,21 +44,25 @@
                     </div>
                 </div>
 
-                {{-- Columna Derecha: Interacción (Sin Borde) --}}
-                <div class="flex flex-col items-end justify-between min-w-[60px] ml-4">
+                {{-- Columna Derecha: Interacción pegada a la derecha --}}
+                <div class="flex flex-col items-end justify-between min-w-[60px] ml-2">
                     
-                    {{-- Bloque de Votos --}}
-                    <div class="flex justify-end w-full">
-                        <x-vote-block :item="$guide" type="guide" />
+                    {{-- Bloque de Votos pegado al borde derecho --}}
+                    <div class="flex flex-col items-end w-full">
+                        <div class="transform scale-90 origin-right">
+                            <x-vote-block :item="$guide" type="guide" />
+                        </div>
                     </div>
 
-                    {{-- Acciones del Propietario --}}
-                    @if(isset($editable) && $editable && auth()->id() === $guide->user_id)
-                        <div class="flex flex-row items-center justify-end gap-2 w-full mt-auto">
-                            <x-edit-button :url="route('guides.edit', $guide->slug)" :editable="$editable" />
-                            <x-delete-button :action="route('guides.destroy', $guide->slug)" :id="$guide->slug" />
-                        </div>
-                    @endif
+                    {{-- Acciones del Propietario: Solo si es su guía --}}
+                    @auth
+                        @if(auth()->id() === $guide->user_id)
+                            <div class="flex flex-row items-center justify-end gap-2 w-full mt-auto">
+                                <x-edit-button :url="route('guides.edit', $guide->slug)" :editable="true" />
+                                <x-delete-button :action="route('guides.destroy', $guide->slug)" :id="$guide->slug" />
+                            </div>
+                        @endif
+                    @endauth
                 </div>
             </div>
         @endforeach
