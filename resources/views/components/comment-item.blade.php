@@ -1,9 +1,17 @@
+{{-- components/comment-item.blade.php --}}
 <div class="comment-node py-4 {{ $level > 0 ? 'ml-6 md:ml-12 border-l-2 border-[#6B8E23]/20 pl-4' : '' }}" data-level="{{ $level }}">
     <div class="flex flex-row items-start gap-4">
         
-        {{-- Bloque de Votos --}}
+        {{-- Bloque de Votos Corregido --}}
         <div class="flex-shrink-0">
-            <x-vote-block :item="$comment" type="comment" />
+            {{-- 
+               Cambiamos 'comment' fijo por una lógica que use 'build_comment' 
+               si venimos de una build, para que el VoteController use la tabla correcta.
+            --}}
+            <x-vote-block 
+                :item="$comment" 
+                :type="$type === 'build' ? 'build_comment' : 'comment'" 
+            />
         </div>
 
         <div class="flex-1">
