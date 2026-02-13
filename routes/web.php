@@ -75,6 +75,9 @@ Route::get('/builds', [BuildListController::class, 'index'])->name('builds.index
 Route::get('/builds/{slug}', [BuildListController::class, 'show'])->name('builds.show');
 Route::get('/guides/{slug}', [GuideListController::class, 'show'])->name('guides.show');
 
+Route::patch('/comments/{id}/delete', [CommentController::class, 'softDelete'])->name('comments.soft-delete');
+Route::put('/comments/{id}/update', [CommentController::class, 'update'])->name('comments.update');
+
 
 Route::middleware(['auth'])->group(function () {
     Route::post('/votar', [VoteController::class, 'votar'])->name('votar');

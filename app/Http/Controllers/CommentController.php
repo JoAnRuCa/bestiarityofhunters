@@ -58,4 +58,36 @@ class CommentController extends Controller
 
         return back()->with('status', 'Comment posted!');
     }
+
+public function update(Request $request, $id)
+{
+    $request->validate(['comentario' => 'required|string']);
+    
+    // Determinamos el modelo (Build o Guide)
+    $modelClass = $request->type === 'build' ? \App\Models\BuildComment::class : \App\Models\GuidesComment::class;
+    $comment = $modelClass::findOrFail($id);
+
+    if (auth()->id() !== $comment->user_id) return response()->json(['error' => 'No autorizado'], 403);
+
+    $comment->update(['comentario' => $request->comentario]);
+
+    // Devolvemos JSON, no una redirección
+    return response()->json([
+        'success' => true,
+        'new_text' => $comment->comentario
+    ]);
+}
+
+public function softDelete(Request $request, $id)
+{
+    $modelClass = $request->type === 'build' ? \App\Models\BuildComment::class : \App\Models\GuidesComment::class;
+    $comment = $modelClass::findOrFail($id);
+
+    if (auth()->id() !== $comment->user_id) return response()->json(['error' => 'No autorizado'], 403);
+
+    $comment->update(['comentario' => 'This text has been deleted']);
+    $comment->votos()->delete();
+
+    return response()->json(['success' => true]);
+}
 }
