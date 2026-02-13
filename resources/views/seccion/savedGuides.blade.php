@@ -42,18 +42,16 @@
                     </a>
                 </div>
             @else
-                {{-- He ajustado el gap para que respete el nuevo diseño de tarjetas --}}
                 <div id="guides-container" class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     @foreach($savedData as $item)
                         @php $guide = $item->guide; @endphp
                         
-                        {{-- ID CRUCIAL PARA borrar.js --}}
-                        {{-- AÑADIDO: bg-white/40, border, rounded-2xl y hover --}}
                         <div id="guide-card-{{ $guide->id }}" class="group p-6 flex justify-between items-stretch relative bg-white/40 border border-[#6B8E23]/10 rounded-2xl transition-all hover:bg-[#6B8E23]/5 duration-300 shadow-sm hover:shadow-md min-h-[160px]">
                             
                             <div class="flex-1 pr-4 flex flex-col">
+                                {{-- TITULO ACTUALIZADO: Ahora es text-[#2F2F2F] para igualar a las Builds --}}
                                 <h2 class="text-2xl font-bold mb-2 leading-tight">
-                                    <a href="{{ route('guides.show', $guide->slug) }}" class="text-[#6B8E23] hover:text-[#C67C48] transition-colors tracking-tight font-serif">
+                                    <a href="{{ route('guides.show', $guide->slug) }}" class="text-[#2F2F2F] hover:text-[#6B8E23] transition-colors tracking-tight font-serif">
                                         {{ $guide->titulo }}
                                     </a>
                                 </h2>
@@ -72,12 +70,13 @@
                             </div>
 
                             <div class="flex flex-col items-end justify-between min-w-[80px]">
-                                {{-- Controles: Guardar y Votar --}}
                                 <div class="flex flex-col items-center gap-4">
                                     <div class="save-container">
                                         <button type="button" class="save-btn flex items-center justify-center w-10 h-10 rounded-full bg-[#6B8E23] text-[#2F2F2F] shadow-sm transition-all hover:scale-110"
                                                 data-url="{{ route('saved.toggle', ['type' => 'guide', 'id' => $guide->id]) }}" data-type="guide">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" /></svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                                            </svg>
                                         </button>
                                     </div>
                                     <div class="transform scale-90">
@@ -85,7 +84,6 @@
                                     </div>
                                 </div>
 
-                                {{-- ACCIONES DE PROPIETARIO --}}
                                 @if(auth()->check() && auth()->id() === $guide->user_id)
                                     <div class="flex flex-row items-center justify-end gap-2 w-full mt-auto">
                                         <x-edit-button :url="route('guides.edit', $guide->id)" :editable="true" />
@@ -104,7 +102,6 @@
         </div>
     </div>
 </div>
-
 
 @endsection
 
