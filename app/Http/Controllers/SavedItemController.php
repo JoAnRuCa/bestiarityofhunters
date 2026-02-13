@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\SavedGuide;
+use App\Models\SavedBuild; // Asegúrate de que este modelo exista
 use App\Models\Tag;
 
 class SavedItemController extends Controller
@@ -14,6 +15,9 @@ class SavedItemController extends Controller
         $this->middleware('auth');
     }
 
+    /**
+     * Muestra la lista de guías guardadas por el usuario.
+     */
     public function indexGuides(Request $request)
     {
         $userId = Auth::id();
@@ -47,7 +51,7 @@ class SavedItemController extends Controller
             }
         }
 
-        // 4. Lógica de Ordenación Dual (Votados o Recientes de la Guía)
+        // 4. Lógica de Ordenación
         if ($orden === 'votados') {
             $query->join('guides', 'saved_guides.guide_id', '=', 'guides.id')
                 ->leftJoin('guides_votes', 'guides.id', '=', 'guides_votes.guide_id')
@@ -56,8 +60,6 @@ class SavedItemController extends Controller
                 ->groupBy('saved_guides.id', 'saved_guides.user_id', 'saved_guides.guide_id', 'saved_guides.created_at', 'saved_guides.updated_at')
                 ->orderBy('total_score', 'desc');
         } else {
-            // "Most Recent": Ordenamos por la fecha de creación de la GUÍA original
-            // Hacemos el join para poder acceder a guides.created_at
             $query->join('guides', 'saved_guides.guide_id', '=', 'guides.id')
                   ->select('saved_guides.*')
                   ->orderBy('guides.created_at', 'desc');
@@ -77,33 +79,57 @@ class SavedItemController extends Controller
         return view('seccion.savedGuides', compact('savedData', 'allTags', 'activeTags', 'isTagActive'));
     }
 
-    // El método toggle se mantiene igual...
-   public function toggle(Request $request, $type, $id)
-{
-    $userId = Auth::id();
+    /**
+     * Alterna (Toggle) el estado de guardado para Guías y Builds.
+     */
+    public function toggle(Request $request, $type, $id)
+    {
+        $userId = Auth::id();
 
-    if ($type === 'guide') {
-        // 1. Verificar si ya está guardado
-        $saved = SavedGuide::where('user_id', $userId)
-                           ->where('guide_id', $id)
-                           ->first();
+        // --- CASO GUÍAS ---
+        if ($type === 'guide') {
+            $saved = SavedGuide::where('user_id', $userId)
+                               ->where('guide_id', $id)
+                               ->first();
 
-        if ($saved) {
-            $saved->delete();
-            return response()->json(['status' => 'removed']);
+            if ($saved) {
+                $saved->delete();
+                return response()->json(['status' => 'removed']);
+            }
+
+            SavedGuide::create([
+                'user_id' => $userId,
+                'guide_id' => $id
+            ]);
+
+            return response()->json(['status' => 'added']);
         }
 
-        // 2. Intentar crear el registro (aquí es donde saltaba el error)
-        SavedGuide::create([
-            'user_id' => $userId,
-            'guide_id' => $id
-        ]);
+        // --- CASO BUILDS ---
+        if ($type === 'build') {
+            // Buscamos si ya existe en la tabla de builds guardadas
+            $saved = SavedBuild::where('user_id', $userId)
+                               ->where('build_id', $id)
+                               ->first();
 
-        return response()->json(['status' => 'added']);
+            if ($saved) {
+                $saved->delete();
+                return response()->json(['status' => 'removed']);
+            }
+
+            // Si no existe, lo creamos
+            SavedBuild::create([
+                'user_id' => $userId,
+                'build_id' => $id
+            ]);
+
+            return response()->json(['status' => 'added']);
+        }
+
+        // Si el tipo no es guide ni build
+        return response()->json([
+            'status' => 'error', 
+            'message' => 'Invalid item type: ' . $type
+        ], 400);
     }
-
-    return response()->json(['status' => 'error'], 400);
-}
-
-    
 }

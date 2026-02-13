@@ -16,11 +16,12 @@ class SaveButton extends Component
 
     public function __construct($id, $type)
     {
-        $this->id = $id;
-        $this->type = $type;
-        // Apunta a la nueva ruta universal: /saved/toggle/{type}/{id}
-        $this->url = route('saved.toggle', ['type' => $type, 'id' => $id]);
-        $this->shouldShow = Auth::check();
+       $this->id = is_object($id) ? $id->id : $id;
+    $this->type = $type;
+    
+    // Generamos la URL manualmente para evitar conflictos de parámetros en rutas
+    $this->url = url("/saved/toggle/{$type}/{$this->id}");
+    $this->shouldShow = Auth::check();
 
         if ($this->shouldShow) {
             // Dinamismo según el tipo (guide o build)
