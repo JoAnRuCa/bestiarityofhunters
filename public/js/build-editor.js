@@ -7,6 +7,7 @@ let dataLoaded = false;
 let skillMaxLevels = {};
 let decoCache = { weapon: { 1: [], 2: [], 3: [], 4: [] }, armor: { 1: [], 2: [], 3: [], 4: [] } };
 
+
 const weaponNames = ['Great Sword', 'Long Sword', 'Bow', 'Hammer', 'Lance', 'Gunlance', 'Switch Axe', 'Charge Blade', 'Insect Glaive', 'Light Bowgun', 'Heavy Bowgun', 'Sword and Shield', 'Dual Blades', 'Hunting Horn'];
 
 const weaponTagMap = {
@@ -29,7 +30,7 @@ const weaponTagMap = {
 // Carga de datos desde la API
 async function loadBuildData() {
     try {
-        const res = await fetch('api/build-data');
+        const res = await fetch('/bestiarityofhunters/public/api/build-data');
         if (!res.ok) throw new Error("Error HTTP: " + res.status);
         const data = await res.json();
 
@@ -53,9 +54,60 @@ async function loadBuildData() {
         });
 
         dataLoaded = true;
+        loadPreloadedData();
     } catch (e) {
         console.error("Data load error:", e);
     }
+}
+
+function loadPreloadedData() {
+    if (typeof window.jsPreload === 'undefined' || !window.jsPreload) return;
+
+    // Si el array/objeto está vacío, salir
+    if (Object.keys(window.jsPreload).length === 0) return;
+
+    console.log("Restoring build from server:", window.jsPreload);
+
+    const map = {
+        'weapon1': weapons, 'weapon2': weapons,
+        'head': armors, 'chest': armors, 'arms': armors, 'waist': armors, 'legs': armors,
+        'charm': charms
+    };
+
+    for (const [slot, data] of Object.entries(window.jsPreload)) {
+        if (!data || !data.id) continue;
+
+        // 1. Buscar el item en la lista correspondiente
+        const list = map[slot];
+        if (!list) continue;
+
+        // Nota: Comparación laxa (==) por si id es string/int
+        const item = list.find(i => i.id == data.id);
+
+        if (item) {
+            build[slot] = item;
+
+            // 2. Inicializar array de decoraciones
+            const slotCount = item.slots ? item.slots.length : 0;
+            decorations[slot] = new Array(slotCount).fill(null);
+
+            // 3. Rellenar decoraciones si existen
+            if (data.decos && Array.isArray(data.decos)) {
+                data.decos.forEach((dInfo, index) => {
+                    if (index < slotCount && dInfo.name) {
+                        // Buscar la decoración por nombre exacto
+                        const decoObj = decorationsData.find(d => d.name === dInfo.name);
+                        if (decoObj) {
+                            decorations[slot][index] = decoObj;
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    // Actualizar UI
+    updateSelected();
 }
 
 let build = { weapon1: null, weapon2: null, head: null, chest: null, arms: null, waist: null, legs: null, charm: null };

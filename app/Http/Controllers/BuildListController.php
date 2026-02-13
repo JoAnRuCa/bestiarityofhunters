@@ -44,25 +44,150 @@ class BuildListController extends Controller
     /**
      * Muestra el formulario de edición
      */
-    public function edit($id)
-    {
-        $build = Build::findOrFail($id);
+public function edit($id)
+{
+    $build = Build::findOrFail($id);
 
-        // Seguridad: Solo el dueño edita
-        if ($build->user_id !== Auth::id()) {
-            abort(403, 'No tienes permiso para editar esta build.');
-        }
-
-        // Procesamos los datos actuales para que el editor los cargue
-        $processedData = $this->getProcessedBuildData($build);
-        
-        return view('seccion.editBuild', [
-            'build' => $build,
-            'equipments' => $processedData['equipments'],
-            'totalSkills' => $processedData['totalSkills']
-        ]);
+    if ($build->user_id !== Auth::id()) {
+        abort(403);
     }
 
+    $processedData = $this->getProcessedBuildData($build);
+    
+    // --- NUEVO: Formatear datos para JS ---
+    $jsPreload = [];
+    $weaponCount = 0;
+    foreach ($processedData['equipments'] as $eq) {
+        $slotKey = null;
+
+        if ($eq->tipo == 1) {
+            $weaponCount++;
+            $slotKey = 'weapon' . $weaponCount;
+        } elseif ($eq->tipo == 2) {
+            $slotKey = $this->getArmorSlotName($eq->equipment_id);
+        } elseif ($eq->tipo == 3) {
+            $slotKey = 'charm';
+        }
+        
+        if ($slotKey) {
+            $jsPreload[$slotKey] = [
+                'id' => $eq->equipment_id,
+                'decos' => collect($eq->attached_decos)
+                            ->filter(fn($d) => !$d['is_empty'])
+                            ->map(fn($d) => ['name' => $d['name']]) 
+                            ->values()
+            ];
+        }
+    }
+
+    return view('seccion.editBuild', [
+        'build' => $build,
+        'equipments' => $processedData['equipments'],
+        'totalSkills' => collect($processedData['totalSkills']),
+        'jsPreload' => $jsPreload // Pasamos esto a la vista
+    ]);
+}
+
+// Función auxiliar para identificar si la armadura es head, chest, etc.
+private function getArmorSlotName($id) {
+    $armors = json_decode(Storage::get('data/armors.json'), true) ?: [];
+    foreach($armors as $a) {
+        if($a['id'] == $id) return $a['kind'];
+    }
+    return null;
+}
+
+    public function update(Request $request, $id)
+    {
+        try {
+            $build = Build::findOrFail($id);
+
+            if ($build->user_id !== Auth::id()) {
+                return response()->json(['success' => false, 'error' => 'Unauthorized'], 403);
+            }
+
+            $buildData = json_decode($request->input('build_data'), true);
+            $decoData = json_decode($request->input('decorations_data'), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return response()->json(['success' => false, 'error' => 'Invalid JSON format'], 400);
+            }
+
+            $categoryMap = [
+                'weapon1' => 1, 'weapon2' => 1,
+                'head'    => 2, 'chest'   => 2, 'arms' => 2, 'waist' => 2, 'legs' => 2,
+                'charm'   => 3
+            ];
+
+            return DB::transaction(function () use ($request, $build, $buildData, $decoData, $categoryMap) {
+                
+                // 1. Actualizar datos base de la build
+                $build->update([
+                    'titulo'    => $request->name,
+                    'playstyle' => $request->playstyle,
+                ]);
+
+                // 2. Limpiar equipamiento y decoraciones existentes
+                // Obtenemos los IDs del equipamiento actual para borrar sus decoraciones
+                $currentEquipIds = DB::table('builds_equipments')
+                    ->where('build_id', $build->id)
+                    ->pluck('id');
+                
+                DB::table('builds_equipments_decorations')
+                    ->whereIn('build_equipment_id', $currentEquipIds)
+                    ->delete();
+                
+                DB::table('builds_equipments')
+                    ->where('build_id', $build->id)
+                    ->delete();
+
+                // 3. Reinsertar equipamiento y decoraciones nuevos
+                foreach ($buildData as $slot => $item) {
+                    if (!$item || !isset($item['id'])) continue;
+
+                    $tipoNumerico = $categoryMap[$slot] ?? 0;
+
+                    $buildEquipmentId = DB::table('builds_equipments')->insertGetId([
+                        'build_id'     => $build->id,
+                        'equipment_id' => $item['id'],
+                        'tipo'         => $tipoNumerico, 
+                        'created_at'   => now(),
+                        'updated_at'   => now(),
+                    ]);
+
+                    if (isset($decoData[$slot]) && is_array($decoData[$slot])) {
+                        foreach ($decoData[$slot] as $deco) {
+                            if ($deco && isset($deco['id'])) {
+                                DB::table('builds_equipments_decorations')->insert([
+                                    'build_equipment_id' => $buildEquipmentId,
+                                    'decoration_id'      => $deco['id'],
+                                    'created_at'         => now(),
+                                    'updated_at'         => now(),
+                                ]);
+                            }
+                        }
+                    }
+                }
+
+                // 4. Actualizar Tags
+                if ($request->has('tags')) {
+                    $build->tags()->sync($request->tags);
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => '¡Build actualizada correctamente!',
+                    'redirect_url' => route('builds.show', $build->slug)
+                ]);
+            });
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Error en el servidor: ' . $e->getMessage()
+            ], 500);
+        }
+    }
     /**
      * Elimina la build y todas sus dependencias técnicas
      */
@@ -131,7 +256,10 @@ class BuildListController extends Controller
     private function getProcessedBuildData($build)
     {
         // Corregido a plural: builds_equipments
-        $equipments = DB::table('builds_equipments')->where('build_id', $build->id)->get();
+        $equipments = DB::table('builds_equipments')
+                        ->where('build_id', $build->id)
+                        ->orderBy('id')
+                        ->get();
         
         $weapons = json_decode(Storage::get('data/weapons.json'), true) ?: [];
         $armors = json_decode(Storage::get('data/armors.json'), true) ?: [];
@@ -258,4 +386,16 @@ class BuildListController extends Controller
         $request->orden === 'votados' ? $query->orderByRaw('COALESCE(score_sum, 0) DESC') : $query->orderBy('builds.created_at', 'desc');
         return $query;
     }
+
+public function getBuildData()
+{
+    // Cargar y devolver los datos necesarios
+    return response()->json([
+        'weapons' => $weapons,
+        'armors' => $armors,
+        'charms' => $charms,
+        'decorations' => $decorations,
+        'skills' => $skills,
+    ]);
+}
 }
