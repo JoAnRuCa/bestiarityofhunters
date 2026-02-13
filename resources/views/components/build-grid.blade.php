@@ -13,7 +13,7 @@
                     <div class="flex items-center gap-2 mb-1">
                         <span class="text-[10px] font-black text-[#6B8E23] uppercase tracking-tighter italic">Loadout</span>
                     </div>
-                    <h2 class="text-2xl font-black uppercase italic leading-none mb-3">
+                    <h2 class="text-2xl font-black italic leading-none mb-3">
                         <a href="{{ route('builds.show', $build->slug) }}" class="text-[#2F2F2F] hover:text-[#6B8E23] transition-colors">
                             {{ $build->titulo }}
                         </a>
