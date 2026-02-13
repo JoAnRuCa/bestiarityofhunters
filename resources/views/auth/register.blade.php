@@ -85,7 +85,7 @@
 
         {{-- Footer --}}
         <p class="mt-8 text-[9px] font-bold uppercase tracking-widest text-[#2F2F2F]/40 italic">
-            &copy; {{ date('Y') }} — Monster Hunter Build Architect
+            &copy; {{ date('Y') }} — Bestiarity of hunters
         </p>
     </div>
 </x-guest-layout>
