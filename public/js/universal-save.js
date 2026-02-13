@@ -1,64 +1,68 @@
 // public/js/universal-save.js
 
 function initUniversalSave() {
+    // Usamos delegación de eventos o limpiamos eventos previos para evitar duplicados
+    // Pero lo más sencillo para tu estructura es buscar botones no inicializados
     const saveButtons = document.querySelectorAll('.save-btn:not(.is-initialized)');
 
     saveButtons.forEach(btn => {
-        btn.classList.add('is-initialized');
+        btn.classList.add('is-initialized'); // Marcamos para no duplicar el click
 
         btn.addEventListener('click', async function (e) {
             e.preventDefault();
             e.stopPropagation();
 
-            const type = btn.dataset.type;
-            const url = btn.dataset.url;
+            // Elementos visuales
+            const container = btn.closest('.save-container');
+            const msg = container ? container.querySelector('.save-msg') : null;
             const btnText = btn.querySelector('.btn-text');
             const svg = btn.querySelector('svg');
+            const type = btn.dataset.type;
 
             btn.disabled = true;
 
             try {
-                const response = await fetch(url, {
+                const response = await fetch(btn.dataset.url, {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                         'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
+                        'Accept': 'application/json'
                     }
                 });
 
-                if (!response.ok) throw new Error('Error en el servidor');
                 const data = await response.json();
 
-                // Detectamos si estamos en las páginas de "Mis Guardados"
-                const isSavedPage = window.location.pathname.includes('/saved/guides') ||
-                    window.location.pathname.includes('/saved/builds');
+                if (data.status === 'added') {
+                    btn.classList.replace('bg-[#C67C48]', 'bg-[#6B8E23]');
+                    if (btnText) btnText.textContent = 'Saved';
+                    if (svg) svg.setAttribute('fill', '#2F2F2F');
+                    if (msg) msg.classList.remove('hidden');
 
-                if (isSavedPage) {
-                    // --- LÓGICA SOLO PARA PÁGINAS DE GUARDADOS ---
-                    if (data.status === 'added') {
-                        btn.classList.replace('bg-[#C67C48]', 'bg-[#6B8E23]');
-                    } else {
-                        btn.classList.replace('bg-[#6B8E23]', 'bg-[#C67C48]');
-                    }
-                    // En estas páginas no tocamos ni texto ni icono, se queda blanco.
-                } else {
-                    // --- LÓGICA PARA EL RESTO DE LA WEB (COMO ESTABA ANTES) ---
-                    if (data.status === 'added') {
-                        btn.classList.replace('bg-[#C67C48]', 'bg-[#6B8E23]');
-                        if (btnText) btnText.textContent = 'Saved';
-                        if (svg) svg.setAttribute('fill', '#2F2F2F'); // O el color que usaras antes
-                    } else {
-                        btn.classList.replace('bg-[#6B8E23]', 'bg-[#C67C48]');
-                        const typeCap = type.charAt(0).toUpperCase() + type.slice(1);
-                        if (btnText) btnText.textContent = 'Save ' + typeCap;
-                        if (svg) svg.setAttribute('fill', 'none');
+                } else if (data.status === 'removed') {
+                    btn.classList.replace('bg-[#6B8E23]', 'bg-[#C67C48]');
+                    if (btnText) btnText.textContent = 'Save ' + type.charAt(0).toUpperCase() + type.slice(1);
+                    if (svg) svg.setAttribute('fill', 'none');
+                    if (msg) msg.classList.add('hidden');
+
+                    // Lógica para la página de Archivos
+                    if (window.location.pathname.includes('saved-')) {
+                        const card = btn.closest('.group') || btn.closest('.guide-card');
+                        if (card) {
+                            card.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+                            card.style.opacity = '0';
+                            card.style.transform = 'translateX(30px)';
+
+                            setTimeout(() => {
+                                card.remove();
+                                const remainingCards = document.querySelectorAll('.save-btn').length;
+                                if (remainingCards === 0) location.reload();
+                            }, 400);
+                        }
                     }
                 }
-
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error en la petición de guardado:', error);
             } finally {
                 btn.disabled = false;
             }
@@ -66,4 +70,5 @@ function initUniversalSave() {
     });
 }
 
+// Ejecutar al cargar el DOM por primera vez
 document.addEventListener('DOMContentLoaded', initUniversalSave);
