@@ -902,9 +902,6 @@ select {
 .h-8 {
   height: 2rem;
 }
-.h-9 {
-  height: 2.25rem;
-}
 .h-\[150px\] {
   height: 150px;
 }
@@ -978,9 +975,6 @@ select {
 .w-8 {
   width: 2rem;
 }
-.w-9 {
-  width: 2.25rem;
-}
 .w-\[260px\] {
   width: 260px;
 }
@@ -1007,9 +1001,6 @@ select {
 }
 .min-w-\[60px\] {
   min-width: 60px;
-}
-.min-w-\[80px\] {
-  min-width: 80px;
 }
 .max-w-3xl {
   max-width: 48rem;
@@ -1291,9 +1282,6 @@ select {
 }
 .border-b-2 {
   border-bottom-width: 2px;
-}
-.border-l {
-  border-left-width: 1px;
 }
 .border-l-2 {
   border-left-width: 2px;
