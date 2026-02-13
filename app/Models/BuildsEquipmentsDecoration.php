@@ -7,15 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class BuildsEquipmentsDecoration extends Model
 {
-    // App\Models\BuildsEquipmentsDecoration.php
+    use HasFactory;
 
-protected $fillable = ['build_equipment_id', 'decoration_id'];
+    // FORZAR EL NOMBRE DE LA TABLA (Indispensable para evitar el error 1146)
+    protected $table = 'builds_equipments_decorations';
 
-// Relación hacia arriba (a qué pieza de equipo pertenece)
-public function buildEquipment()
-{
-    return $this->belongsTo(BuildsEquipment::class, 'build_equipment_id');
-}
+    protected $fillable = ['build_equipment_id', 'decoration_id'];
 
-use HasFactory;
+    // Relación hacia arriba (a qué pieza de equipo pertenece)
+    public function buildEquipment()
+    {
+        return $this->belongsTo(BuildsEquipment::class, 'build_equipment_id');
+    }
 }

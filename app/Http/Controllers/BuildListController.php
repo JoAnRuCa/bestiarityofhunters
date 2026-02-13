@@ -7,6 +7,7 @@ use App\Models\Build;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class BuildListController extends Controller
 {
@@ -41,19 +42,82 @@ class BuildListController extends Controller
     }
 
     /**
-     * Muestra una Build específica con todo el procesamiento de JSON
+     * Muestra el formulario de edición
      */
+    public function edit($id)
+    {
+        $build = Build::findOrFail($id);
+
+        // Seguridad: Solo el dueño edita
+        if ($build->user_id !== Auth::id()) {
+            abort(403, 'No tienes permiso para editar esta build.');
+        }
+
+        // Procesamos los datos actuales para que el editor los cargue
+        $processedData = $this->getProcessedBuildData($build);
+        
+        return view('seccion.editBuild', [
+            'build' => $build,
+            'equipments' => $processedData['equipments'],
+            'totalSkills' => $processedData['totalSkills']
+        ]);
+    }
+
+    /**
+     * Elimina la build y todas sus dependencias técnicas
+     */
+    public function destroy($id)
+    {
+        $build = Build::findOrFail($id);
+
+        if ($build->user_id !== Auth::id()) {
+            return response()->json(['success' => false, 'error' => 'Unauthorized'], 403);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // 1. Obtener IDs de los equipos vinculados (Plural corregido: builds_equipments)
+            $equipmentIds = DB::table('builds_equipments')->where('build_id', $id)->pluck('id');
+
+            // 2. Borrar decoraciones (Plural corregido: builds_equipments_decorations)
+            DB::table('builds_equipments_decorations')->whereIn('build_equipment_id', $equipmentIds)->delete();
+
+            // 3. Borrar registros de equipos
+            DB::table('builds_equipments')->where('build_id', $id)->delete();
+
+            // 4. Limpiar favoritos/guardados
+            DB::table('saved_builds')->where('build_id', $id)->delete();
+
+            // 5. Borrar Votos y Tags
+            $build->votos()->delete(); 
+            if (method_exists($build, 'tags')) {
+                $build->tags()->detach();
+            }
+
+            // 6. Borrado final del modelo
+            $build->delete();
+
+            DB::commit();
+            return response()->json(['success' => true]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false, 
+                'error' => 'Database error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function show($slug)
     {
-        // 1. Obtener la build básica
         $build = Build::where('slug', $slug)
             ->with(['tags', 'user', 'votos', 'comments.user'])
             ->firstOrFail();
 
-        // 2. Procesar datos complejos (Equipamiento y Skills)
         $processedData = $this->getProcessedBuildData($build);
 
-        // 3. Retornar la vista con las variables que espera tu Blade
         return view('seccion.buildShow', [
             'build' => $build,
             'equipments' => $processedData['equipments'],
@@ -62,10 +126,11 @@ class BuildListController extends Controller
     }
 
     /**
-     * Lógica de procesamiento de Equipos y Habilidades (Copiada del Editor)
+     * Lógica de procesamiento (Plurales de tablas corregidos)
      */
     private function getProcessedBuildData($build)
     {
+        // Corregido a plural: builds_equipments
         $equipments = DB::table('builds_equipments')->where('build_id', $build->id)->get();
         
         $weapons = json_decode(Storage::get('data/weapons.json'), true) ?: [];
@@ -116,6 +181,7 @@ class BuildListController extends Controller
                 }
             }
 
+            // Corregido a plural: builds_equipments_decorations
             $savedDecos = DB::table('builds_equipments_decorations')->where('build_equipment_id', $eq->id)->get();
             $eq->attached_decos = [];
             foreach ($savedDecos as $d) {
