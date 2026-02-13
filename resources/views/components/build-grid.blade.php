@@ -8,6 +8,7 @@
             <div id="build-card-{{ $build->id }}" 
                  class="group group/card p-6 bg-white/40 flex justify-between items-stretch border border-[#6B8E23]/10 rounded-2xl transition-all hover:bg-[#6B8E23]/5 duration-300 shadow-sm hover:shadow-md min-h-[160px]">
                 
+                {{-- Columna Izquierda: Información --}}
                 <div class="flex-1 flex flex-col pr-4">
                     <div class="flex items-center gap-2 mb-1">
                         <span class="text-[10px] font-black text-[#6B8E23] uppercase tracking-tighter italic">Loadout</span>
@@ -34,31 +35,25 @@
                     </div>
                 </div>
 
-                {{-- Columna Derecha --}}
-                <div class="flex flex-col items-end justify-between min-w-[80px] ml-4">
-                    <div class="flex flex-col items-center gap-4">
-                        <div class="save-container">
-                            <button type="button" 
-                                    class="save-btn flex items-center justify-center w-10 h-10 rounded-full bg-[#6B8E23] text-[#2F2F2F] shadow-sm transition-all hover:scale-110"
-                                    data-url="{{ route('saved.toggle', ['type' => 'build', 'id' => $build->id]) }}" 
-                                    data-type="build">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="transform scale-90">
+                {{-- Columna Derecha: Votos y Gestión --}}
+                <div class="flex flex-col items-end justify-between min-w-[60px] ml-2">
+                    
+                    {{-- Bloque de Votación pegado a la derecha --}}
+                    <div class="flex flex-col items-end w-full">
+                        <div class="transform scale-90 origin-right">
                             <x-vote-block :item="$build" type="build" />
                         </div>
                     </div>
 
-                    {{-- CAMBIO AQUÍ: Usamos $build->slug en lugar de $build->id --}}
-                    @if(isset($editable) && $editable && auth()->check() && auth()->id() === $build->user_id)
-                        <div class="flex flex-row items-center justify-end gap-2 w-full mt-auto">
-                            <x-edit-button :url="route('builds.edit', $build->slug)" :editable="true" />
-                            <x-delete-button :action="route('builds.destroy', $build->slug)" :id="$build->id" />
-                        </div>
-                    @endif
+                    {{-- Gestión: Solo si el usuario es el creador --}}
+                    @auth
+                        @if(auth()->id() === $build->user_id)
+                            <div class="flex flex-row items-center justify-end gap-2 w-full mt-auto">
+                                <x-edit-button :url="route('builds.edit', $build->slug)" :editable="true" />
+                                <x-delete-button :action="route('builds.destroy', $build->slug)" :id="$build->id" />
+                            </div>
+                        @endif
+                    @endauth
                 </div>
             </div>
         @endforeach

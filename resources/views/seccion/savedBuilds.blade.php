@@ -83,8 +83,8 @@
 
                             @if(auth()->check() && auth()->id() === $build->user_id)
                                 <div class="flex flex-row items-center justify-end gap-2 w-full mt-auto">
-                                    <x-edit-button :url="route('builds.edit', $build->id)" :editable="true" />
-                                    <x-delete-button :action="route('builds.destroy', $build->id)" :id="$build->id" />
+                                    <x-edit-button :url="route('builds.edit', $build->slug)" :editable="true" />
+                                    <x-delete-button :action="route('builds.destroy', $build->slug)" :id="$build->slug" />
                                 </div>
                             @endif
                         </div>
