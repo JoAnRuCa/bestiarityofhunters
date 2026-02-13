@@ -6,10 +6,10 @@
     <div id="builds-container" class="grid grid-cols-1 md:grid-cols-2 gap-8">
         @foreach($builds as $build)
             <div id="build-card-{{ $build->id }}" 
-                 class="group/card p-6 bg-white/40 flex justify-between items-stretch border border-[#6B8E23]/10 rounded-2xl transition-all hover:bg-[#6B8E23]/5 duration-300 shadow-sm hover:shadow-md">
+                 class="group/card p-6 bg-white/40 flex justify-between items-stretch border border-[#6B8E23]/10 rounded-2xl transition-all hover:bg-[#6B8E23]/5 duration-300 shadow-sm hover:shadow-md min-h-[160px]">
                 
                 {{-- Columna Izquierda --}}
-                <div class="flex-1">
+                <div class="flex-1 flex flex-col pr-4">
                     <div class="flex items-center gap-2 mb-1">
                         <span class="text-[10px] font-black text-[#6B8E23] uppercase tracking-tighter italic">Loadout</span>
                     </div>
@@ -31,15 +31,15 @@
                         @endforeach
                     </div>
                     
-                    <div class="flex items-center">
+                    <div class="mt-auto">
                         <p class="text-[11px] text-[#2F2F2F] font-bold tracking-wider uppercase opacity-70">
                             Architect: <span class="text-[#C67C48]">{{ $build->user->name }}</span>
                         </p>
                     </div>
                 </div>
 
-                {{-- Columna Derecha --}}
-                <div class="flex flex-col items-end justify-between min-w-[80px] ml-4 border-l border-[#6B8E23]/10 pl-4">
+                {{-- Columna Derecha (Sin Borde) --}}
+                <div class="flex flex-col items-end justify-between min-w-[60px] ml-4">
                     <div class="flex justify-end w-full">
                         <x-vote-block :item="$build" type="build" />
                     </div>
@@ -48,7 +48,6 @@
         @endforeach
     </div>
 
-    {{-- Única Paginación --}}
     <div class="mt-12 pagination-ajax flex justify-end">
         {{ $builds->links() }}
     </div>

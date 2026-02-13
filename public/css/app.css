@@ -851,6 +851,9 @@ select {
 .inline-block {
   display: inline-block;
 }
+.inline {
+  display: inline;
+}
 .flex {
   display: flex;
 }
@@ -923,6 +926,9 @@ select {
 }
 .min-h-\[150px\] {
   min-height: 150px;
+}
+.min-h-\[160px\] {
+  min-height: 160px;
 }
 .min-h-\[180px\] {
   min-height: 180px;
@@ -998,6 +1004,9 @@ select {
 }
 .min-w-\[180px\] {
   min-width: 180px;
+}
+.min-w-\[60px\] {
+  min-width: 60px;
 }
 .min-w-\[80px\] {
   min-width: 80px;
@@ -2294,6 +2303,11 @@ select {
 .active\:scale-90:active {
   --tw-scale-x: .9;
   --tw-scale-y: .9;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+.active\:scale-95:active {
+  --tw-scale-x: .95;
+  --tw-scale-y: .95;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 .active\:bg-gray-100:active {

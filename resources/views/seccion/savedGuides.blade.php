@@ -30,6 +30,7 @@
                 @foreach($savedData as $item)
                     @php $guide = $item->guide; @endphp
                     <div id="guide-card-{{ $guide->id }}" class="group/card p-6 bg-white/40 flex justify-between items-stretch border border-[#6B8E23]/10 rounded-2xl transition-all hover:bg-[#6B8E23]/5 duration-300 shadow-sm hover:shadow-md min-h-[180px]">
+                        
                         <div class="flex-1 pr-4">
                             <h2 class="text-2xl font-black uppercase italic leading-none mb-3">
                                 <a href="{{ route('guides.show', $guide->slug) }}" class="text-[#2F2F2F] hover:text-[#6B8E23] transition-colors">
@@ -37,22 +38,27 @@
                                 </a>
                             </h2>
                             <p class="text-gray-700 mb-4 leading-snug text-sm italic line-clamp-2">{{ Str::limit($guide->contenido, 120) }}</p>
+                            
                             <div class="flex flex-wrap gap-2 mb-4">
                                 @foreach($guide->tags as $tag)
                                     <span class="px-2 py-0.5 bg-[#6B8E23] text-white text-[9px] font-black uppercase rounded shadow-sm">{{ $tag->name }}</span>
                                 @endforeach
                             </div>
-                            <p class="text-[11px] text-[#2F2F2F] font-bold tracking-wider uppercase opacity-70">
+
+                            <p class="text-[11px] text-[#2F2F2F] font-bold tracking-wider uppercase opacity-70 mt-auto">
                                 By <span class="text-[#C67C48]">{{ $guide->user->name }}</span> • {{ $guide->created_at->diffForHumans() }}
                             </p>
                         </div>
 
-                        <div class="flex flex-col items-end justify-between min-w-[80px] ml-4 border-l border-[#6B8E23]/10 pl-4">
+                        {{-- Columna Derecha SIN LÍNEA VERTICAL --}}
+                        <div class="flex flex-col items-end justify-between min-w-[60px] ml-4">
                             <div class="flex flex-col items-center gap-4">
                                 <div class="save-container">
-                                    <button type="button" class="save-btn flex items-center justify-center w-9 h-9 rounded-full bg-[#6B8E23] text-white shadow-sm transition-all hover:scale-110"
+                                    <button type="button" class="save-btn flex items-center justify-center w-10 h-10 rounded-full bg-[#6B8E23] text-white shadow-sm transition-all hover:scale-110 active:scale-95"
                                             data-url="{{ route('saved.toggle', ['type' => 'guide', 'id' => $guide->id]) }}" data-type="guide">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" /></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                                        </svg>
                                     </button>
                                 </div>
                                 <div class="transform scale-90 origin-right">

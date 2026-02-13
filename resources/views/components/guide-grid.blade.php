@@ -12,10 +12,10 @@
     <div id="guides-container" class="grid grid-cols-1 md:grid-cols-2 gap-8">
         @foreach($guides as $guide)
             <div id="guide-card-{{ $guide->id }}" 
-                 class="group/card p-6 bg-white/40 flex justify-between items-stretch border border-[#6B8E23]/10 rounded-2xl transition-all hover:bg-[#6B8E23]/5 duration-300 shadow-sm hover:shadow-md">
+                 class="group/card p-6 bg-white/40 flex justify-between items-stretch border border-[#6B8E23]/10 rounded-2xl transition-all hover:bg-[#6B8E23]/5 duration-300 shadow-sm hover:shadow-md min-h-[160px]">
                 
                 {{-- Columna Izquierda: Información --}}
-                <div class="flex-1">
+                <div class="flex-1 flex flex-col pr-4">
                     <div class="flex items-center gap-2 mb-1">
                         <span class="text-[10px] font-black text-[#6B8E23] uppercase tracking-tighter italic">Guide</span>
                     </div>
@@ -37,15 +37,15 @@
                         @endforeach
                     </div>
                     
-                    <div class="flex items-center">
+                    <div class="mt-auto">
                         <p class="text-[11px] text-[#2F2F2F] font-bold tracking-wider uppercase opacity-70">
                             By <span class="text-[#C67C48]">{{ $guide->user->name }}</span> <span class="mx-1 text-[8px]">•</span> {{ $guide->created_at->diffForHumans() }}
                         </p>
                     </div>
                 </div>
 
-                {{-- Columna Derecha: Interacción --}}
-                <div class="flex flex-col items-end justify-between min-w-[80px] ml-4 border-l border-[#6B8E23]/10 pl-4">
+                {{-- Columna Derecha: Interacción (Sin Borde) --}}
+                <div class="flex flex-col items-end justify-between min-w-[60px] ml-4">
                     
                     {{-- Bloque de Votos --}}
                     <div class="flex justify-end w-full">

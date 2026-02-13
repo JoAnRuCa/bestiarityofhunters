@@ -87,6 +87,9 @@ Route::middleware(['auth'])->group(function () {
     // Página de Guías Guardadas
     Route::get('/saved-guides', [SavedItemController::class, 'indexGuides'])
         ->name('saved.guides');
+    // Página de Builds Guardadas
+    Route::get('/saved-builds', [SavedItemController::class, 'indexBuilds'])
+        ->name('saved.builds');
 
     // Acción Universal de Guardar (AJAX)
     Route::post('/saved/toggle/{type}/{id}', [SavedItemController::class, 'toggle'])
