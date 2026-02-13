@@ -177,7 +177,7 @@ private function getArmorSlotName($id) {
                 return response()->json([
                     'success' => true,
                     'message' => '¡Build actualizada correctamente!',
-                    'redirect_url' => route('builds.show', $build->slug)
+                    'redirect_url' => route('my.builds')
                 ]);
             });
 
