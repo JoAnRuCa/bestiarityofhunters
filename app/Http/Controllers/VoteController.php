@@ -25,24 +25,29 @@ class VoteController extends Controller
 
         $userId = Auth::id();
 
-        // 2. Configuración dinámica de modelos
-        $config = [
-            'guide' => [
-                'voteModel'   => \App\Models\GuidesVote::class,
-                'entityModel' => \App\Models\Guide::class,
-                'foreignKey'  => 'guide_id'
-            ],
-            'comment' => [
-                'voteModel'   => \App\Models\GuidesCommentVote::class,
-                'entityModel' => \App\Models\GuidesComment::class,
-                'foreignKey'  => 'comment_id'
-            ],
-            'build' => [
-                'voteModel'   => \App\Models\BuildVote::class,
-                'entityModel' => \App\Models\Build::class,
-                'foreignKey'  => 'build_id'
-            ],
-        ];
+            // 2. Configuración dinámica de modelos
+            $config = [
+                'guide' => [
+                    'voteModel'   => \App\Models\GuidesVote::class,
+                    'entityModel' => \App\Models\Guide::class,
+                    'foreignKey'  => 'guide_id'
+                ],
+                'build' => [
+                    'voteModel'   => \App\Models\BuildVote::class,
+                    'entityModel' => \App\Models\Build::class,
+                    'foreignKey'  => 'build_id'
+                ],
+                'comment' => [ // Comentarios de GUÍAS (GuidesComment)
+                    'voteModel'   => \App\Models\GuidesCommentVote::class,
+                    'entityModel' => \App\Models\GuidesComment::class,
+                    'foreignKey'  => 'comment_id'
+                ],
+                'build_comment' => [ // Comentarios de BUILDS (BuildComment)
+                    'voteModel'   => \App\Models\BuildCommentVote::class,
+                    'entityModel' => \App\Models\BuildComment::class,
+                    'foreignKey'  => 'comment_id' // En tu modelo BuildCommentVote pusiste comment_id
+                ],
+];
 
         $setup = $config[$request->model];
         $voteModel = $setup['voteModel'];

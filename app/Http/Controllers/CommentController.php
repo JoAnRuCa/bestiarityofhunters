@@ -24,7 +24,7 @@ class CommentController extends Controller
                 'parent_model' => \App\Models\Guide::class
             ],
             'build' => [
-                'model' => \App\Models\BuildsComment::class,
+                'model' => \App\Models\BuildComment::class,
                 'fk'    => 'build_id',
                 'parent_model' => \App\Models\Build::class // Asumiendo que tienes un modelo Build
             ]
