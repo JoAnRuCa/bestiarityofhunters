@@ -2,13 +2,23 @@
 @section('title', 'Build — ' . $build->titulo)
 
 @section('content')
-<div class="w-[95%] max-w-7xl mx-auto mt-12 mb-12 p-8 rounded-3xl shadow-2xl bg-[#F4EBD0] border border-[#6B8E23]/20 text-[#2F2F2F]">
+<div class="w-[95%] max-w-7xl mx-auto mt-12 mb-12 p-8 rounded-3xl shadow-2xl bg-[#F4EBD0] border border-[#6B8E23]/20 text-[#2F2F2F] relative">
     
+    {{-- BOTÓN DE GUARDADO (Posicionado por su componente) --}}
+    <x-save-button :id="$build->id" type="build" />
+
+    {{-- SISTEMA DE VOTOS (Pegado a la derecha y alineado con el botón) --}}
+    <div class="absolute top-24 right-10 z-10 flex flex-col items-end">
+        <div class="bg-transparent p-0">
+            <x-vote-block :item="$build" type="build" />
+        </div>
+    </div>
+
     {{-- HEADER --}}
     <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
-        <div class="w-full md:w-auto">
+        <div class="w-full md:w-3/4">
             <h1 class="text-5xl font-black tracking-tighter uppercase italic leading-none">
-                Build <span class="text-[#6B8E23]">Review</span>
+                BUILD <span class="text-[#6B8E23]">REVIEW</span>
             </h1>
             <div class="mt-6 flex flex-col gap-4">
                 <div class="w-full">
@@ -44,7 +54,6 @@
                 <div class="grid gap-4">
                     @foreach($equipments as $eq)
                         <div class="bg-white/50 border border-[#6B8E23]/10 p-5 rounded-2xl shadow-sm">
-                            {{-- Ahora la etiqueta viene lista del controlador --}}
                             <span class="text-[10px] uppercase font-black text-[#6B8E23] tracking-wider mb-1 opacity-70 italic block">
                                 {{ $eq->tipo_label }}
                             </span>
@@ -81,7 +90,7 @@
             </section>
         </div>
 
-        {{-- COLUMNA DERECHA: SKILLS (LIMPIEZA TOTAL) --}}
+        {{-- COLUMNA DERECHA: SKILLS --}}
         <div class="space-y-6">
             <div class="bg-white/40 border-2 border-[#6B8E23]/20 rounded-3xl p-6 shadow-inner">
                 <h3 class="font-black uppercase text-sm tracking-widest mb-6 flex items-center">
@@ -121,5 +130,29 @@
             </div>
         </section>
     @endif
+
+    {{-- SECCIÓN DE COMENTARIOS --}}
+    <div class="w-full h-px bg-[#6B8E23]/30 my-8"></div>
+    <section>
+        <h3 class="font-black uppercase text-sm tracking-widest mb-6 flex items-center">
+            <span class="w-10 h-1 bg-[#6B8E23] mr-3"></span> Hunter's Feedback
+        </h3>
+        <div class="bg-white/40 border border-[#6B8E23]/10 p-6 rounded-3xl shadow-inner">
+            <x-comments-section :item="$build" type="build" />
+        </div>
+    </section>
+
+    {{-- NAVEGACIÓN --}}
+    <div class="mt-12 pt-8 border-t border-[#6B8E23]/20">
+        <a href="{{ url('/builds') }}" class="inline-flex items-center px-6 py-3 bg-[#6B8E23] text-white font-black rounded-xl hover:bg-[#556b1c] shadow-md uppercase text-xs transition-all hover:-translate-x-1">
+            ← Back to Build Gallery
+        </a>
+    </div>
 </div>
+@endsection
+
+@section('scripts')
+    <script src="{{ asset('js/votes.js') }}"></script>
+    <script src="{{ asset('js/comentarios.js') }}"></script>
+    <script src="{{ asset('js/universal-save.js') }}"></script>
 @endsection
