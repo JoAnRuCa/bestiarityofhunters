@@ -30,7 +30,7 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 
 /*
 |--------------------------------------------------------------------------
-| Rutas públicas de tu proyecto
+| Rutas públicas de Enciclopedia
 |--------------------------------------------------------------------------
 */
 
@@ -49,71 +49,82 @@ Route::get('/charms/{slug}', [CharmController::class, 'show'])->name('charms.sho
 Route::get('/decorations', [DecorationController::class, 'index'])->name('decorations.index');
 Route::get('/decorations/{slug}', [DecorationController::class, 'show'])->name('decorations.show');
 
+/*
+|--------------------------------------------------------------------------
+| Listados y Visualización (Público)
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/guides', [GuideListController::class, 'index'])->name('guides.index');
+Route::get('/guides/{slug}', [GuideListController::class, 'show'])->name('guides.show');
+
+Route::get('/builds', [BuildListController::class, 'index'])->name('builds.index');
+Route::get('/builds/{slug}', [BuildListController::class, 'show'])->name('builds.show');
+
+/*
+|--------------------------------------------------------------------------
+| Build Editor API & Store
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/build-editor', [BuildEditorController::class, 'index'])->name('build.editor');
-// Añade esto cerca de tus rutas de build-editor
 Route::get('/api/build-data', [BuildApiController::class, 'getBuildData']);
-// Ruta para procesar el guardado (la que te falta)
 Route::post('/save-build', [BuildEditorController::class, 'store'])->name('builds.store');
 
-
-
-
-
+/*
+|--------------------------------------------------------------------------
+| Páginas Estáticas y Contacto
+|--------------------------------------------------------------------------
+*/
 
 Route::view('/privacy', 'seccion.privacyPolicy')->name('privacy');
 Route::view('/about', 'seccion.aboutUs')->name('about');
 Route::view('/disclaimer', 'seccion.disclaimer')->name('disclaimer');
 Route::view('/terms', 'seccion.termsOfUse')->name('terms');
 
-Route::get('/guide-editor', [GuideEditorController::class, 'index'])->name('guide.editor');
-Route::post('/guide-editor/store', [GuideEditorController::class, 'store'])->name('guide.editor.store');
 Route::get('/contact', [ContactUsController::class, 'index'])->name('contact');
 Route::post('/contact', [ContactUsController::class, 'store'])->name('contact.store');
 
-Route::get('/guides', [GuideListController::class, 'index'])->name('guides.index');
-Route::get('/builds', [BuildListController::class, 'index'])->name('builds.index');
-Route::get('/builds/{slug}', [BuildListController::class, 'show'])->name('builds.show');
-Route::get('/guides/{slug}', [GuideListController::class, 'show'])->name('guides.show');
-
-Route::patch('/comments/{id}/delete', [CommentController::class, 'softDelete'])->name('comments.soft-delete');
-Route::put('/comments/{id}/update', [CommentController::class, 'update'])->name('comments.update');
-
+/*
+|--------------------------------------------------------------------------
+| Rutas Protegidas (Requieren Login)
+|--------------------------------------------------------------------------
+*/
 
 Route::middleware(['auth'])->group(function () {
+    
+    // Votos y Comentarios
     Route::post('/votar', [VoteController::class, 'votar'])->name('votar');
-
     Route::post('/comments/store', [CommentController::class, 'store'])->name('comments.store');
+    Route::patch('/comments/{id}/delete', [CommentController::class, 'softDelete'])->name('comments.soft-delete');
+    Route::put('/comments/{id}/update', [CommentController::class, 'update'])->name('comments.update');
 
-    // Página de Guías Guardadas
-    Route::get('/saved-guides', [SavedItemController::class, 'indexGuides'])
-        ->name('saved.guides');
-    // Página de Builds Guardadas
-    Route::get('/saved-builds', [SavedItemController::class, 'indexBuilds'])
-        ->name('saved.builds');
-
-    // Acción Universal de Guardar (AJAX)
-    Route::post('/saved/toggle/{type}/{id}', [SavedItemController::class, 'toggle'])
-        ->name('saved.toggle');
-
-    Route::get('/my-guides', [GuideListController::class, 'myGuides'])->name('my.guides');
-    Route::delete('/guides/{id}', [GuideListController::class, 'destroy'])->name('guides.destroy');
-    // Ruta para mostrar el formulario de edición
-    Route::get('/guides/{id}/edit', [GuideListController::class, 'edit'])->name('guides.edit');
-    // Ruta para procesar la actualización (POST/PUT)
-    Route::put('/guides/{id}', [GuideListController::class, 'update'])->name('guides.update');
+    // Gestión de Perfil
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
-    Route::get('/build-editor/{slug}', [BuildEditorController::class, 'show'])->name('build-editor.show');
+    // Guardados (Favoritos)
+    Route::get('/saved-guides', [SavedItemController::class, 'indexGuides'])->name('saved.guides');
+    Route::get('/saved-builds', [SavedItemController::class, 'indexBuilds'])->name('saved.builds');
+    Route::post('/saved/toggle/{type}/{id}', [SavedItemController::class, 'toggle'])->name('saved.toggle');
 
+    // --- MI LIBRERÍA (BUILD MANAGEMENT) ---
+    Route::get('/my-builds', [BuildListController::class, 'myBuilds'])->name('my.builds');
+    Route::get('/build-editor/{slug}', [BuildEditorController::class, 'show'])->name('build-editor.show');
+    
+    // AQUÍ ESTÁN LAS RUTAS QUE TE FALTABAN PARA LAS BUILDS:
+    Route::get('/builds/{id}/edit', [BuildListController::class, 'edit'])->name('builds.edit');
+    Route::put('/builds/{id}', [BuildListController::class, 'update'])->name('builds.update');
+    Route::delete('/builds/{id}', [BuildListController::class, 'destroy'])->name('builds.destroy');
+
+    // --- MI LIBRERÍA (GUIDE MANAGEMENT) ---
+    Route::get('/my-guides', [GuideListController::class, 'myGuides'])->name('my.guides');
+    Route::get('/guide-editor', [GuideEditorController::class, 'index'])->name('guide.editor');
+    Route::post('/guide-editor/store', [GuideEditorController::class, 'store'])->name('guide.editor.store');
+    Route::get('/guides/{id}/edit', [GuideListController::class, 'edit'])->name('guides.edit');
+    Route::put('/guides/{id}', [GuideListController::class, 'update'])->name('guides.update');
+    Route::delete('/guides/{id}', [GuideListController::class, 'destroy'])->name('guides.destroy');
 
 });
-
-
-/*
-|--------------------------------------------------------------------------
-| Rutas de autenticación (Breeze)
-|--------------------------------------------------------------------------
-*/
 
 require __DIR__ . '/auth.php';

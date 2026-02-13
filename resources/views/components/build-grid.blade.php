@@ -38,11 +38,35 @@
                     </div>
                 </div>
 
-                {{-- Columna Derecha (Sin Borde) --}}
-                <div class="flex flex-col items-end justify-between min-w-[60px] ml-4">
-                    <div class="flex justify-end w-full">
-                        <x-vote-block :item="$build" type="build" />
+                {{-- Columna Derecha --}}
+                <div class="flex flex-col items-end justify-between min-w-[80px] ml-4">
+                    <div class="flex flex-col items-center gap-4">
+                        {{-- Botón de Guardar (Favoritos) --}}
+                        <div class="save-container">
+                            <button type="button" 
+                                    class="save-btn flex items-center justify-center w-10 h-10 rounded-full bg-[#6B8E23] text-[#2F2F2F] shadow-sm transition-all hover:scale-110"
+                                    data-url="{{ route('saved.toggle', ['type' => 'build', 'id' => $build->id]) }}" 
+                                    data-type="build">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        {{-- Bloque de Votos --}}
+                        <div class="transform scale-90">
+                            <x-vote-block :item="$build" type="build" />
+                        </div>
                     </div>
+
+                    {{-- Acciones de Propietario (Editar/Borrar) --}}
+                    {{-- Solo aparece si se pasa editable="true" Y el usuario es el autor --}}
+                    @if(isset($editable) && $editable && auth()->check() && auth()->id() === $build->user_id)
+                        <div class="flex flex-row items-center justify-end gap-2 w-full mt-auto">
+                            <x-edit-button :url="route('builds.edit', $build->id)" :editable="true" />
+                            <x-delete-button :action="route('builds.destroy', $build->id)" :id="$build->id" />
+                        </div>
+                    @endif
                 </div>
             </div>
         @endforeach
