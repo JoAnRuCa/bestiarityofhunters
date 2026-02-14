@@ -2,7 +2,9 @@
     
     {{-- Logo --}}
     <div class="w-32 md:w-40 flex-shrink-0">
-        <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-full h-auto object-contain">
+        <a href="{{ route('home') }}">
+            <img src="{{ asset('images/logo.png') }}" alt="Logo" class="w-full h-auto object-contain">
+        </a>
     </div>
 
     {{-- Navegación --}}

@@ -2,8 +2,10 @@
   <div class="max-w-[1400px] mx-auto flex flex-col md:flex-row items-center justify-center gap-16">
 
     <div class="flex items-center gap-3 text-2xl font-bold text-[#6B8E23]">
-      <img class="w-[260px] h-[150px] object-contain rounded" src="{{ asset('images/logo.png') }}" alt="Logo"
-        onerror="this.style.display='none';">
+        <a href="{{ route('home') }}">
+            <img class="w-[260px] h-[150px] object-contain rounded" src="{{ asset('images/logo.png') }}" alt="Logo"
+              onerror="this.style.display='none';">
+        </a>
     </div>
 
     <div class="flex flex-col items-center gap-4">
