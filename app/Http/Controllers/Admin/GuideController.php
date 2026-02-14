@@ -12,20 +12,25 @@ class GuideController extends Controller
     /**
      * Lista de guías con búsqueda y relaciones.
      */
-    public function index(Request $request)
-    {
-        $search = $request->input('search');
+public function index(Request $request)
+{
+    $search = $request->input('search');
 
-        $guides = Guide::with(['user', 'tags'])
-            ->when($search, function ($query, $search) {
-                return $query->where('titulo', 'LIKE', "%{$search}%")
-                             ->orWhere('contenido', 'LIKE', "%{$search}%");
-            })
-            ->latest()
-            ->get();
+    $guides = Guide::with(['user', 'tags'])
+        ->when($search, function ($query, $search) {
+            return $query->where(function ($q) use ($search) {
+                $q->where('titulo', 'LIKE', "%{$search}%")
+                  ->orWhere('contenido', 'LIKE', "%{$search}%")
+                  ->orWhereHas('user', function ($q) use ($search) {
+                      $q->where('name', 'LIKE', "%{$search}%");
+                  });
+            });
+        })
+        ->latest()
+        ->get();
 
-        return view('admin.guides.index', compact('guides', 'search'));
-    }
+    return view('admin.guides.index', compact('guides', 'search'));
+}
 
     /**
      * Formulario de creación.
