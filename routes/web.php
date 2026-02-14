@@ -18,6 +18,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\SavedItemController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BuildListController;
+use App\Http\Controllers\Admin\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -128,11 +129,12 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
-    Route::get('/users', [AdminController::class, 'index'])->name('admin.users');
-    Route::get('/users/{user}', [AdminController::class, 'show'])->name('admin.users.show');
-    Route::get('/users/{user}/edit', [AdminController::class, 'edit'])->name('admin.users.edit');
-    Route::put('/users/{user}', [AdminController::class, 'update'])->name('admin.users.update');
-    Route::delete('/users/{user}', [AdminController::class, 'destroy'])->name('admin.users.destroy');
+    Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
+    Route::get('/users/create', [UserController::class, 'create'])->name('admin.users.create');
+    Route::post('/users', [UserController::class, 'store'])->name('admin.users.store');
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
+    Route::put('/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
 });
 
 require __DIR__ . '/auth.php';

@@ -66,9 +66,9 @@
                 
                 {{-- Enlace de Admin (Solo si es admin) --}}
                 @if(auth()->user()->role === 'admin')
-                    <a href="{{ route('admin.users') }}" {{-- Cambiado a dashboard para ser general --}}
+                    <a href="{{ route('admin.users.index') }}" {{-- Cambiado a dashboard para ser general --}}
                        class="text-[#2F2F2F] hover:text-black transition font-semibold">
-                        Panel de Investigación
+                        Research Division
                     </a>
                 @endif
 
