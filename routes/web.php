@@ -19,6 +19,8 @@ use App\Http\Controllers\SavedItemController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BuildListController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\GuideController;
+use App\Http\Controllers\Admin\TagController;
 
 /*
 |--------------------------------------------------------------------------
@@ -135,6 +137,19 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
     Route::put('/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+
+    Route::get('/guides', [GuideController::class, 'index'])->name('admin.guides.index');
+    Route::get('/guides/create', [GuideController::class, 'create'])->name('admin.guides.create');
+    Route::post('/guides', [GuideController::class, 'store'])->name('admin.guides.store');
+    Route::get('/guides/{guide}/edit', [GuideController::class, 'edit'])->name('admin.guides.edit');
+    Route::put('/guides/{guide}', [GuideController::class, 'update'])->name('admin.guides.update');
+    Route::delete('/guides/{guide}', [GuideController::class, 'destroy'])->name('admin.guides.destroy');
+
+    Route::get('/tags', [TagController::class, 'index'])->name('admin.tags.index');
+    Route::post('/tags', [TagController::class, 'store'])->name('admin.tags.store');
+    Route::get('/tags/{tag}/edit', [TagController::class, 'edit'])->name('admin.tags.edit');
+    Route::put('/tags/{tag}', [TagController::class, 'update'])->name('admin.tags.update');
+    Route::delete('/tags/{tag}', [TagController::class, 'destroy'])->name('admin.tags.destroy');
 });
 
 require __DIR__ . '/auth.php';
