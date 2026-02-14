@@ -52,7 +52,6 @@
                 <table class="w-full text-left border-separate border-spacing-y-3">
                     <thead>
                         <tr class="text-[#6B8E23] uppercase text-xs font-black tracking-widest">
-                            {{-- Columna Status Eliminada --}}
                             <th class="px-6 pb-4">Hunter Name</th>
                             <th class="px-6 pb-4">Email Address</th>
                             <th class="px-6 pb-4">Role</th>
@@ -62,29 +61,40 @@
                     <tbody>
                         @foreach($users as $user)
                         <tr class="bg-white hover:shadow-md transition-all duration-200 group">
-                            {{-- Se añade rounded-l-2xl a la primera celda visible (Hunter Name) --}}
+                            {{-- Nombre con Link y sin uppercase forzado --}}
                             <td class="px-6 py-4 rounded-l-2xl font-bold italic text-sm border-y-2 border-l-2 border-transparent group-hover:border-[#6B8E23]/20">
-                                {{ $user->name }}
+                                <a href="{{ route('admin.users.edit', $user) }}" class="text-[#2F2F2F] hover:text-[#6B8E23] transition-all block">
+                                    {{ $user->name }}
+                                </a>
                             </td>
+                            
                             <td class="px-6 py-4 text-gray-500 text-sm border-y-2 border-transparent group-hover:border-[#6B8E23]/20">
                                 {{ $user->email }}
                             </td>
+
                             <td class="px-6 py-4 border-y-2 border-transparent group-hover:border-[#6B8E23]/20">
                                 <span class="text-[10px] font-black uppercase px-3 py-1 rounded-lg {{ $user->role === 'admin' ? 'bg-[#C67C48]/10 text-[#C67C48]' : 'bg-[#6B8E23]/10 text-[#6B8E23]' }}">
                                     {{ $user->role }}
                                 </span>
                             </td>
+
                             <td class="px-6 py-4 text-right rounded-r-2xl border-y-2 border-r-2 border-transparent group-hover:border-[#6B8E23]/20">
-                                <div class="flex justify-end gap-3">
+                                <div class="flex justify-end gap-3 items-center">
+                                    {{-- Botón Editar --}}
                                     <a href="{{ route('admin.users.edit', $user) }}" class="text-[#2F2F2F] hover:text-[#6B8E23] transition-colors">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                                        </svg>
                                     </a>
 
+                                    {{-- Botón Eliminar (Rojo Claro) --}}
                                     <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('¿Confirmar expulsión del gremio?')">
                                         @csrf 
                                         @method('DELETE')
                                         <button type="submit" class="text-red-300 hover:text-red-600 transition-colors">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            </svg>
                                         </button>
                                     </form>
                                 </div>
@@ -94,6 +104,13 @@
                     </tbody>
                 </table>
             </div>
+
+            {{-- Paginación si existe --}}
+            @if(method_exists($users, 'links'))
+                <div class="mt-6">
+                    {{ $users->links() }}
+                </div>
+            @endif
         </div>
     </div>
 </div>
