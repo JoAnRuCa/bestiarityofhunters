@@ -55,10 +55,12 @@
                     <tbody>
                         @forelse($guides as $guide)
                         <tr class="bg-white hover:shadow-md transition-all duration-200 group">
-                            {{-- Título --}}
+{{-- Título --}}
                             <td class="px-6 py-4 rounded-l-2xl font-bold italic text-sm border-y-2 border-l-2 border-transparent group-hover:border-[#6B8E23]/20">
-                                {{ $guide->titulo }}
-                                <div class="text-[10px] text-gray-400 font-normal normal-case italic">{{ $guide->slug }}</div>
+                                <a href="{{ route('admin.guides.edit', $guide) }}" class="text-[#2F2F2F] hover:text-[#6B8E23] hover:underline decoration-2 underline-offset-4 transition-all block">
+                                    {{ $guide->titulo }}
+                                </a>
+                                <div class="text-[10px] text-gray-400 font-normal normal-case italic mt-0.5">{{ $guide->slug }}</div>
                             </td>
 
                             {{-- Autor (Relación user) --}}
