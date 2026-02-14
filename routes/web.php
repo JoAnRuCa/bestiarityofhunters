@@ -121,10 +121,18 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/my-guides', [GuideListController::class, 'myGuides'])->name('my.guides');
     Route::get('/guide-editor', [GuideEditorController::class, 'index'])->name('guide.editor');
     Route::post('/guide-editor/store', [GuideEditorController::class, 'store'])->name('guide.editor.store');
-  Route::put('/guides/{guide}', [GuideListController::class, 'update'])->name('guides.update');
-Route::get('/guides/{guide}/edit', [GuideListController::class, 'edit'])->name('guides.edit');
-Route::delete('/guides/{guide}', [GuideListController::class, 'destroy'])->name('guides.destroy');
+    Route::put('/guides/{guide}', [GuideListController::class, 'update'])->name('guides.update');
+    Route::get('/guides/{guide}/edit', [GuideListController::class, 'edit'])->name('guides.edit');
+    Route::delete('/guides/{guide}', [GuideListController::class, 'destroy'])->name('guides.destroy');
 
+});
+
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/users', [AdminController::class, 'index'])->name('admin.users');
+    Route::get('/users/{user}', [AdminController::class, 'show'])->name('admin.users.show');
+    Route::get('/users/{user}/edit', [AdminController::class, 'edit'])->name('admin.users.edit');
+    Route::put('/users/{user}', [AdminController::class, 'update'])->name('admin.users.update');
+    Route::delete('/users/{user}', [AdminController::class, 'destroy'])->name('admin.users.destroy');
 });
 
 require __DIR__ . '/auth.php';
