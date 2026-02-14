@@ -21,6 +21,7 @@ use App\Http\Controllers\BuildListController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\GuideController;
 use App\Http\Controllers\Admin\TagController;
+use App\Http\Controllers\Admin\BuildController;
 
 /*
 |--------------------------------------------------------------------------
@@ -144,6 +145,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/guides/{guide}/edit', [GuideController::class, 'edit'])->name('admin.guides.edit');
     Route::put('/guides/{guide}', [GuideController::class, 'update'])->name('admin.guides.update');
     Route::delete('/guides/{guide}', [GuideController::class, 'destroy'])->name('admin.guides.destroy');
+
+    Route::get('/builds', [BuildController::class, 'index'])->name('admin.builds.index');
+    Route::get('/builds/create', [BuildController::class, 'create'])->name('admin.builds.create');
+    Route::post('/builds', [BuildController::class, 'store'])->name('admin.builds.store');
+    Route::get('/builds/{build}/edit', [BuildController::class, 'edit'])->name('admin.builds.edit');
+    Route::put('/builds/{build}', [BuildController::class, 'update'])->name('admin.builds.update');
+    Route::delete('/builds/{build}', [BuildController::class, 'destroy'])->name('admin.builds.destroy');
 
     Route::get('/tags', [TagController::class, 'index'])->name('admin.tags.index');
     Route::post('/tags', [TagController::class, 'store'])->name('admin.tags.store');
