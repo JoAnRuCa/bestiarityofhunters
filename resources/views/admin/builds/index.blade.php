@@ -58,7 +58,7 @@
                             {{-- Título y Playstyle --}}
                             <td class="px-6 py-4 rounded-l-2xl font-bold italic text-sm border-y-2 border-l-2 border-transparent group-hover:border-[#6B8E23]/20">
                                 {{-- Nuevo enlace en el título --}}
-                                <a href="{{ route('admin.builds.edit', $build->id) }}" class="hover:text-[#6B8E23] transition-colors inline-block">
+                                <a href="{{ route('admin.builds.edit', $build->slug) }}" class="hover:text-[#6B8E23] transition-colors inline-block">
                                     {{ $build->titulo }}
                                 </a>
                                 <div class="text-[10px] text-gray-400 font-normal normal-case italic line-clamp-1 max-w-xs">
@@ -88,14 +88,14 @@
                             <td class="px-6 py-4 text-right rounded-r-2xl border-y-2 border-r-2 border-transparent group-hover:border-[#6B8E23]/20">
                                 <div class="flex justify-end gap-3">
                                     {{-- Editar: Usamos explicitamente el ID --}}
-                                    <a href="{{ route('admin.builds.edit', $build->id) }}" class="text-[#2F2F2F] hover:text-[#6B8E23] transition-colors">
+                                    <a href="{{ route('admin.builds.edit', $build->slug) }}" class="text-[#2F2F2F] hover:text-[#6B8E23] transition-colors">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
                                         </svg>
                                     </a>
 
                                     {{-- Borrar: Apuntando al ID exacto --}}
-                                    <form action="{{ route('admin.builds.destroy', $build->id) }}" method="POST" onsubmit="return confirm('¿Desmantelar este set de equipo permanentemente?')">
+                                    <form action="{{ route('admin.builds.destroy', $build->slug) }}" method="POST" onsubmit="return confirm('¿Desmantelar este set de equipo permanentemente?')">
                                         @csrf 
                                         @method('DELETE')
                                         <button type="submit" class="text-red-300 hover:text-red-600 transition-colors">

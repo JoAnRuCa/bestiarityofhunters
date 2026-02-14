@@ -151,7 +151,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/builds', [BuildController::class, 'store'])->name('admin.builds.store');
     Route::get('/builds/{build}/edit', [BuildController::class, 'edit'])->name('admin.builds.edit');
     Route::put('/builds/{build}', [BuildController::class, 'update'])->name('admin.builds.update');
-    Route::delete('/builds/{id}', [BuildController::class, 'destroy'])->name('admin.builds.destroy');
+    Route::delete('/builds/{build}', [BuildController::class, 'destroy'])->name('admin.builds.destroy');
 
     Route::get('/tags', [TagController::class, 'index'])->name('admin.tags.index');
     Route::post('/tags', [TagController::class, 'store'])->name('admin.tags.store');

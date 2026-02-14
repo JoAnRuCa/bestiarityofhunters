@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreBuildRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str; // Importante para generar el slug
 
 class BuildController extends Controller
 {
@@ -62,6 +63,7 @@ class BuildController extends Controller
             return DB::transaction(function () use ($request, $buildData, $decoData, $categoryMap) {
                 $build = Build::create([
                     'titulo'    => $request->name,
+                    'slug'      => Str::slug($request->name) . '-' . rand(1000, 9999), // Generamos slug único
                     'playstyle' => $request->playstyle,
                     'user_id'   => Auth::id(),
                 ]);
@@ -109,11 +111,11 @@ class BuildController extends Controller
     }
 
     /**
-     * Prepara los datos para el editor de edición.
+     * Edita la build usando el Slug para buscarla.
      */
-    public function edit($id)
+    public function edit(Build $build) 
     {
-        $build = Build::findOrFail($id);
+        // Al usar (Build $build), Laravel busca automáticamente por el campo definido en getRouteKeyName()
         $processedData = $this->getProcessedBuildData($build);
         
         $jsPreload = [];
@@ -150,12 +152,10 @@ class BuildController extends Controller
     }
 
     /**
-     * Actualiza la build existente.
+     * Actualiza la build usando el objeto inyectado por slug.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Build $build)
     {
-        $build = Build::findOrFail($id);
-
         try {
             $buildData = json_decode($request->input('build_data'), true);
             $decoData = json_decode($request->input('decorations_data'), true);
@@ -165,12 +165,14 @@ class BuildController extends Controller
             }
 
             return DB::transaction(function () use ($request, $build, $buildData, $decoData) {
+                // Actualizamos datos básicos. Si el título cambia, generamos nuevo slug.
                 $build->update([
                     'titulo'    => $request->input('name'),
+                    'slug'      => Str::slug($request->input('name')) . '-' . $build->id,
                     'playstyle' => $request->input('playstyle'),
                 ]);
 
-                // Limpiar relaciones actuales
+                // Limpiar relaciones actuales para re-insertar (Lógica de "Forging")
                 $currentEquipIds = DB::table('builds_equipments')->where('build_id', $build->id)->pluck('id');
                 DB::table('builds_equipments_decorations')->whereIn('build_equipment_id', $currentEquipIds)->delete();
                 DB::table('builds_equipments')->where('build_id', $build->id)->delete();
@@ -222,12 +224,11 @@ class BuildController extends Controller
     }
 
     /**
-     * Elimina la build.
+     * Elimina la build usando el objeto inyectado.
      */
-    public function destroy($id)
+    public function destroy(Build $build)
     {
         try {
-            $build = Build::findOrFail($id);
             return DB::transaction(function () use ($build) {
                 $equipmentIds = DB::table('builds_equipments')->where('build_id', $build->id)->pluck('id');
                 if ($equipmentIds->isNotEmpty()) {
@@ -236,14 +237,14 @@ class BuildController extends Controller
                 }
                 $build->tags()->detach();
                 $build->delete();
-                return redirect()->route('admin.builds.index')->with('success', 'Build eliminada.');
+                return redirect()->route('admin.builds.index')->with('success', 'Build desmantelada correctamente.');
             });
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error al eliminar: ' . $e->getMessage());
         }
     }
 
-    // --- MÉTODOS PRIVADOS DE APOYO ---
+    // --- MÉTODOS PRIVADOS DE APOYO (Sin cambios) ---
 
     private function getArmorSlotName($id) {
         $armors = json_decode(Storage::get('data/armors.json'), true) ?: [];

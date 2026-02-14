@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('content')
-<form id="forgeForm" action="{{ route('admin.builds.update', $build->id) }}" method="POST">
+<form id="forgeForm" action="{{ route('admin.builds.update', $build->slug) }}" method="POST">
     @csrf
     @method('PUT')
     <input type="hidden" name="build_data" id="buildDataInput">
