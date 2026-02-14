@@ -12,12 +12,12 @@
         <ul class="flex flex-wrap gap-6 text-gray-800 font-bold items-center uppercase text-xs tracking-widest">
             <li class="text-[#6B8E23] border-r border-gray-300 pr-4">Research Division</li>
             
-            <li><a href="{{ route('admin.users.index') }}" class="hover:text-[#C67C48] transition">Cazadores</a></li>
+            <li><a href="{{ route('admin.users.index') }}" class="hover:text-[#C67C48] transition">Hunters</a></li>
             
             {{-- Dropdown de Contenido --}}
             <li class="relative group">
                 <a href="#" class="hover:text-[#C67C48] transition flex items-center">
-                    Gestión de Contenido
+                    Content Management
                     <span class="ml-1 text-[8px]">▼</span>
                 </a>
                 <div class="absolute left-0 top-full pt-2 hidden group-hover:block z-50">
