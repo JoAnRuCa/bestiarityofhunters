@@ -17,10 +17,10 @@ class IsAdmin
 public function handle(Request $request, Closure $next)
 {
     // Si el usuario no está logueado o su rol no es 1, lo echamos
-    if (auth()->check() && auth()->user()->role == 'admin') {
+    if (auth()->check() && auth()->user()->role === 'admin') {
         return $next($request);
     }
 
-    return redirect('/')->with('error', 'No tienes permisos de investigación.');
+    return redirect('/')->with('error', 'Access denied');
 }
 }
