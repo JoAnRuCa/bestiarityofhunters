@@ -29,24 +29,26 @@
                 @endif
             </div>
 
-            {{-- Botones de Acción (CORREGIDO) --}}
+            {{-- Botones de Acción --}}
             <div class="flex items-center gap-4 mt-2">
                 @auth
+                    {{-- Si el comentario está borrado, NO se puede ni Responder, ni Editar, ni volver a Borrar --}}
                     @if($comment->comentario !== 'This text has been deleted')
+                        
                         <button onclick="toggleReply('{{ $comment->id }}')" 
                                 class="text-[11px] font-bold text-[#6B8E23] uppercase hover:text-[#2f2f2f] transition-colors leading-none">
                             Reply
                         </button>
-                    @endif
 
-                    @if(auth()->id() === $comment->user_id || auth()->user()->role === 'admin')
-                        <button onclick="toggleEdit('{{ $comment->id }}')" 
-                                class="text-[11px] font-bold text-[#6B8E23] uppercase hover:text-[#2f2f2f] transition-colors leading-none">
-                            Edit
-                        </button>
-                        
-                        @if($comment->comentario !== 'This text has been deleted')
-                            {{-- Formulario alineado con flex e items-center --}}
+                        @if(auth()->id() === $comment->user_id || auth()->user()->role === 'admin')
+                            
+                            {{-- Edit: Ahora solo disponible si NO está borrado --}}
+                            <button onclick="toggleEdit('{{ $comment->id }}')" 
+                                    class="text-[11px] font-bold text-[#6B8E23] uppercase hover:text-[#2f2f2f] transition-colors leading-none">
+                                Edit
+                            </button>
+                            
+                            {{-- Delete --}}
                             <form onsubmit="borrarComentario(event, this)" action="{{ route('comments.soft-delete', $comment->id) }}" method="POST" class="flex items-center m-0 p-0">
                                 @csrf @method('PATCH')
                                 <input type="hidden" name="type" value="{{ $type }}">
@@ -54,6 +56,7 @@
                                     Delete
                                 </button>
                             </form>
+
                         @endif
                     @endif
                 @endauth
@@ -67,7 +70,7 @@
                 @endif
             </div>
 
-            {{-- Formulario Edición --}}
+            {{-- Formulario Edición (Sigue aquí por si se activa) --}}
             <form id="edit-form-{{ $comment->id }}" onsubmit="enviarEdicion(event, this, '{{ $comment->id }}')" action="{{ route('comments.update', $comment->id) }}" method="POST" class="hidden mt-4 p-3 bg-white border border-[#6B8E23]/20 rounded shadow-sm">
                 @csrf @method('PUT')
                 <input type="hidden" name="type" value="{{ $type }}">
