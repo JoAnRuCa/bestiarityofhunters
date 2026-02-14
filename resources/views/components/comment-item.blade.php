@@ -1,64 +1,68 @@
 <div class="comment-node py-4 {{ $level > 0 ? 'ml-6 md:ml-12 border-l-2 border-[#6B8E23]/20 pl-4' : '' }}" data-level="{{ $level }}">
     <div class="flex flex-row items-start gap-4">
         
+        {{-- Bloque de Votos --}}
         <div class="flex-shrink-0">
             @if($comment->comentario !== 'This text has been deleted')
                 <x-vote-block :item="$comment" :type="$type === 'build' ? 'build_comment' : 'comment'" />
             @else
-                {{-- Espaciador para mantener alineación cuando no hay votos --}}
                 <div class="w-8 md:w-10"></div> 
             @endif
         </div>
 
         <div class="flex-1">
+            {{-- Cabecera --}}
             <div class="flex items-center gap-2 mb-1">
                 <span class="font-bold text-[#C67C48]">{{ $comment->user->name }}</span>
+                @if($comment->user->role === 'admin')
+                    <span class="text-[9px] bg-[#6B8E23] text-white px-1.5 py-0.5 rounded uppercase font-black tracking-tighter">Staff</span>
+                @endif
                 <span class="text-xs text-gray-500 italic">{{ $comment->created_at->diffForHumans() }}</span>
             </div>
 
-            {{-- Contenido del Texto --}}
+            {{-- Contenido --}}
             <div id="comment-body-{{ $comment->id }}">
                 @if($comment->comentario === 'This text has been deleted')
-                    {{-- Forzamos color oscuro y quitamos cualquier opacidad heredada --}}
-                    <p class="text-[15px] italic" style="color: #2f2f2f !important; opacity: 1 !important;">
-                        This comment has been deleted
-                    </p>
+                    <p class="text-[15px] italic text-[#2f2f2f] opacity-100">This comment has been deleted</p>
                 @else
-                    <p class="text-gray-800 text-[15px]">{{ $comment->comentario }}</p>
+                    <p class="text-gray-800 text-[15px] leading-relaxed">{{ $comment->comentario }}</p>
                 @endif
             </div>
 
-            {{-- Botones de Acción: flex e items-center para alinear perfectamente --}}
+            {{-- Botones de Acción (CORREGIDO) --}}
             <div class="flex items-center gap-4 mt-2">
-                @if($comment->comentario !== 'This text has been deleted')
-                    @auth
+                @auth
+                    @if($comment->comentario !== 'This text has been deleted')
                         <button onclick="toggleReply('{{ $comment->id }}')" 
-                                class="text-[11px] font-bold text-[#6B8E23] uppercase hover:text-[#2f2f2f] transition-colors">
+                                class="text-[11px] font-bold text-[#6B8E23] uppercase hover:text-[#2f2f2f] transition-colors leading-none">
                             Reply
                         </button>
+                    @endif
 
-                        @if(auth()->id() === $comment->user_id)
-                            <button onclick="toggleEdit('{{ $comment->id }}')" 
-                                    class="text-[11px] font-bold text-[#6B8E23] uppercase hover:text-[#2f2f2f] transition-colors">
-                                Edit
-                            </button>
-                            
-                            {{-- Formulario inline para que el botón Delete no se desplace --}}
-                            <form onsubmit="borrarComentario(event, this)" action="{{ route('comments.soft-delete', $comment->id) }}" method="POST" class="inline-block m-0 p-0">
+                    @if(auth()->id() === $comment->user_id || auth()->user()->role === 'admin')
+                        <button onclick="toggleEdit('{{ $comment->id }}')" 
+                                class="text-[11px] font-bold text-[#6B8E23] uppercase hover:text-[#2f2f2f] transition-colors leading-none">
+                            Edit
+                        </button>
+                        
+                        @if($comment->comentario !== 'This text has been deleted')
+                            {{-- Formulario alineado con flex e items-center --}}
+                            <form onsubmit="borrarComentario(event, this)" action="{{ route('comments.soft-delete', $comment->id) }}" method="POST" class="flex items-center m-0 p-0">
                                 @csrf @method('PATCH')
                                 <input type="hidden" name="type" value="{{ $type }}">
-                                <button type="submit" class="text-[11px] font-bold text-red-600 uppercase hover:text-red-800 transition-colors">
+                                <button type="submit" class="text-[11px] font-bold text-red-600 uppercase hover:text-red-800 transition-colors leading-none">
                                     Delete
                                 </button>
                             </form>
                         @endif
-                    @endauth
-                @endif
+                    @endif
+                @endauth
 
                 @if($comment->respuestas->count() > 0)
                     <button onclick="toggleChildren(this)" 
-                            class="text-[11px] font-bold text-[#2f2f2f] uppercase hover:text-[#6B8E23] transition-colors">
-                        <span class="icon inline-block">▶</span> Show Replies
+                            class="text-[11px] font-bold text-[#2f2f2f] uppercase hover:text-[#6B8E23] transition-colors leading-none flex items-center gap-1">
+                        <span class="icon text-[8px]">▶</span> 
+                        Show {{ $comment->respuestas->count() }} {{ Str::plural('Reply', $comment->respuestas->count()) }}
                     </button>
                 @endif
             </div>
@@ -82,10 +86,11 @@
                 <input type="hidden" name="padre" value="{{ $comment->id }}">
                 <textarea name="comentario" rows="2" required class="w-full p-2 text-sm border-none focus:ring-0 bg-gray-50 rounded" placeholder="Write a reply..."></textarea>
                 <div class="flex justify-end mt-2">
-                    <button type="submit" class="bg-[#C67C48] text-white px-3 py-1 rounded text-[11px] font-bold uppercase">Send</button>
+                    <button type="submit" class="bg-[#C67C48] text-white px-3 py-1 rounded text-[11px] font-bold uppercase">Send Reply</button>
                 </div>
             </form>
 
+            {{-- Respuestas --}}
             <div class="replies-container hidden mt-4">
                 @foreach($comment->respuestas as $respuesta)
                     <x-comment-item :comment="$respuesta" :item="$item" :type="$type" :level="$level + 1" />

@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\View\Components\CommentItem; // Importamos la clase del componente
+use App\View\Components\CommentItem; 
 
 class CommentController extends Controller
 {
+    /**
+     * Almacena un nuevo comentario o respuesta.
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -26,13 +29,13 @@ class CommentController extends Controller
             'build' => [
                 'model' => \App\Models\BuildComment::class,
                 'fk'    => 'build_id',
-                'parent_model' => \App\Models\Build::class // Asumiendo que tienes un modelo Build
+                'parent_model' => \App\Models\Build::class 
             ]
         ];
 
         $setup = $config[$request->type];
 
-        // 1. Crear el comentario en la base de datos
+        // 1. Crear el comentario
         $comment = $setup['model']::create([
             'user_id'    => Auth::id(),
             $setup['fk'] => $request->item_id,
@@ -40,14 +43,12 @@ class CommentController extends Controller
             'padre'      => $request->padre,
         ]);
 
-        // 2. Respuesta para AJAX
+        // 2. Respuesta para AJAX (renderiza el componente al vuelo)
         if ($request->ajax()) {
-            // Buscamos el objeto padre (la Guía o la Build) para el componente
             $item = $setup['parent_model']::find($request->item_id);
             $level = intval($request->input('level', 0));
 
-            // Instanciamos el componente y lo renderizamos a HTML
-            // Pasamos: comentario, objeto padre, string del tipo y nivel
+            // Instanciamos el componente x-comment-item
             $component = new CommentItem($comment, $item, $request->type, $level);
 
             return response()->json([
@@ -59,35 +60,60 @@ class CommentController extends Controller
         return back()->with('status', 'Comment posted!');
     }
 
-public function update(Request $request, $id)
-{
-    $request->validate(['comentario' => 'required|string']);
-    
-    // Determinamos el modelo (Build o Guide)
-    $modelClass = $request->type === 'build' ? \App\Models\BuildComment::class : \App\Models\GuidesComment::class;
-    $comment = $modelClass::findOrFail($id);
+    /**
+     * Actualiza un comentario existente (Dueño o Admin).
+     */
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'comentario' => 'required|string',
+            'type'       => 'required|in:guide,build'
+        ]);
+        
+        $modelClass = $request->type === 'build' ? \App\Models\BuildComment::class : \App\Models\GuidesComment::class;
+        $comment = $modelClass::findOrFail($id);
 
-    if (auth()->id() !== $comment->user_id) return response()->json(['error' => 'No autorizado'], 403);
+        // PERMISOS: Solo el dueño del comentario o un administrador pueden editar
+        if (auth()->id() !== $comment->user_id && auth()->user()->role !== 'admin') {
+            return response()->json(['error' => 'No autorizado'], 403);
+        }
 
-    $comment->update(['comentario' => $request->comentario]);
+        $comment->update(['comentario' => $request->comentario]);
 
-    // Devolvemos JSON, no una redirección
-    return response()->json([
-        'success' => true,
-        'new_text' => $comment->comentario
-    ]);
-}
+        return response()->json([
+            'success' => true,
+            'new_text' => $comment->comentario
+        ]);
+    }
 
-public function softDelete(Request $request, $id)
-{
-    $modelClass = $request->type === 'build' ? \App\Models\BuildComment::class : \App\Models\GuidesComment::class;
-    $comment = $modelClass::findOrFail($id);
+    /**
+     * Realiza un borrado lógico (Soft Delete) del contenido (Dueño o Admin).
+     */
+    public function softDelete(Request $request, $id)
+    {
+        $request->validate([
+            'type' => 'required|in:guide,build'
+        ]);
 
-    if (auth()->id() !== $comment->user_id) return response()->json(['error' => 'No autorizado'], 403);
+        $modelClass = $request->type === 'build' ? \App\Models\BuildComment::class : \App\Models\GuidesComment::class;
+        $comment = $modelClass::findOrFail($id);
 
-    $comment->update(['comentario' => 'This text has been deleted']);
-    $comment->votos()->delete();
+        // PERMISOS: Solo el dueño del comentario o un administrador pueden borrar
+        if (auth()->id() !== $comment->user_id && auth()->user()->role !== 'admin') {
+            return response()->json(['error' => 'No autorizado'], 403);
+        }
 
-    return response()->json(['success' => true]);
-}
+        // Sustituimos el texto por el aviso de borrado
+        $comment->update(['comentario' => 'This text has been deleted']);
+        
+        // Opcional: Eliminar los votos asociados para limpiar el ranking
+        if (method_exists($comment, 'votos')) {
+            $comment->votos()->delete();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Comment deleted successfully'
+        ]);
+    }
 }
