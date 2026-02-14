@@ -25,7 +25,7 @@
                         <li><a href="{{ route('admin.guides.index') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10">Guides</a></li>
                         <li><a href="{{ route('admin.guideComments.index') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10">Guide Comments</a></li>
                         <li><a href="{{ route('admin.builds.index') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10">Builds</a></li>
-                        <li><a href="" class="block px-4 py-2 hover:bg-[#6B8E23]/10">Build Comments</a></li>
+                        <li><a href="{{ route('admin.buildComments.index') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10">Build Comments</a></li>
                         <li><a href="{{ route('admin.tags.index') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10">Tags</a></li>
                     </ul>
                 </div>

@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\GuideController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\BuildController;
 use App\Http\Controllers\Admin\GuideCommentController;
+use App\Http\Controllers\Admin\BuildCommentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -159,6 +160,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/builds/{build}/edit', [BuildController::class, 'edit'])->name('admin.builds.edit');
     Route::put('/builds/{build}', [BuildController::class, 'update'])->name('admin.builds.update');
     Route::delete('/builds/{build}', [BuildController::class, 'destroy'])->name('admin.builds.destroy');
+
+    Route::get('/build-comments', [BuildCommentController::class, 'index'])->name('admin.buildComments.index');
+    Route::get('build-comments/{id}/edit', [BuildCommentController::class, 'edit'])->name('admin.buildComments.edit');
+    Route::put('build-comments/{id}', [BuildCommentController::class, 'update'])->name('admin.buildComments.update');
+    Route::delete('build-comments/{id}', [BuildCommentController::class, 'destroy'])->name('admin.buildComments.destroy');
+    Route::delete('build-comments/{id}/hard-delete', [BuildCommentController::class, 'hardDelete'])->name('admin.buildComments.hardDelete');
 
     Route::get('/tags', [TagController::class, 'index'])->name('admin.tags.index');
     Route::post('/tags', [TagController::class, 'store'])->name('admin.tags.store');
