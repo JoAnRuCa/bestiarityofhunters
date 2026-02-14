@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\GuideController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\BuildController;
+use App\Http\Controllers\Admin\GuideCommentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -145,6 +146,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/guides/{guide}/edit', [GuideController::class, 'edit'])->name('admin.guides.edit');
     Route::put('/guides/{guide}', [GuideController::class, 'update'])->name('admin.guides.update');
     Route::delete('/guides/{guide}', [GuideController::class, 'destroy'])->name('admin.guides.destroy');
+
+    Route::get('guide-comments', [GuideCommentController::class, 'index'])->name('admin.guideComments.index');
+    Route::get('guide-comments/{id}/edit', [GuideCommentController::class, 'edit'])->name('admin.guideComments.edit');
+    Route::put('guide-comments/{id}', [GuideCommentController::class, 'update'])->name('admin.guideComments.update');
+    Route::delete('guide-comments/{id}', [GuideCommentController::class, 'destroy'])->name('admin.guideComments.destroy');
+    Route::delete('guide-comments/{id}/hard-delete', [GuideCommentController::class, 'hardDelete'])->name('admin.guideComments.hardDelete');
 
     Route::get('/builds', [BuildController::class, 'index'])->name('admin.builds.index');
     Route::get('/builds/create', [BuildController::class, 'create'])->name('admin.builds.create');

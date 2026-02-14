@@ -23,8 +23,9 @@
                 <div class="absolute left-0 top-full pt-2 hidden group-hover:block z-50">
                     <ul class="bg-[#F4EBD0] shadow-lg rounded-md w-48 py-2 text-sm border border-[#6B8E23]/20">
                         <li><a href="{{ route('admin.guides.index') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10">Guides</a></li>
+                        <li><a href="{{ route('admin.guideComments.index') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10">Guide Comments</a></li>
                         <li><a href="{{ route('admin.builds.index') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10">Builds</a></li>
-                        <li><a href="#" class="block px-4 py-2 hover:bg-[#6B8E23]/10">Comments</a></li>
+                        <li><a href="" class="block px-4 py-2 hover:bg-[#6B8E23]/10">Build Comments</a></li>
                         <li><a href="{{ route('admin.tags.index') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10">Tags</a></li>
                     </ul>
                 </div>
