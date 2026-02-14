@@ -7,9 +7,15 @@ use App\Models\Build;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\StoreBuildRequest;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class BuildController extends Controller
 {
+    /**
+     * Lista todas las builds en el panel de admin.
+     */
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -26,8 +32,88 @@ class BuildController extends Controller
         return view('admin.builds.index', compact('builds', 'search'));
     }
 
-    public function edit(Build $build)
+    /**
+     * Muestra el formulario de creación.
+     */
+    public function create()
     {
+        return view('admin.builds.create');
+    }
+
+    /**
+     * Guarda una nueva build (Admin).
+     */
+    public function store(StoreBuildRequest $request)
+    {
+        try {
+            $buildData = json_decode($request->input('build_data'), true);
+            $decoData = json_decode($request->input('decorations_data'), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                return response()->json(['success' => false, 'error' => 'Invalid JSON format'], 400);
+            }
+
+            $categoryMap = [
+                'weapon1' => 1, 'weapon2' => 1,
+                'head'    => 2, 'chest'   => 2, 'arms' => 2, 'waist' => 2, 'legs' => 2,
+                'charm'   => 3
+            ];
+
+            return DB::transaction(function () use ($request, $buildData, $decoData, $categoryMap) {
+                $build = Build::create([
+                    'titulo'    => $request->name,
+                    'playstyle' => $request->playstyle,
+                    'user_id'   => Auth::id(),
+                ]);
+
+                foreach ($buildData as $slot => $item) {
+                    if (!$item || !isset($item['id'])) continue;
+
+                    $buildEquipmentId = DB::table('builds_equipments')->insertGetId([
+                        'build_id'     => $build->id,
+                        'equipment_id' => $item['id'],
+                        'tipo'         => $categoryMap[$slot] ?? 0, 
+                        'created_at'   => now(),
+                        'updated_at'   => now(),
+                    ]);
+
+                    if (isset($decoData[$slot]) && is_array($decoData[$slot])) {
+                        foreach ($decoData[$slot] as $deco) {
+                            if ($deco && isset($deco['id'])) {
+                                DB::table('builds_equipments_decorations')->insert([
+                                    'build_equipment_id' => $buildEquipmentId,
+                                    'decoration_id'      => $deco['id'],
+                                    'created_at'         => now(),
+                                    'updated_at'         => now(),
+                                ]);
+                            }
+                        }
+                    }
+                }
+
+                if ($request->has('tags')) {
+                    $build->tags()->sync($request->tags);
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => '¡Build forjada por el Admin!',
+                    'redirect_url' => route('admin.builds.index')
+                ]);
+            });
+
+        } catch (\Exception $e) {
+            Log::error("Error guardando build admin: " . $e->getMessage());
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Prepara los datos para el editor de edición.
+     */
+    public function edit($id)
+    {
+        $build = Build::findOrFail($id);
         $processedData = $this->getProcessedBuildData($build);
         
         $jsPreload = [];
@@ -48,7 +134,7 @@ class BuildController extends Controller
                     'id' => $eq->equipment_id,
                     'decos' => collect($eq->attached_decos)
                                 ->filter(function($d) { return !$d['is_empty']; })
-                                ->map(function($d) { return ['name' => $d['name']]; }) 
+                                ->map(function($d) { return ['id' => $d['id'], 'name' => $d['name']]; }) 
                                 ->values()
                                 ->toArray()
                 ];
@@ -63,96 +149,101 @@ class BuildController extends Controller
         ]);
     }
 
-// Cambia esto:
-// public function update(Request $request, Build $build)
+    /**
+     * Actualiza la build existente.
+     */
+    public function update(Request $request, $id)
+    {
+        $build = Build::findOrFail($id);
 
-// Por esto:
-public function update(Request $request, $id)
-{
-    // Buscamos manualmente para ver si existe
-    $build = Build::find($id);
+        try {
+            $buildData = json_decode($request->input('build_data'), true);
+            $decoData = json_decode($request->input('decorations_data'), true);
 
-    if (!$build) {
-        return response()->json([
-            'success' => false, 
-            'error' => "La build con ID $id no existe en la base de datos."
-        ], 404);
-    }
+            if (!$buildData) {
+                return response()->json(['success' => false, 'error' => 'Invalid build data'], 400);
+            }
 
-    try {
-        // Obtenemos los datos crudos del JS
-        $buildData = json_decode($request->input('build_data'), true);
-        $decoData = json_decode($request->input('decorations_data'), true);
-
-        if (!$buildData) {
-            return response()->json(['success' => false, 'error' => 'Invalid build data'], 400);
-        }
-
-        return DB::transaction(function () use ($request, $build, $buildData, $decoData) {
-            // 1. Actualizar datos básicos
-            $build->update([
-                'titulo'    => $request->input('name'),
-                'playstyle' => $request->input('playstyle'),
-            ]);
-
-            // 2. Limpiar equipamiento actual (Cascada manual para evitar errores de FK)
-            $currentEquipIds = DB::table('builds_equipments')->where('build_id', $build->id)->pluck('id');
-            DB::table('builds_equipments_decorations')->whereIn('build_equipment_id', $currentEquipIds)->delete();
-            DB::table('builds_equipments')->where('build_id', $build->id)->delete();
-
-            // 3. Mapeo de tipos para la DB
-            $typeMap = [
-                'weapon1' => 1, 'weapon2' => 1,
-                'head' => 2, 'chest' => 2, 'arms' => 2, 'waist' => 2, 'legs' => 2,
-                'charm' => 3
-            ];
-
-            // 4. Guardar Equipamiento
-            foreach ($buildData as $slot => $item) {
-                if (!$item || !isset($item['id'])) continue;
-
-                $insertedId = DB::table('builds_equipments')->insertGetId([
-                    'build_id'     => $build->id,
-                    'equipment_id' => $item['id'],
-                    'tipo'         => isset($typeMap[$slot]) ? $typeMap[$slot] : 0,
-                    'created_at'   => now(),
-                    'updated_at'   => now(),
+            return DB::transaction(function () use ($request, $build, $buildData, $decoData) {
+                $build->update([
+                    'titulo'    => $request->input('name'),
+                    'playstyle' => $request->input('playstyle'),
                 ]);
 
-                // 5. Guardar Decoraciones de este slot
-                if (isset($decoData[$slot]) && is_array($decoData[$slot])) {
-                    foreach ($decoData[$slot] as $deco) {
-                        if ($deco && isset($deco['id'])) {
-                            DB::table('builds_equipments_decorations')->insert([
-                                'build_equipment_id' => $insertedId,
-                                'decoration_id'      => $deco['id'],
-                                'created_at'         => now(),
-                                'updated_at'         => now(),
-                            ]);
+                // Limpiar relaciones actuales
+                $currentEquipIds = DB::table('builds_equipments')->where('build_id', $build->id)->pluck('id');
+                DB::table('builds_equipments_decorations')->whereIn('build_equipment_id', $currentEquipIds)->delete();
+                DB::table('builds_equipments')->where('build_id', $build->id)->delete();
+
+                $categoryMap = [
+                    'weapon1' => 1, 'weapon2' => 1,
+                    'head' => 2, 'chest' => 2, 'arms' => 2, 'waist' => 2, 'legs' => 2,
+                    'charm' => 3
+                ];
+
+                foreach ($buildData as $slot => $item) {
+                    if (!$item || !isset($item['id'])) continue;
+
+                    $insertedId = DB::table('builds_equipments')->insertGetId([
+                        'build_id'     => $build->id,
+                        'equipment_id' => $item['id'],
+                        'tipo'         => $categoryMap[$slot] ?? 0,
+                        'created_at'   => now(),
+                        'updated_at'   => now(),
+                    ]);
+
+                    if (isset($decoData[$slot]) && is_array($decoData[$slot])) {
+                        foreach ($decoData[$slot] as $deco) {
+                            if ($deco && isset($deco['id'])) {
+                                DB::table('builds_equipments_decorations')->insert([
+                                    'build_equipment_id' => $insertedId,
+                                    'decoration_id'      => $deco['id'],
+                                    'created_at'         => now(),
+                                    'updated_at'         => now(),
+                                ]);
+                            }
                         }
                     }
                 }
-            }
 
-            // 6. Sincronizar Tags
-            if ($request->has('tags')) {
-                $build->tags()->sync($request->input('tags'));
-            }
+                if ($request->has('tags')) {
+                    $build->tags()->sync($request->input('tags'));
+                }
 
-            return response()->json([
-                'success' => true, 
-                'redirect_url' => route('admin.builds.index')
-            ]);
-        });
-    } catch (\Exception $e) {
-        // Esto ayudará a ver el error real en la consola F12
-        return response()->json([
-            'success' => false, 
-            'error' => $e->getMessage(),
-            'line' => $e->getLine()
-        ], 500);
+                return response()->json([
+                    'success' => true, 
+                    'redirect_url' => route('admin.builds.index')
+                ]);
+            });
+        } catch (\Exception $e) {
+            Log::error("Error actualizando build admin: " . $e->getMessage());
+            return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
+        }
     }
-}
+
+    /**
+     * Elimina la build.
+     */
+    public function destroy($id)
+    {
+        try {
+            $build = Build::findOrFail($id);
+            return DB::transaction(function () use ($build) {
+                $equipmentIds = DB::table('builds_equipments')->where('build_id', $build->id)->pluck('id');
+                if ($equipmentIds->isNotEmpty()) {
+                    DB::table('builds_equipments_decorations')->whereIn('build_equipment_id', $equipmentIds)->delete();
+                    DB::table('builds_equipments')->where('build_id', $build->id)->delete();
+                }
+                $build->tags()->detach();
+                $build->delete();
+                return redirect()->route('admin.builds.index')->with('success', 'Build eliminada.');
+            });
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error al eliminar: ' . $e->getMessage());
+        }
+    }
+
+    // --- MÉTODOS PRIVADOS DE APOYO ---
 
     private function getArmorSlotName($id) {
         $armors = json_decode(Storage::get('data/armors.json'), true) ?: [];
@@ -186,37 +277,38 @@ public function update(Request $request, $id)
             
             $itemData = collect($source)->firstWhere('id', $eq->equipment_id);
             if ($itemData) {
-                $eq->real_name = isset($itemData['name']) ? $itemData['name'] : (isset($itemData['weaponName']) ? $itemData['weaponName'] : 'Unknown');
-                $eq->total_slots = isset($itemData['slots']) ? $itemData['slots'] : [];
+                $eq->real_name = $itemData['name'] ?? $itemData['weaponName'] ?? 'Unknown';
+                $eq->total_slots = $itemData['slots'] ?? [];
                 
-                $skills = isset($itemData['skills']) ? $itemData['skills'] : (isset($itemData['skill']) ? [$itemData] : []);
-                foreach ($skills as $s) {
-                    $name = trim(isset($s['skill']['name']) ? $s['skill']['name'] : (isset($s['name']) ? $s['name'] : ''));
-                    if ($name) $totalSkillsRaw[$name] = (isset($totalSkillsRaw[$name]) ? $totalSkillsRaw[$name] : 0) + (isset($s['level']) ? $s['level'] : 1);
+                $itemSkills = $itemData['skills'] ?? (isset($itemData['skill']) ? [$itemData['skill']] : []);
+                foreach ($itemSkills as $s) {
+                    $name = trim($s['skill']['name'] ?? $s['name'] ?? '');
+                    if ($name) $totalSkillsRaw[$name] = ($totalSkillsRaw[$name] ?? 0) + ($s['level'] ?? 1);
                 }
             }
+
             $savedDecos = DB::table('builds_equipments_decorations')->where('build_equipment_id', $eq->id)->get();
             $eq->attached_decos = [];
             foreach ($savedDecos as $d) {
                 $decoInfo = collect($allDecorations)->firstWhere('id', $d->decoration_id);
                 if ($decoInfo) {
-                    $eq->attached_decos[] = ['name' => $decoInfo['name'], 'is_empty' => false];
-                    $dSkills = isset($decoInfo['skills']) ? $decoInfo['skills'] : [];
+                    $eq->attached_decos[] = ['id' => $decoInfo['id'], 'name' => $decoInfo['name'], 'is_empty' => false];
+                    $dSkills = $decoInfo['skills'] ?? [];
                     foreach ($dSkills as $ds) {
-                        $dn = trim(isset($ds['skill']['name']) ? $ds['skill']['name'] : (isset($ds['name']) ? $ds['name'] : ''));
-                        if ($dn) $totalSkillsRaw[$dn] = (isset($totalSkillsRaw[$dn]) ? $totalSkillsRaw[$dn] : 0) + (isset($ds['level']) ? $ds['level'] : 1);
+                        $dn = trim($ds['skill']['name'] ?? $ds['name'] ?? '');
+                        if ($dn) $totalSkillsRaw[$dn] = ($totalSkillsRaw[$dn] ?? 0) + ($ds['level'] ?? 1);
                     }
                 }
             }
         }
 
         $totalSkills = collect($totalSkillsRaw)->map(function($lvl, $name) use ($skillMaxLevels, $skillsData) {
-            $max = isset($skillMaxLevels[$name]) ? $skillMaxLevels[$name] : 5;
+            $max = $skillMaxLevels[$name] ?? 5;
             $currentLvl = (int)min($lvl, $max);
             $skillInfo = collect($skillsData)->first(function($item) use ($name) { 
-                return trim(isset($item['name']) ? $item['name'] : '') === $name; 
+                return trim($item['name'] ?? '') === $name; 
             });
-            $desc = isset($skillInfo['ranks'][$currentLvl - 1]['description']) ? $skillInfo['ranks'][$currentLvl - 1]['description'] : "No desc";
+            $desc = $skillInfo['ranks'][$currentLvl - 1]['description'] ?? "No desc";
             return [
                 'name' => $name, 'lvl' => $currentLvl, 'max' => $max, 
                 'percent' => ($max > 0) ? ($currentLvl / $max) * 100 : 0, 'desc' => $desc
@@ -233,32 +325,5 @@ public function update(Request $request, $id)
             if (isset($charm['ranks'])) { foreach ($charm['ranks'] as $rank) { $normalized[] = $rank; } }
         }
         return $normalized;
-    }
-
-    public function destroy($id)
-    {
-        try {
-            $build = Build::findOrFail($id);
-
-            return DB::transaction(function () use ($build) {
-                // 1. Limpiar relaciones manuales (Equipos y Decoraciones)
-                $equipmentIds = DB::table('builds_equipments')->where('build_id', $build->id)->pluck('id');
-                
-                if ($equipmentIds->isNotEmpty()) {
-                    DB::table('builds_equipments_decorations')->whereIn('build_equipment_id', $equipmentIds)->delete();
-                    DB::table('builds_equipments')->where('build_id', $build->id)->delete();
-                }
-
-                // 2. Limpiar etiquetas
-                $build->tags()->detach();
-
-                // 3. Borrar la Build
-                $build->delete();
-
-                return redirect()->route('admin.builds.index')->with('success', 'Build eliminada correctamente.');
-            });
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error al eliminar: ' . $e->getMessage());
-        }
     }
 }

@@ -57,8 +57,13 @@
                         <tr class="bg-white hover:shadow-md transition-all duration-200 group">
                             {{-- Título y Playstyle --}}
                             <td class="px-6 py-4 rounded-l-2xl font-bold italic text-sm border-y-2 border-l-2 border-transparent group-hover:border-[#6B8E23]/20">
-                                {{ $build->titulo }}
-                                <div class="text-[10px] text-gray-400 font-normal normal-case italic line-clamp-1 max-w-xs">{{ $build->playstyle }}</div>
+                                {{-- Nuevo enlace en el título --}}
+                                <a href="{{ route('admin.builds.edit', $build->id) }}" class="hover:text-[#6B8E23] transition-colors inline-block">
+                                    {{ $build->titulo }}
+                                </a>
+                                <div class="text-[10px] text-gray-400 font-normal normal-case italic line-clamp-1 max-w-xs">
+                                    {{ $build->playstyle }}
+                                </div>
                             </td>
 
                             {{-- Autor --}}
