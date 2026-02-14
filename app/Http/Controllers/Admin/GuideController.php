@@ -4,48 +4,57 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Guide;
-use App\Models\Tag; // Importante para las etiquetas
+use App\Models\Tag;
 use Illuminate\Http\Request;
 
 class GuideController extends Controller
 {
+    /**
+     * Lista de guías con búsqueda y relaciones.
+     */
     public function index(Request $request)
     {
         $search = $request->input('search');
 
-        // Cargamos relaciones para evitar múltiples consultas a la BD
         $guides = Guide::with(['user', 'tags'])
             ->when($search, function ($query, $search) {
                 return $query->where('titulo', 'LIKE', "%{$search}%")
                              ->orWhere('contenido', 'LIKE', "%{$search}%");
             })
-            ->latest() // Las más nuevas primero
+            ->latest()
             ->get();
 
         return view('admin.guides.index', compact('guides', 'search'));
     }
 
+    /**
+     * Formulario de creación.
+     */
     public function create()
     {
-        $tags = Tag::all(); // Necesitamos las etiquetas para el formulario
-        return view('admin.guides.create', compact('tags'));
+        // No pasamos tags aquí si vas a usar el componente <x-tag-selector /> 
+        // ya que el componente mismo carga los Tags de la base de datos.
+        return view('admin.guides.create');
     }
 
+    /**
+     * Guardar nueva guía.
+     */
     public function store(Request $request)
     {
         $request->validate([
             'titulo'    => 'required|string|max:255|unique:guides,titulo',
             'contenido' => 'required|string',
-            'tags'      => 'nullable|array', // Validación de etiquetas
+            'tags'      => 'nullable|array',
         ]);
 
         $guide = Guide::create([
             'titulo'    => $request->titulo,
             'contenido' => $request->contenido,
             'user_id'   => auth()->id(),
-            // El slug se genera solo gracias a tu modelo
         ]);
 
+        // Sincronizamos los tags enviados por el componente
         if ($request->has('tags')) {
             $guide->tags()->sync($request->tags);
         }
@@ -54,12 +63,20 @@ class GuideController extends Controller
                          ->with('success', 'Guía publicada en los archivos del gremio.');
     }
 
+    /**
+     * Formulario de edición.
+     */
     public function edit(Guide $guide)
     {
-        $tags = Tag::all();
-        return view('admin.guides.edit', compact('guide', 'tags'));
+        // Cargamos la relación para que el componente sepa qué tags están marcados
+        $guide->load('tags');
+        
+        return view('admin.guides.edit', compact('guide'));
     }
 
+    /**
+     * Actualizar guía existente.
+     */
     public function update(Request $request, Guide $guide)
     {
         $request->validate([
@@ -68,21 +85,27 @@ class GuideController extends Controller
             'tags'      => 'nullable|array',
         ]);
 
+        // Al usar update(), si el 'titulo' cambia, el boot() de tu modelo 
+        // generará el nuevo slug automáticamente.
         $guide->update([
             'titulo'    => $request->titulo,
             'contenido' => $request->contenido,
         ]);
 
-        // Sincronizar etiquetas (borra las viejas y pone las nuevas)
+        // Sincronizar etiquetas (si viene vacío, se limpian las etiquetas de la guía)
         $guide->tags()->sync($request->tags ?? []);
 
         return redirect()->route('admin.guides.index')
                          ->with('success', 'Los archivos han sido actualizados.');
     }
 
+    /**
+     * Eliminar guía.
+     */
     public function destroy(Guide $guide)
     {
         $guide->delete();
+        
         return redirect()->route('admin.guides.index')
                          ->with('success', 'Guía eliminada permanentemente.');
     }

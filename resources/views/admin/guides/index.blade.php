@@ -56,7 +56,7 @@
                         @forelse($guides as $guide)
                         <tr class="bg-white hover:shadow-md transition-all duration-200 group">
                             {{-- Título --}}
-                            <td class="px-6 py-4 rounded-l-2xl font-bold italic uppercase text-sm border-y-2 border-l-2 border-transparent group-hover:border-[#6B8E23]/20">
+                            <td class="px-6 py-4 rounded-l-2xl font-bold italic text-sm border-y-2 border-l-2 border-transparent group-hover:border-[#6B8E23]/20">
                                 {{ $guide->titulo }}
                                 <div class="text-[10px] text-gray-400 font-normal normal-case italic">{{ $guide->slug }}</div>
                             </td>
