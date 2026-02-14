@@ -13,26 +13,20 @@
 
             <li><a href="{{ route('home') }}" class="hover:text-black transition">Home</a></li>
 
-            {{-- Dropdown Database (hover estable) --}}
+            {{-- Dropdown Database --}}
             <li class="relative group">
                 <a href="#" class="hover:text-black transition flex items-center">
                     Database
                     <span class="ml-1 text-xs">▼</span>
                 </a>
 
-                {{-- Contenedor que mantiene el hover estable --}}
                 <div class="absolute left-0 top-full pt-2 hidden group-hover:block z-50">
-
-                    {{-- Menú --}}
-                    <ul class="bg-[#F4EBD0] shadow-lg rounded-md w-44 py-2 text-sm 
-                               transition-all duration-150 ease-out">
-
+                    <ul class="bg-[#F4EBD0] shadow-lg rounded-md w-44 py-2 text-sm transition-all duration-150 ease-out">
                         <li><a href="{{ route('skills.index') }}" class="block px-4 py-2 hover:bg-gray-200">Skills</a></li>
                         <li><a href="{{ route('armors.index') }}" class="block px-4 py-2 hover:bg-gray-200">Armors</a></li>
                         <li><a href="{{ route('weapons.index') }}" class="block px-4 py-2 hover:bg-gray-200">Weapons</a></li>
                         <li><a href="{{ route('decorations.index') }}" class="block px-4 py-2 hover:bg-gray-200">Decorations</a></li>
                         <li><a href="{{ route('charms.index') }}" class="block px-4 py-2 hover:bg-gray-200">Charms</a></li>
-
                     </ul>
                 </div>
             </li>
@@ -49,25 +43,23 @@
 
         @guest
             <a href="{{ route('login') }}" 
-               class="text-[#6B8E23] border-2 border-[#6B8E23] px-4 py-1.5 rounded-md font-semibold 
-                      hover:bg-[#6B8E23] hover:text-[#F4EBD0] transition">
+               class="text-[#6B8E23] border-2 border-[#6B8E23] px-4 py-1.5 rounded-md font-semibold hover:bg-[#6B8E23] hover:text-[#F4EBD0] transition">
                 Login
             </a>
 
             <a href="{{ route('register') }}" 
-               class="bg-[#6B8E23] text-[#F4EBD0] border-2 border-[#6B8E23] px-4 py-1.5 rounded-md font-semibold 
-                      hover:bg-[#C67C48] hover:border-[#C67C48] transition">
+               class="bg-[#6B8E23] text-[#F4EBD0] border-2 border-[#6B8E23] px-4 py-1.5 rounded-md font-semibold hover:bg-[#C67C48] hover:border-[#C67C48] transition">
                 Register
             </a>
         @endguest
 
         @auth
-            <div class="flex items-center gap-6"> {{-- Contenedor para alinear admin + usuario --}}
+            <div class="flex items-center gap-6">
                 
-                {{-- Enlace de Admin (Solo si es admin) --}}
+                {{-- Research Division (Estilo idéntico a Back to the Forge) --}}
                 @if(auth()->user()->role === 'admin')
-                    <a href="{{ route('admin.users.index') }}" {{-- Cambiado a dashboard para ser general --}}
-                       class="text-[#2F2F2F] hover:text-black transition font-semibold">
+                    <a href="{{ route('admin.users.index') }}" 
+                       class="bg-[#6B8E23] text-[#F4EBD0] border-2 border-[#6B8E23] px-4 py-1.5 rounded-md font-semibold text-xs uppercase tracking-wider hover:bg-[#C67C48] hover:border-[#C67C48] transition shadow-sm">
                         Research Division
                     </a>
                 @endif
@@ -79,7 +71,6 @@
                         <span class="ml-1 text-xs">▼</span>
                     </a>
 
-                    {{-- Contenedor hover estable --}}
                     <div class="absolute right-0 top-full pt-2 hidden group-hover:block z-50">
                         <ul class="bg-[#F4EBD0] shadow-lg rounded-md w-40 py-2 text-sm transition-all duration-150 ease-out border border-[#6B8E23]/10">
                             <li><a href="{{ route('profile') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10 hover:text-[#6B8E23]">Profile</a></li>
