@@ -234,4 +234,31 @@ public function update(Request $request, $id)
         }
         return $normalized;
     }
+
+    public function destroy($id)
+    {
+        try {
+            $build = Build::findOrFail($id);
+
+            return DB::transaction(function () use ($build) {
+                // 1. Limpiar relaciones manuales (Equipos y Decoraciones)
+                $equipmentIds = DB::table('builds_equipments')->where('build_id', $build->id)->pluck('id');
+                
+                if ($equipmentIds->isNotEmpty()) {
+                    DB::table('builds_equipments_decorations')->whereIn('build_equipment_id', $equipmentIds)->delete();
+                    DB::table('builds_equipments')->where('build_id', $build->id)->delete();
+                }
+
+                // 2. Limpiar etiquetas
+                $build->tags()->detach();
+
+                // 3. Borrar la Build
+                $build->delete();
+
+                return redirect()->route('admin.builds.index')->with('success', 'Build eliminada correctamente.');
+            });
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error al eliminar: ' . $e->getMessage());
+        }
+    }
 }
