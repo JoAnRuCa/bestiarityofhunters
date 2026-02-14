@@ -8,30 +8,33 @@
     </div>
 
     {{-- Navegación de Administración --}}
-    <nav class="flex items-center">
-        <ul class="flex flex-wrap gap-6 text-gray-800 font-bold items-center uppercase text-xs tracking-widest">
-            <li class="text-[#6B8E23] border-r border-gray-300 pr-4">Research Division</li>
-            
-            <li><a href="{{ route('admin.users.index') }}" class="hover:text-[#C67C48] transition">Hunters</a></li>
-            
-            {{-- Dropdown de Contenido --}}
-            <li class="relative group">
-                <a href="#" class="hover:text-[#C67C48] transition flex items-center">
-                    Content Management
-                    <span class="ml-1 text-[8px]">▼</span>
-                </a>
-                <div class="absolute left-0 top-full pt-2 hidden group-hover:block z-50">
-                    <ul class="bg-[#F4EBD0] shadow-lg rounded-md w-48 py-2 text-sm border border-[#6B8E23]/20">
-                        <li><a href="{{ route('admin.guides.index') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10">Guides</a></li>
-                        <li><a href="{{ route('admin.guideComments.index') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10">Guide Comments</a></li>
-                        <li><a href="{{ route('admin.builds.index') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10">Builds</a></li>
-                        <li><a href="{{ route('admin.buildComments.index') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10">Build Comments</a></li>
-                        <li><a href="{{ route('admin.tags.index') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10">Tags</a></li>
-                    </ul>
-                </div>
-            </li>
-        </ul>
-    </nav>
+ <nav class="flex items-center">
+    <ul class="flex flex-wrap gap-6 text-gray-800 font-bold items-center text-xs tracking-widest">
+        <li class="text-[#6B8E23] border-r border-gray-300 pr-4">Research Division</li>
+        
+        {{-- Enlaces Directos --}}
+        <li><a href="{{ route('admin.users.index') }}" class="hover:text-[#C67C48] transition">Hunters</a></li>
+        <li><a href="{{ route('admin.guides.index') }}" class="hover:text-[#C67C48] transition">Guides</a></li>
+        <li><a href="{{ route('admin.builds.index') }}" class="hover:text-[#C67C48] transition">Builds</a></li>
+        
+        {{-- Dropdown de Comentarios --}}
+        <li class="relative group">
+            <a href="#" class="hover:text-[#C67C48] transition flex items-center">
+                Comments
+                <span class="ml-1 text-[8px]">▼</span>
+            </a>
+            <div class="absolute left-0 top-full pt-2 hidden group-hover:block z-50">
+                <ul class="bg-[#F4EBD0] shadow-lg rounded-md w-48 py-2 text-sm border border-[#6B8E23]/20">
+                    <li><a href="{{ route('admin.guideComments.index') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10">Guide comments</a></li>
+                    <li><a href="{{ route('admin.buildComments.index') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10">Build comments</a></li>
+                </ul>
+            </div>
+        </li>
+
+        {{-- Tags fuera o dentro según prefieras, lo dejo aquí para que no se pierda --}}
+        <li><a href="{{ route('admin.tags.index') }}" class="hover:text-[#C67C48] transition">Tags</a></li>
+    </ul>
+</nav>
 
     {{-- Zona derecha --}}
     <div class="flex items-center gap-4">
