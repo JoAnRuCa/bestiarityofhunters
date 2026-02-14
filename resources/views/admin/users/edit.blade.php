@@ -7,7 +7,7 @@
         
         <div class="mb-10 border-b-2 border-[#6B8E23]/10 pb-6">
             <h1 class="text-3xl font-black uppercase italic tracking-tighter text-[#2F2F2F]">Edit Hunter</h1>
-            <p class="text-[#6B8E23] font-bold text-xs uppercase tracking-[0.3em] mt-2">Modifying Registry: {{ $user->name }}</p>
+            <p class="text-[#6B8E23] font-bold text-xs tracking-[0.3em] mt-2">Modifying Registry: {{ $user->name }}</p>
         </div>
 
         <form action="{{ route('admin.users.update', $user) }}" method="POST" class="space-y-6">
@@ -16,9 +16,9 @@
 
             {{-- Nombre --}}
             <div>
-                <label class="block text-xs font-black uppercase tracking-widest text-[#2F2F2F]/70 mb-2 ml-1">Hunter Name</label>
+                <label class="block text-xs font-black tracking-widest text-[#2F2F2F]/70 mb-2 ml-1">Hunter Name</label>
                 <input type="text" name="name" value="{{ old('name', $user->name) }}" 
-                       class="w-full bg-white border-2 border-transparent focus:border-[#6B8E23] focus:ring-0 outline-none px-4 py-3 rounded-xl transition-all font-bold uppercase italic text-[#2F2F2F] shadow-sm">
+                       class="w-full bg-white border-2 border-transparent focus:border-[#6B8E23] focus:ring-0 outline-none px-4 py-3 rounded-xl transition-all font-bold italic text-[#2F2F2F] shadow-sm">
                 @error('name') <span class="text-red-600 text-xs mt-1 font-bold ml-1">{{ $message }}</span> @enderror
             </div>
 

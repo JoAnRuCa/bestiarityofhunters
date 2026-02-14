@@ -63,7 +63,7 @@
                         @foreach($users as $user)
                         <tr class="bg-white hover:shadow-md transition-all duration-200 group">
                             {{-- Se añade rounded-l-2xl a la primera celda visible (Hunter Name) --}}
-                            <td class="px-6 py-4 rounded-l-2xl font-bold italic uppercase text-sm border-y-2 border-l-2 border-transparent group-hover:border-[#6B8E23]/20">
+                            <td class="px-6 py-4 rounded-l-2xl font-bold italic text-sm border-y-2 border-l-2 border-transparent group-hover:border-[#6B8E23]/20">
                                 {{ $user->name }}
                             </td>
                             <td class="px-6 py-4 text-gray-500 text-sm border-y-2 border-transparent group-hover:border-[#6B8E23]/20">
