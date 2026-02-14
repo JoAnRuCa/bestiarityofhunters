@@ -32,6 +32,15 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        /**
+         * Redirección personalizada basada en el rol.
+         * Si el usuario es 'admin', lo enviamos al registro de hunters.
+         * De lo contrario, lo enviamos a la ruta HOME (/) definida en el Provider.
+         */
+        if ($request->user()->role === 'admin') {
+            return redirect()->route('admin.users.index');
+        }
+
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 
