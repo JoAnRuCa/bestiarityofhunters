@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreBuildRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str; // Importante para generar el slug
+use Illuminate\Support\Str;
 
 class BuildController extends Controller
 {
@@ -28,7 +28,7 @@ class BuildController extends Controller
                       });
             })
             ->latest()
-            ->get();
+            ->paginate(15); // Cambiado a paginate para mejor manejo de volumen
 
         return view('admin.builds.index', compact('builds', 'search'));
     }
@@ -61,12 +61,16 @@ class BuildController extends Controller
             ];
 
             return DB::transaction(function () use ($request, $buildData, $decoData, $categoryMap) {
+                // Creamos la build. El slug se genera inicialmente aquí.
                 $build = Build::create([
                     'titulo'    => $request->name,
-                    'slug'      => Str::slug($request->name) . '-' . rand(1000, 9999), // Generamos slug único
+                    'slug'      => Str::slug($request->name) . '-' . Str::random(5),
                     'playstyle' => $request->playstyle,
                     'user_id'   => Auth::id(),
                 ]);
+
+                // Ajustamos el slug con el ID real para asegurar que sea único y predecible
+                $build->update(['slug' => Str::slug($request->name) . '-' . $build->id]);
 
                 foreach ($buildData as $slot => $item) {
                     if (!$item || !isset($item['id'])) continue;
@@ -111,12 +115,14 @@ class BuildController extends Controller
     }
 
     /**
-     * Edita la build usando el Slug para buscarla.
+     * Edita la build. Laravel inyecta automáticamente el objeto buscando por slug.
      */
     public function edit(Build $build) 
     {
-        // Al usar (Build $build), Laravel busca automáticamente por el campo definido en getRouteKeyName()
         $processedData = $this->getProcessedBuildData($build);
+        
+        // Importante: previous_url nos permite saber si venimos del index de admin
+        $previous_url = old('previous_url', url()->previous());
         
         $jsPreload = [];
         $weaponCount = 0;
@@ -147,12 +153,13 @@ class BuildController extends Controller
             'build' => $build,
             'equipments' => $processedData['equipments'],
             'totalSkills' => collect($processedData['totalSkills']),
-            'jsPreload' => $jsPreload 
+            'jsPreload' => $jsPreload,
+            'previous_url' => $previous_url
         ]);
     }
 
     /**
-     * Actualiza la build usando el objeto inyectado por slug.
+     * Actualiza la build.
      */
     public function update(Request $request, Build $build)
     {
@@ -164,15 +171,14 @@ class BuildController extends Controller
                 return response()->json(['success' => false, 'error' => 'Invalid build data'], 400);
             }
 
-            return DB::transaction(function () use ($request, $build, $buildData, $decoData) {
-                // Actualizamos datos básicos. Si el título cambia, generamos nuevo slug.
+            DB::transaction(function () use ($request, $build, $buildData, $decoData) {
+                // Actualizamos datos y refrescamos slug por si cambió el título
                 $build->update([
                     'titulo'    => $request->input('name'),
                     'slug'      => Str::slug($request->input('name')) . '-' . $build->id,
                     'playstyle' => $request->input('playstyle'),
                 ]);
 
-                // Limpiar relaciones actuales para re-insertar (Lógica de "Forging")
                 $currentEquipIds = DB::table('builds_equipments')->where('build_id', $build->id)->pluck('id');
                 DB::table('builds_equipments_decorations')->whereIn('build_equipment_id', $currentEquipIds)->delete();
                 DB::table('builds_equipments')->where('build_id', $build->id)->delete();
@@ -211,12 +217,16 @@ class BuildController extends Controller
                 if ($request->has('tags')) {
                     $build->tags()->sync($request->input('tags'));
                 }
-
-                return response()->json([
-                    'success' => true, 
-                    'redirect_url' => route('admin.builds.index')
-                ]);
             });
+
+            // Redirección inteligente al index de admin
+            $redirectUrl = $request->input('previous_url') ?: route('admin.builds.index');
+            
+            return response()->json([
+                'success' => true, 
+                'redirect_url' => $redirectUrl
+            ]);
+
         } catch (\Exception $e) {
             Log::error("Error actualizando build admin: " . $e->getMessage());
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
@@ -224,27 +234,34 @@ class BuildController extends Controller
     }
 
     /**
-     * Elimina la build usando el objeto inyectado.
+     * Elimina la build.
      */
     public function destroy(Build $build)
     {
         try {
-            return DB::transaction(function () use ($build) {
+            DB::transaction(function () use ($build) {
                 $equipmentIds = DB::table('builds_equipments')->where('build_id', $build->id)->pluck('id');
                 if ($equipmentIds->isNotEmpty()) {
                     DB::table('builds_equipments_decorations')->whereIn('build_equipment_id', $equipmentIds)->delete();
                     DB::table('builds_equipments')->where('build_id', $build->id)->delete();
                 }
+                
+                // Limpiar votos y comentarios si existen las relaciones
+                if (method_exists($build, 'votos')) $build->votos()->delete();
+                if (method_exists($build, 'comments')) $build->comments()->delete();
+                
                 $build->tags()->detach();
                 $build->delete();
-                return redirect()->route('admin.builds.index')->with('success', 'Build desmantelada correctamente.');
             });
+
+            return redirect()->route('admin.builds.index')->with('success', 'Build eliminada del sistema.');
+
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error al eliminar: ' . $e->getMessage());
         }
     }
 
-    // --- MÉTODOS PRIVADOS DE APOYO (Sin cambios) ---
+    // --- MÉTODOS PRIVADOS ---
 
     private function getArmorSlotName($id) {
         $armors = json_decode(Storage::get('data/armors.json'), true) ?: [];
@@ -309,7 +326,13 @@ class BuildController extends Controller
             $skillInfo = collect($skillsData)->first(function($item) use ($name) { 
                 return trim($item['name'] ?? '') === $name; 
             });
-            $desc = $skillInfo['ranks'][$currentLvl - 1]['description'] ?? "No desc";
+            
+            $desc = "Descripción no disponible";
+            if ($skillInfo && isset($skillInfo['ranks'][$currentLvl - 1])) {
+                $rank = $skillInfo['ranks'][$currentLvl - 1];
+                $desc = $rank['description'] ?? $rank['desc'] ?? $desc;
+            }
+
             return [
                 'name' => $name, 'lvl' => $currentLvl, 'max' => $max, 
                 'percent' => ($max > 0) ? ($currentLvl / $max) * 100 : 0, 'desc' => $desc

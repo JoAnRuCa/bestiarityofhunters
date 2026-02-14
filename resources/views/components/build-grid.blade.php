@@ -47,7 +47,7 @@
 
                     {{-- Gestión: Solo si el usuario es el creador --}}
                     @auth
-                        @if(auth()->id() === $build->user_id)
+                        @if(auth()->id() === $build->user_id || Auth::user()->role === 'admin')
                             <div class="flex flex-row items-center justify-end gap-2 w-full mt-auto">
                                 <x-edit-button :url="route('builds.edit', $build->slug)" :editable="true" />
                                 <x-delete-button :action="route('builds.destroy', $build->slug)" :id="$build->id" />

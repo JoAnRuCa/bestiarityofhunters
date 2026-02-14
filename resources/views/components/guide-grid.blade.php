@@ -56,7 +56,7 @@
 
                     {{-- Acciones del Propietario: Solo si es su guía --}}
                     @auth
-                        @if(auth()->id() === $guide->user_id)
+                        @if(auth()->id() === $guide->user_id || Auth::user()->role === 'admin')
                             <div class="flex flex-row items-center justify-end gap-2 w-full mt-auto">
                                 <x-edit-button :url="route('guides.edit', $guide->slug)" :editable="true" />
                                 <x-delete-button :action="route('guides.destroy', $guide->slug)" :id="$guide->slug" />

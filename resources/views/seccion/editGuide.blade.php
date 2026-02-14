@@ -15,9 +15,14 @@
         </p>
     @endif
 
-    <form action="{{ route('guides.update', $guide->slug) }}" method="POST" class="space-y-8">
+    {{-- 1. CAMBIO: Action dinámica según el rol del usuario --}}
+    <form action="{{ Auth::user()->role === 'admin' ? route('admin.guides.update', $guide->slug) : route('guides.update', $guide->slug) }}" 
+          method="POST" class="space-y-8">
         @csrf
         @method('PUT')
+
+        {{-- 2. AÑADIDO: Campo oculto para capturar la URL de origen --}}
+        <input type="hidden" name="previous_url" value="{{ $previous_url ?? (Auth::user()->role === 'admin' ? url('/admin/guides') : route('my.guides')) }}">
 
         {{-- Título --}}
         <div>
@@ -30,8 +35,6 @@
         </div>
 
         {{-- COMPONENTE DE TAGS --}}
-        {{-- 1. Pasamos old('tags') o los tags actuales de la guía --}}
-        {{-- 2. Añadimos :showAll="true" para ver el listado completo (Armas + Categorías) --}}
         <x-tag-selector :selectedTags="old('tags', $guide->tags->pluck('id')->toArray())" :showAll="true" />
 
         {{-- Contenido --}}
@@ -49,7 +52,9 @@
                 Update Guide
             </button>
             
-            <a href="{{ route('my.guides') }}" class="text-gray-600 hover:underline font-medium">
+            {{-- 3. CAMBIO: El enlace de Cancelar ahora es inteligente y vuelve de donde viniste --}}
+            <a href="{{ $previous_url ?? (Auth::user()->role === 'admin' ? url('/admin/guides') : route('my.guides')) }}" 
+               class="text-gray-600 hover:underline font-medium">
                 Cancel
             </a>
         </div>

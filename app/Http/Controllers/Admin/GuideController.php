@@ -9,48 +9,59 @@ use Illuminate\Http\Request;
 
 class GuideController extends Controller
 {
-    /**
-     * Lista de guías con búsqueda y relaciones.
-     */
-public function index(Request $request)
-{
-    $search = $request->input('search');
-
-    $guides = Guide::with(['user', 'tags'])
-        ->when($search, function ($query, $search) {
-            return $query->where(function ($q) use ($search) {
-                $q->where('titulo', 'LIKE', "%{$search}%")
-                  ->orWhere('contenido', 'LIKE', "%{$search}%")
-                  ->orWhereHas('user', function ($q) use ($search) {
-                      $q->where('name', 'LIKE', "%{$search}%");
-                  });
-            });
-        })
-        ->latest()
-        ->get();
-
-    return view('admin.guides.index', compact('guides', 'search'));
-}
-
-    /**
-     * Formulario de creación.
-     */
-    public function create()
+    public function index(Request $request)
     {
-        // No pasamos tags aquí si vas a usar el componente <x-tag-selector /> 
-        // ya que el componente mismo carga los Tags de la base de datos.
-        return view('admin.guides.create');
+        $search = $request->input('search');
+
+        $guides = Guide::with(['user', 'tags'])
+            ->when($search, function ($query, $search) {
+                return $query->where('titulo', 'LIKE', "%{$search}%")
+                             ->orWhere('contenido', 'LIKE', "%{$search}%");
+            })
+            ->latest()
+            ->paginate(15);
+
+        // Pasamos la búsqueda para que no se pierda al paginar
+        return view('admin.guides.index', compact('guides', 'search'));
     }
 
-    /**
-     * Guardar nueva guía.
-     */
+ public function edit(Guide $guide) // Laravel hará el Route Model Binding por slug si está configurado
+{
+    $guide->load('tags');
+    $previous_url = old('previous_url', url()->previous());
+    
+    return view('admin.guides.edit', compact('guide', 'previous_url'));
+}
+
+public function update(Request $request, $slug) // Recibimos el slug
+{
+    // Buscamos la guía por slug manualmente para asegurar
+    $guide = Guide::where('slug', $slug)->firstOrFail();
+
+    $request->validate([
+        // Validamos el título único ignorando el ID de esta guía
+        'titulo'    => 'required|string|max:255|unique:guides,titulo,' . $guide->id,
+        'contenido' => 'required|string',
+        'tags'      => 'nullable|array',
+    ]);
+
+    $guide->update([
+        'titulo'    => $request->titulo,
+        'contenido' => $request->contenido,
+    ]);
+
+    $guide->tags()->sync($request->tags ?? []);
+
+    $redirectUrl = $request->input('previous_url', url('/admin/guides'));
+
+    return redirect($redirectUrl)->with('success', 'Guía actualizada correctamente.');
+}
+
     public function store(Request $request)
     {
         $request->validate([
             'titulo'    => 'required|string|max:255|unique:guides,titulo',
             'contenido' => 'required|string',
-            'tags'      => 'nullable|array',
         ]);
 
         $guide = Guide::create([
@@ -59,59 +70,17 @@ public function index(Request $request)
             'user_id'   => auth()->id(),
         ]);
 
-        // Sincronizamos los tags enviados por el componente
         if ($request->has('tags')) {
             $guide->tags()->sync($request->tags);
         }
 
-        return redirect()->route('admin.guides.index')
-                         ->with('success', 'Guía publicada en los archivos del gremio.');
+        // Forzamos salida a la lista
+        return redirect('/admin/guides')->with('success', 'Nueva guía creada.');
     }
 
-    /**
-     * Formulario de edición.
-     */
-    public function edit(Guide $guide)
-    {
-        // Cargamos la relación para que el componente sepa qué tags están marcados
-        $guide->load('tags');
-        
-        return view('admin.guides.edit', compact('guide'));
-    }
-
-    /**
-     * Actualizar guía existente.
-     */
-    public function update(Request $request, Guide $guide)
-    {
-        $request->validate([
-            'titulo'    => 'required|string|max:255|unique:guides,titulo,' . $guide->id,
-            'contenido' => 'required|string',
-            'tags'      => 'nullable|array',
-        ]);
-
-        // Al usar update(), si el 'titulo' cambia, el boot() de tu modelo 
-        // generará el nuevo slug automáticamente.
-        $guide->update([
-            'titulo'    => $request->titulo,
-            'contenido' => $request->contenido,
-        ]);
-
-        // Sincronizar etiquetas (si viene vacío, se limpian las etiquetas de la guía)
-        $guide->tags()->sync($request->tags ?? []);
-
-        return redirect()->route('admin.guides.index')
-                         ->with('success', 'Los archivos han sido actualizados.');
-    }
-
-    /**
-     * Eliminar guía.
-     */
     public function destroy(Guide $guide)
     {
         $guide->delete();
-        
-        return redirect()->route('admin.guides.index')
-                         ->with('success', 'Guía eliminada permanentemente.');
+        return redirect('/admin/guides')->with('success', 'Guía eliminada.');
     }
 }

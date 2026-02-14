@@ -2,9 +2,16 @@
 @section('title', 'Edit Build — ' . $build->titulo)
 
 @section('content')
-<form id="forgeForm" action="{{ route('builds.update', $build->slug) }}" method="POST">
+{{-- 1. CAMBIO: Action dinámica según el rol. Admin usa ID, Usuario usa Slug --}}
+<form id="forgeForm" 
+      action="{{ Auth::user()->role === 'admin' ? route('admin.builds.update', $build->slug) : route('builds.update', $build->slug) }}" 
+      method="POST">
     @csrf
     @method('PUT')
+    
+    {{-- 2. AÑADIDO: Campo oculto para la redirección --}}
+    <input type="hidden" name="previous_url" value="{{ $previous_url ?? (Auth::user()->role === 'admin' ? url('/admin/builds') : route('my.builds')) }}">
+    
     <input type="hidden" name="build_data" id="buildDataInput">
     <input type="hidden" name="decorations_data" id="decoDataInput">
 
@@ -34,12 +41,18 @@
                 </div>
             </div>
             
-            <div class="flex-1 flex items-center justify-center">
+            <div class="flex-1 flex items-center justify-center gap-4"> {{-- Añadido gap para separar botones si es necesario --}}
                 @auth
                 <button type="submit" 
                     class="bg-[#6B8E23] hover:bg-[#C67C48] text-white px-10 py-5 rounded-2xl font-black uppercase shadow-[0_5px_0_0_#4A6318] hover:shadow-[0_5px_0_0_#A05E31] active:translate-y-1 active:shadow-none transition-all duration-300">
                     Update Build
                 </button>
+                
+                {{-- 3. AÑADIDO: Botón de cancelar inteligente al lado del de update --}}
+                <a href="{{ $previous_url ?? (Auth::user()->role === 'admin' ? url('/admin/builds') : route('my.builds')) }}" 
+                   class="text-[#2F2F2F]/50 hover:text-black text-xs font-black uppercase tracking-widest transition-colors px-4 py-2">
+                    Cancel
+                </a>
                 @endauth
                 
                 @guest
@@ -50,7 +63,7 @@
                 @endguest
             </div>
         </div>
-
+        
         <div class="w-full h-px bg-[#6B8E23]/30 my-8"></div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
