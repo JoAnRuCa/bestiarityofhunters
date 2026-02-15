@@ -44,6 +44,9 @@ class BuildController extends Controller
     /**
      * Guarda una nueva build (Admin).
      */
+ /**
+     * Guarda una nueva build (Admin).
+     */
     public function store(StoreBuildRequest $request)
     {
         try {
@@ -61,7 +64,7 @@ class BuildController extends Controller
             ];
 
             return DB::transaction(function () use ($request, $buildData, $decoData, $categoryMap) {
-                // Creamos la build. El slug se genera inicialmente aquí.
+                // Creamos la build.
                 $build = Build::create([
                     'titulo'    => $request->name,
                     'slug'      => Str::slug($request->name) . '-' . Str::random(5),
@@ -69,7 +72,7 @@ class BuildController extends Controller
                     'user_id'   => Auth::id(),
                 ]);
 
-                // Ajustamos el slug con el ID real para asegurar que sea único y predecible
+                // Ajustamos el slug con el ID real
                 $build->update(['slug' => Str::slug($request->name) . '-' . $build->id]);
 
                 foreach ($buildData as $slot => $item) {
@@ -101,6 +104,9 @@ class BuildController extends Controller
                     $build->tags()->sync($request->tags);
                 }
 
+                // --- CLAVE: Flash message para la redirección ---
+                session()->flash('success', 'Build "' . $build->titulo . '" forged successfully by Admin!');
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Build forged successfully by Admin!',
@@ -113,7 +119,6 @@ class BuildController extends Controller
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
     }
-
     /**
      * Edita la build. Laravel inyecta automáticamente el objeto buscando por slug.
      */
@@ -221,6 +226,8 @@ class BuildController extends Controller
 
             // Redirección inteligente al index de admin
             $redirectUrl = $request->input('previous_url') ?: route('admin.builds.index');
+
+            session()->flash('success', 'Build updated successfully.');
             
             return response()->json([
                 'success' => true, 

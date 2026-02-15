@@ -13,13 +13,12 @@ class TagController extends Controller
      */
     public function index()
     {
-        // Usamos withCount para obtener el total de guías y builds asociadas eficientemente
         $tags = Tag::withCount(['guides', 'builds'])->latest()->get();
         return view('admin.tags.index', compact('tags'));
     }
 
     /**
-     * Guarda una nueva etiqueta respetando el formato de texto del usuario.
+     * Guarda una nueva etiqueta.
      */
     public function store(Request $request)
     {
@@ -27,13 +26,12 @@ class TagController extends Controller
             'name' => 'required|string|max:50|unique:tags,name',
         ]);
 
-        Tag::create([
-            // trim() elimina espacios al inicio/final para evitar duplicados como " Fire" y "Fire"
+        $tag = Tag::create([
             'name' => trim($request->name), 
         ]);
 
         return redirect()->route('admin.tags.index')
-                         ->with('success', 'Nueva categoría de cacería registrada.');
+                         ->with('success', "The tag «{$tag->name}» has been registered.");
     }
 
     /**
@@ -45,7 +43,7 @@ class TagController extends Controller
     }
 
     /**
-     * Actualiza la etiqueta sin forzar mayúsculas.
+     * Actualiza la etiqueta.
      */
     public function update(Request $request, Tag $tag)
     {
@@ -58,18 +56,23 @@ class TagController extends Controller
         ]);
 
         return redirect()->route('admin.tags.index')
-                         ->with('success', 'Tag updated successfully.');
+                         ->with('success', "The tag «{$tag->name}» has been updated.");
     }
 
     /**
-     * Elimina la etiqueta de los archivos.
+     * Elimina la etiqueta.
      */
     public function destroy(Tag $tag)
     {
-        // Laravel se encarga de la tabla pivote si definiste 'onDelete(cascade)' en la migración
-        $tag->delete();
-
-        return redirect()->route('admin.tags.index')
-                         ->with('success', 'Tag deleted successfully.');
+        $tagName = $tag->name; // Guardamos el nombre antes de borrar para el mensaje
+        
+        try {
+            $tag->delete();
+            return redirect()->route('admin.tags.index')
+                             ->with('success', "The tag «{$tagName}» has been deleted from the files.");
+        } catch (\Exception $e) {
+            return redirect()->route('admin.tags.index')
+                             ->with('error', "The tag «{$tagName}» could not be deleted: " . $e->getMessage());
+        }
     }
 }
