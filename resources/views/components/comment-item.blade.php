@@ -1,4 +1,4 @@
-<div class="comment-node py-4 {{ $level > 0 ? 'ml-6 md:ml-12 border-l-2 border-[#6B8E23]/20 pl-4' : '' }}" data-level="{{ $level }}">
+<div class="comment-node py-4 {{ $level === 1 ? 'ml-6 md:ml-12 border-l-2 border-[#6B8E23]/20 pl-4' : '' }}" data-level="{{ $level }}">
     <div class="flex flex-row items-start gap-4">
         
         {{-- Bloque de Votos --}}
@@ -87,18 +87,19 @@
                 <input type="hidden" name="item_id" value="{{ $item->id }}">
                 <input type="hidden" name="type" value="{{ $type }}">
                 <input type="hidden" name="padre" value="{{ $comment->id }}">
+                <input type="hidden" name="level" value="{{ $level + 1 }}">
                 <textarea name="comentario" rows="2" required class="w-full p-2 text-sm border-none focus:ring-0 bg-gray-50 rounded" placeholder="Write a reply..."></textarea>
                 <div class="flex justify-end mt-2">
                     <button type="submit" class="bg-[#C67C48] text-white px-3 py-1 rounded text-[11px] font-bold uppercase">Send Reply</button>
                 </div>
             </form>
-
-            {{-- Respuestas --}}
-            <div class="replies-container hidden mt-4">
-                @foreach($comment->respuestas as $respuesta)
-                    <x-comment-item :comment="$respuesta" :item="$item" :type="$type" :level="$level + 1" />
-                @endforeach
-            </div>
         </div>
+    </div>
+
+    {{-- Respuestas --}}
+    <div class="replies-container hidden mt-4">
+        @foreach($comment->respuestas as $respuesta)
+            <x-comment-item :comment="$respuesta" :item="$item" :type="$type" :level="$level + 1" />
+        @endforeach
     </div>
 </div>
