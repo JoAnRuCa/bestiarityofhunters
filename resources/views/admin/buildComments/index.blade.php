@@ -20,7 +20,7 @@
 
         <div class="p-8 md:p-12 rounded-3xl shadow-2xl bg-[#F4EBD0] border border-[#6B8E23]/20 text-[#2F2F2F]">
             <div class="mb-10 pb-6 border-b-2 border-[#6B8E23]/10">
-                <h1 class="text-3xl font-black uppercase italic tracking-tighter text-[#2F2F2F]">Build <span class="text-[#6B8E23]">Echoes</span></h1>
+                <h1 class="text-3xl font-black uppercase italic tracking-tighter text-[#2F2F2F]">Build <span class="text-[#6B8E23]">Comments</span></h1>
                 <p class="text-[#6B8E23] font-bold text-xs uppercase tracking-[0.3em] mt-1">Moderation of Build Commentary</p>
             </div>
 
@@ -109,7 +109,7 @@
                             </td>
                         </tr>
                         @empty
-                        <tr><td colspan="6" class="px-6 py-10 text-center text-gray-400 italic">The archives are silent. No echoes found.</td></tr>
+                        <tr><td colspan="6" class="px-6 py-10 text-center text-gray-400 italic">The archives are silent. No comments found.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
