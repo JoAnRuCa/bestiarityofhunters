@@ -63,16 +63,16 @@
                                 </div>
                             </td>
 
-                            {{-- CAMPO PADRE --}}
-                            <td class="px-6 py-4 border-y-2 border-transparent group-hover:border-[#6B8E23]/20 text-center">
-                                @if($comment->padre)
-                                    <span class="text-xs font-mono bg-gray-100 px-2 py-1 rounded text-gray-500 border border-gray-200">
-                                        #{{ $comment->padre }}
-                                    </span>
-                                @else
-                                    <span class="text-[9px] font-black uppercase text-gray-300 tracking-widest">Original</span>
-                                @endif
-                            </td>
+                                {{-- CAMPO PADRE --}}
+                                <td class="px-6 py-4 border-y-2 border-transparent group-hover:border-[#6B8E23]/20 text-center">
+                                    @if($comment->padre)
+                                        <span class="text-xs font-mono font-bold text-gray-400">
+                                            #{{ $comment->padre }}
+                                        </span>
+                                    @else
+                                        <span class="text-[9px] font-black uppercase text-gray-300 tracking-widest">Original</span>
+                                    @endif
+                                </td>
 
                             <td class="px-6 py-4 border-y-2 border-transparent group-hover:border-[#6B8E23]/20">
                                 <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#6B8E23]/10 text-[#6B8E23] border border-[#6B8E23]/20">
