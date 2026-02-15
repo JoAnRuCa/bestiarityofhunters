@@ -22,7 +22,6 @@
         </x-filter-panel>
     </div>
 
-    {{-- Este es el contenedor que list.js busca para actualizar --}}
     <div id="builds-wrapper" class="transition-opacity duration-300">
 @endif
 
@@ -81,7 +80,8 @@
                                 </div>
                             </div>
 
-                            @if(auth()->check() && auth()->id() === $build->user_id)
+                            {{-- LÓGICA DE ADMIN ACTUALIZADA --}}
+                            @if(auth()->check() && (auth()->id() === $build->user_id || auth()->user()->role === 'admin'))
                                 <div class="flex flex-row items-center justify-end gap-2 w-full mt-auto">
                                     <x-edit-button :url="route('builds.edit', $build->slug)" :editable="true" />
                                     <x-delete-button :action="route('builds.destroy', $build->slug)" :id="$build->slug" />
@@ -98,9 +98,8 @@
         @endif
 
 @if(!isset($only_content))
-    </div> {{-- Cierre de builds-wrapper --}}
+    </div>
 </div>
-
 @endsection
 
 @section('scripts')
