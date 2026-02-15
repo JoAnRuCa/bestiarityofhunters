@@ -103,7 +103,7 @@ class BuildController extends Controller
 
                 return response()->json([
                     'success' => true,
-                    'message' => '¡Build forjada por el Admin!',
+                    'message' => 'Build forged successfully by Admin!',
                     'redirect_url' => route('admin.builds.index')
                 ]);
             });
@@ -224,11 +224,12 @@ class BuildController extends Controller
             
             return response()->json([
                 'success' => true, 
-                'redirect_url' => $redirectUrl
+                'redirect_url' => $redirectUrl,
+                'message' => 'Build updated successfully.'
             ]);
 
         } catch (\Exception $e) {
-            Log::error("Error actualizando build admin: " . $e->getMessage());
+            Log::error("Error updating build admin: " . $e->getMessage());
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
     }
@@ -254,14 +255,14 @@ class BuildController extends Controller
                 $build->delete();
             });
 
-            return redirect()->route('admin.builds.index')->with('success', 'Build eliminada del sistema.');
+            return redirect()->route('admin.builds.index')->with('success', 'Build deleted successfully from the system.');
 
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Error al eliminar: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error deleting: ' . $e->getMessage());
         }
     }
 
-    // --- MÉTODOS PRIVADOS ---
+    // --- PRIVATE METHODS ---
 
     private function getArmorSlotName($id) {
         $armors = json_decode(Storage::get('data/armors.json'), true) ?: [];

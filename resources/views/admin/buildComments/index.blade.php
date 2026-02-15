@@ -34,8 +34,10 @@
                 <table class="w-full text-left border-separate border-spacing-y-3">
                     <thead>
                         <tr class="text-[#6B8E23] uppercase text-xs font-black tracking-widest">
+                            <th class="px-6 pb-4">ID</th>
                             <th class="px-6 pb-4">Hunter</th>
                             <th class="px-6 pb-4">Commentary</th>
+                            <th class="px-6 pb-4 text-center">Parent ID</th>
                             <th class="px-6 pb-4">Origin Build</th>
                             <th class="px-6 pb-4 text-right">Actions</th>
                         </tr>
@@ -45,7 +47,12 @@
                         @php $isDeleted = ($comment->comentario === 'This text has been deleted'); @endphp
                         
                         <tr class="bg-white hover:shadow-md transition-all duration-200 group {{ $isDeleted ? 'opacity-60' : '' }}">
+                            {{-- ID propio --}}
                             <td class="px-6 py-4 rounded-l-2xl border-y-2 border-l-2 border-transparent group-hover:border-[#6B8E23]/20">
+                                <span class="text-xs font-mono font-bold text-gray-400">#{{ $comment->id }}</span>
+                            </td>
+
+                            <td class="px-6 py-4 border-y-2 border-transparent group-hover:border-[#6B8E23]/20">
                                 <span class="font-bold text-[#2F2F2F] block">{{ $comment->user->name }}</span>
                                 <span class="text-[10px] text-gray-400 font-medium italic">{{ $comment->created_at->diffForHumans() }}</span>
                             </td>
@@ -56,6 +63,17 @@
                                 </div>
                             </td>
 
+                            {{-- CAMPO PADRE --}}
+                            <td class="px-6 py-4 border-y-2 border-transparent group-hover:border-[#6B8E23]/20 text-center">
+                                @if($comment->padre)
+                                    <span class="text-xs font-mono bg-gray-100 px-2 py-1 rounded text-gray-500 border border-gray-200">
+                                        #{{ $comment->padre }}
+                                    </span>
+                                @else
+                                    <span class="text-[9px] font-black uppercase text-gray-300 tracking-widest">Original</span>
+                                @endif
+                            </td>
+
                             <td class="px-6 py-4 border-y-2 border-transparent group-hover:border-[#6B8E23]/20">
                                 <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-[#6B8E23]/10 text-[#6B8E23] border border-[#6B8E23]/20">
                                     {{ $comment->build->titulo ?? 'Unknown' }}
@@ -64,45 +82,34 @@
 
                             <td class="px-6 py-4 text-right rounded-r-2xl border-y-2 border-r-2 border-transparent group-hover:border-[#6B8E23]/20">
                                 <div class="flex justify-end gap-3 items-center">
-                                    
                                     @if(!$isDeleted)
-                                        {{-- Botón Editar --}}
                                         <a href="{{ route('admin.buildComments.edit', $comment->id) }}" class="text-[#2F2F2F] hover:text-[#6B8E23] transition-colors" title="Edit Content">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                                         </a>
 
-                                        {{-- Papelera (Soft Delete) - Rojo Claro --}}
                                         <form action="{{ route('admin.buildComments.destroy', $comment->id) }}" method="POST" onsubmit="return confirm('Do you want to redact this comment?')">
                                             @csrf 
                                             @method('DELETE')
                                             <button type="submit" class="text-red-300 hover:text-red-600 transition-colors" title="Redact Content">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                </svg>
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                             </button>
                                         </form>
                                     @else
-                                        <span class="text-[9px] font-black uppercase px-2 py-1 rounded bg-gray-100 text-gray-400 border border-gray-200 tracking-tighter">
-                                            Redacted
-                                        </span>
+                                        <span class="text-[9px] font-black uppercase px-2 py-1 rounded bg-gray-100 text-gray-400 border border-gray-200 tracking-tighter">Redacted</span>
                                     @endif
 
-                                    {{-- Relámpago (Hard Delete) - Rojo Intenso --}}
                                     <form action="{{ route('admin.buildComments.hardDelete', $comment->id) }}" method="POST" onsubmit="return confirm('CRITICAL WARNING: This will permanently delete this build comment AND ALL its replies. Proceed?')">
                                         @csrf 
                                         @method('DELETE')
                                         <button type="submit" class="text-red-600 hover:text-red-800 transition-all duration-300 hover:scale-125 active:translate-y-1" title="True Delete">
-                                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path>
-                                            </svg>
+                                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"></path></svg>
                                         </button>
                                     </form>
-
                                 </div>
                             </td>
                         </tr>
                         @empty
-                        <tr><td colspan="4" class="px-6 py-10 text-center text-gray-400 italic">The archives are silent. No echoes found.</td></tr>
+                        <tr><td colspan="6" class="px-6 py-10 text-center text-gray-400 italic">The archives are silent. No echoes found.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

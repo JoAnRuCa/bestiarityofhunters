@@ -54,7 +54,7 @@ public function update(Request $request, $slug) // Recibimos el slug
 
     $redirectUrl = $request->input('previous_url', url('/admin/guides'));
 
-    return redirect($redirectUrl)->with('success', 'Guía actualizada correctamente.');
+    return redirect($redirectUrl)->with('success', 'Guide updated successfully.');
 }
 
     public function store(Request $request)
@@ -75,12 +75,12 @@ public function update(Request $request, $slug) // Recibimos el slug
         }
 
         // Forzamos salida a la lista
-        return redirect('/admin/guides')->with('success', 'Nueva guía creada.');
+        return redirect('/admin/guides')->with('success', 'New guide created successfully.');
     }
 
     public function destroy(Guide $guide)
     {
         $guide->delete();
-        return redirect('/admin/guides')->with('success', 'Guía eliminada.');
+        return redirect('/admin/guides')->with('success', 'Guide deleted successfully.');
     }
 }

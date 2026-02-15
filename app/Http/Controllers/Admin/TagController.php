@@ -58,7 +58,7 @@ class TagController extends Controller
         ]);
 
         return redirect()->route('admin.tags.index')
-                         ->with('success', 'Etiqueta actualizada correctamente.');
+                         ->with('success', 'Tag updated successfully.');
     }
 
     /**
@@ -70,6 +70,6 @@ class TagController extends Controller
         $tag->delete();
 
         return redirect()->route('admin.tags.index')
-                         ->with('success', 'Etiqueta eliminada de los registros.');
+                         ->with('success', 'Tag deleted successfully.');
     }
 }

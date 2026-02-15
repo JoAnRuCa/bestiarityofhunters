@@ -52,7 +52,7 @@ class UserController extends Controller
         ]);
 
         return redirect()->route('admin.users.index')
-                         ->with('success', 'Nuevo cazador registrado con éxito.');
+                         ->with('success', 'New hunter registered successfully.');
     }
 
     /**
@@ -85,7 +85,7 @@ class UserController extends Controller
         $user->save();
 
         return redirect()->route('admin.users.index')
-                         ->with('success', "Los archivos de {$user->name} han sido actualizados.");
+                         ->with('success', "The files of {$user->name} have been updated.");
     }
 
     /**
@@ -94,11 +94,11 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         if (auth()->id() === $user->id) {
-            return back()->with('error', 'No puedes auto-expulsarte.');
+            return back()->with('error', 'You cannot expel yourself.');
         }
 
         $user->delete();
         return redirect()->route('admin.users.index')
-                         ->with('success', 'Registro eliminado de los archivos.');
+                         ->with('success', 'Record deleted from the files.');
     }
 }
