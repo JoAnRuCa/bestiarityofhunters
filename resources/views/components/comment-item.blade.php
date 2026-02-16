@@ -10,7 +10,7 @@
             @endif
         </div>
 
-        <div class="flex-1">
+        <div class="flex-1 min-w-0">
             {{-- Cabecera --}}
             <div class="flex items-center gap-2 mb-1">
                 <span class="font-bold text-[#C67C48]">{{ $comment->user->name }}</span>
@@ -25,7 +25,7 @@
                 @if($comment->comentario === 'This text has been deleted')
                     <p class="text-[15px] italic text-[#2f2f2f] opacity-100">This comment has been deleted</p>
                 @else
-                    <p class="text-gray-800 text-[15px] leading-relaxed">{{ $comment->comentario }}</p>
+                    <p class="text-gray-800 text-[15px] leading-relaxed break-all">{{ $comment->comentario }}</p>
                 @endif
             </div>
 

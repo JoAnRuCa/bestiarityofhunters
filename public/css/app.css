@@ -1051,6 +1051,9 @@ select {
 .w-full {
   width: 100%;
 }
+.min-w-0 {
+  min-width: 0px;
+}
 .min-w-\[160px\] {
   min-width: 160px;
 }
@@ -1317,6 +1320,12 @@ select {
 }
 .whitespace-pre-line {
   white-space: pre-line;
+}
+.break-words {
+  overflow-wrap: break-word;
+}
+.break-all {
+  word-break: break-all;
 }
 .rounded {
   border-radius: 0.25rem;
