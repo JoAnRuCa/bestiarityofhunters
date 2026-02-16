@@ -65,29 +65,33 @@
                 @endif
 
                 {{-- Dropdown del Usuario --}}
-                <div class="relative group">
-                    <a href="#" class="font-semibold text-[#2F2F2F] hover:text-black transition flex items-center">
-                        {{ Auth::user()->name }}
-                        <span class="ml-1 text-xs">▼</span>
-                    </a>
+<div class="relative group z-[100]"> {{-- Añadimos z-index alto al contenedor relativo --}}
+    <a href="#" class="font-semibold text-[#2F2F2F] hover:text-black transition flex items-center">
+        {{ Auth::user()->name }}
+        <span class="ml-1 text-xs">▼</span>
+    </a>
 
-                    <div class="absolute right-0 top-full pt-2 hidden group-hover:block z-50">
-                        <ul class="bg-[#F4EBD0] shadow-lg rounded-md w-40 py-2 text-sm transition-all duration-150 ease-out border border-[#6B8E23]/10">
-                            <li><a href="{{ route('profile') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10 hover:text-[#6B8E23]">Profile</a></li>
-                            <li><a href="{{ route('my.builds') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10 hover:text-[#6B8E23]">My builds</a></li>
-                            <li><a href="{{ route('saved.builds') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10 hover:text-[#6B8E23]">Saved builds</a></li>
-                            <li><a href="{{ route('my.guides') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10 hover:text-[#6B8E23]">My guides</a></li>
-                            <li><a href="{{ route('saved.guides') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10 hover:text-[#6B8E23]">Saved guides</a></li>
-                            <hr class="my-1 border-[#6B8E23]/10">
-                            <li>
-                                <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" 
-                                   class="block px-4 py-2 hover:bg-red-50 hover:text-red-600">
-                                    Logout
-                                </a>
-                            </li>
-                        </ul>
+                        {{-- 
+                            1. Cambiamos 'z-50' por 'z-[1000]' para garantizar prioridad absoluta.
+                            2. Mantenemos 'absolute' para que flote sobre el resto.
+                        --}}
+                        <div class="absolute right-0 top-full pt-2 hidden group-hover:block z-[1000] min-w-[160px]">
+                            <ul class="bg-[#F4EBD0] shadow-xl rounded-md py-2 text-sm transition-all duration-150 ease-out border border-[#6B8E23]/20">
+                                <li><a href="{{ route('profile') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10 hover:text-[#6B8E23]">Profile</a></li>
+                                <li><a href="{{ route('my.builds') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10 hover:text-[#6B8E23]">My builds</a></li>
+                                <li><a href="{{ route('saved.builds') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10 hover:text-[#6B8E23]">Saved builds</a></li>
+                                <li><a href="{{ route('my.guides') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10 hover:text-[#6B8E23]">My guides</a></li>
+                                <li><a href="{{ route('saved.guides') }}" class="block px-4 py-2 hover:bg-[#6B8E23]/10 hover:text-[#6B8E23]">Saved guides</a></li>
+                                <hr class="my-1 border-[#6B8E23]/10">
+                                <li>
+                                    <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" 
+                                    class="block px-4 py-2 hover:bg-red-50 hover:text-red-600">
+                                        Logout
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
             </div>
 
             <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">@csrf</form>

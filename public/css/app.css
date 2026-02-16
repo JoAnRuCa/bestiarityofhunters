@@ -724,6 +724,12 @@ select {
 .z-50 {
   z-index: 50;
 }
+.z-\[1000\] {
+  z-index: 1000;
+}
+.z-\[100\] {
+  z-index: 100;
+}
 .z-\[9999\] {
   z-index: 9999;
 }
@@ -1044,6 +1050,9 @@ select {
 }
 .w-full {
   width: 100%;
+}
+.min-w-\[160px\] {
+  min-width: 160px;
 }
 .min-w-\[180px\] {
   min-width: 180px;
