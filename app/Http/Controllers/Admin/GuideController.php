@@ -78,6 +78,14 @@ public function update(Request $request, $slug) // Recibimos el slug
         return redirect('/admin/guides')->with('success', 'New guide created successfully.');
     }
 
+    public function create()
+{
+    // Obtenemos todos los tags para que el admin pueda seleccionarlos al crear la guía
+    $tags = Tag::all(); 
+    
+    return view('admin.guides.create', compact('tags'));
+}
+
     public function destroy(Guide $guide)
     {
         $guide->delete();
