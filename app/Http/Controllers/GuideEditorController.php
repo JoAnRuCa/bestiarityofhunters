@@ -52,7 +52,7 @@ class GuideEditorController extends Controller
         }
 
         return redirect()
-            ->route('guide.editor')
+            ->route('guides.show', $guide->slug)
             ->with('success', 'Guide created successfully.');
     }
 }
