@@ -38,7 +38,7 @@ class BuildEditorController extends Controller
                 $build = Build::create([
                     'titulo'    => $request->name,
                     'playstyle' => $request->playstyle,
-                    'user_id'   => Auth::id() ?? 1,
+                    'user_id'   => Auth::id()
                 ]);
 
                 foreach ($buildData as $slot => $item) {

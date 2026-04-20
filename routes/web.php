@@ -75,7 +75,7 @@ Route::get('/builds/{slug}', [BuildListController::class, 'show'])->name('builds
 
 Route::get('/build-editor', [BuildEditorController::class, 'index'])->name('build.editor');
 Route::get('/api/build-data', [BuildApiController::class, 'getBuildData']);
-Route::post('/save-build', [BuildEditorController::class, 'store'])->name('builds.store');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -122,6 +122,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/builds/{slug}/edit', [BuildListController::class, 'edit'])->name('builds.edit');
     Route::put('/builds/{slug}', [BuildListController::class, 'update'])->name('builds.update');
     Route::delete('/builds/{slug}', [BuildListController::class, 'destroy'])->name('builds.destroy');
+    Route::post('/save-build', [BuildEditorController::class, 'store'])->name('builds.store');
 
     // --- MI LIBRERÍA (GUIDE MANAGEMENT) ---
     Route::get('/my-guides', [GuideListController::class, 'myGuides'])->name('my.guides');
