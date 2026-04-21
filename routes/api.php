@@ -16,11 +16,7 @@ Route::get('/items/{slot}', [BuildApiController::class, 'getItemsBySlot']);
 
 // RUTAS PROTEGIDAS: Solo usuarios logueados
 Route::middleware('auth:sanctum')->group(function () {
-    
-    // Aquí es donde protegemos el guardado
     Route::post('/save-build', [BuildApiController::class, 'saveBuild']);
-    
-    // Tu ruta de usuario ya existente
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
