@@ -46,9 +46,7 @@ class BuildEditorController extends Controller
     {
         $build = Build::with('tags')->where('slug', $slug)->firstOrFail();
 
-        if (!Auth::check() || Auth::id() !== $build->user_id) {
-            abort(403, 'Unauthorized access.');
-        }
+        $this->authorize('view', $build);
 
         $details = $this->buildService->getBuildDetails($build);
 

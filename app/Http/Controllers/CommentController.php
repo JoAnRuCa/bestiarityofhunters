@@ -73,10 +73,7 @@ class CommentController extends Controller
         $modelClass = $request->type === 'build' ? \App\Models\BuildComment::class : \App\Models\GuidesComment::class;
         $comment = $modelClass::findOrFail($id);
 
-        // PERMISOS: Solo el dueño del comentario o un administrador pueden editar
-        if (auth()->id() !== $comment->user_id && auth()->user()->role !== 'admin') {
-            return response()->json(['error' => 'No autorizado'], 403);
-        }
+        $this->authorize('update', $comment);
 
         $comment->update(['comentario' => $request->comentario]);
 
@@ -98,10 +95,7 @@ class CommentController extends Controller
         $modelClass = $request->type === 'build' ? \App\Models\BuildComment::class : \App\Models\GuidesComment::class;
         $comment = $modelClass::findOrFail($id);
 
-        // PERMISOS: Solo el dueño del comentario o un administrador pueden borrar
-        if (auth()->id() !== $comment->user_id && auth()->user()->role !== 'admin') {
-            return response()->json(['error' => 'No autorizado'], 403);
-        }
+        $this->authorize('delete', $comment);
 
         // Sustituimos el texto por el aviso de borrado
         $comment->update(['comentario' => 'This text has been deleted']);

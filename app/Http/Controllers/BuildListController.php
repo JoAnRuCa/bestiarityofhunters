@@ -85,9 +85,7 @@ class BuildListController extends Controller
     {
         $build = Build::where('slug', $slug)->firstOrFail();
 
-        if ($build->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
-            abort(403, 'Acceso no autorizado.');
-        }
+        $this->authorize('update', $build);
 
         $processedData = $this->buildService->getBuildDetails($build);
         $previous_url = old('previous_url', url()->previous());
@@ -143,9 +141,7 @@ class BuildListController extends Controller
         try {
             $build = Build::where('slug', $slug)->firstOrFail();
 
-            if ($build->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
-                return response()->json(['success' => false, 'error' => 'Unauthorized'], 403);
-            }
+            $this->authorize('update', $build);
 
             $buildData = json_decode($request->input('build_data'), true);
             $decoData = json_decode($request->input('decorations_data'), true);
@@ -192,9 +188,7 @@ class BuildListController extends Controller
     {
         $build = Build::where('slug', $slug)->firstOrFail();
 
-        if ($build->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
-            return response()->json(['success' => false, 'error' => 'Unauthorized'], 403);
-        }
+        $this->authorize('delete', $build);
 
         try {
             DB::beginTransaction();

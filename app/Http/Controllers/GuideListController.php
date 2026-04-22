@@ -44,9 +44,7 @@ class GuideListController extends Controller
     {
         $guide = Guide::where('slug', $slug)->firstOrFail();
 
-        if ($guide->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
-            abort(403);
-        }
+        $this->authorize('update', $guide);
         
         // Intentamos guardar la URL de la lista
         $previousUrl = old('previous_url', url()->previous());
@@ -61,9 +59,7 @@ class GuideListController extends Controller
     {
         $guide = Guide::where('slug', $slug)->firstOrFail();
 
-        if ($guide->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
-            abort(403);
-        }
+        $this->authorize('update', $guide);
 
         $validated = $request->validate([
             'titulo' => 'required|string|max:255',
@@ -99,9 +95,7 @@ class GuideListController extends Controller
     {
         $guide = Guide::where('slug', $slug)->firstOrFail();
 
-        if ($guide->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
-            return response()->json(['success' => false, 'error' => 'Unauthorized'], 403);
-        }
+        $this->authorize('delete', $guide);
 
         try {
             $internalId = $guide->id;
