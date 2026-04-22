@@ -57,14 +57,14 @@ class BuildController extends Controller
             return DB::transaction(function () use ($request, $buildData, $decoData) {
                 // Creamos la instancia base
                 $build = Build::create([
-                    'titulo'    => $request->name,
-                    'slug'      => Str::slug($request->name) . '-' . Str::random(5),
+                    'titulo'    => $request->titulo,
+                    'slug'      => Str::slug($request->titulo) . '-' . Str::random(5),
                     'playstyle' => $request->playstyle,
                     'user_id'   => Auth::id(),
                 ]);
 
                 // Ajustamos slug con ID real
-                $build->update(['slug' => Str::slug($request->name) . '-' . $build->id]);
+                $build->update(['slug' => Str::slug($request->titulo) . '-' . $build->id]);
 
                 // USAMOS EL SERVICIO PARA GUARDAR EQUIPOS
                 $this->buildService->saveBuildEquipment($build->id, $buildData, $decoData);
@@ -146,8 +146,8 @@ class BuildController extends Controller
 
             return DB::transaction(function () use ($request, $build, $buildData, $decoData) {
                 $build->update([
-                    'titulo'    => $request->input('name'),
-                    'slug'      => Str::slug($request->input('name')) . '-' . $build->id,
+                    'titulo'    => $request->input('titulo'),
+                    'slug'      => Str::slug($request->input('titulo')) . '-' . $build->id,
                     'playstyle' => $request->input('playstyle'),
                 ]);
 

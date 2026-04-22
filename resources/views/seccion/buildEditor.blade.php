@@ -22,10 +22,10 @@
             {{-- Input con ancho controlado --}}
             <div class="w-full sm:w-80">
                 <label class="text-[10px] uppercase font-black text-[#6B8E23] tracking-widest mb-1 block ml-1">Build Designation</label>
-                <input type="text" name="name" id="buildName" 
+                <input type="text" name="titulo" id="buildName" 
                     class="w-full bg-white border-2 border-[#6B8E23]/30 rounded-xl py-3 px-4 font-bold text-[#2F2F2F] outline-none focus:border-[#6B8E23] transition-all"
                     placeholder="Enter build name...">
-                <p id="error-name" class="text-red-600 text-xs font-bold mt-2 hidden italic"></p>
+                <p id="error-titulo" class="text-red-600 text-xs font-bold mt-2 hidden italic"></p>
             </div>
 
             {{-- Selector de Tags --}}

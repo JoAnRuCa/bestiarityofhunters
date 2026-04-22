@@ -24,7 +24,7 @@ class BuildService
 
         return DB::transaction(function () use ($requestData, $buildData, $decoData, $categoryMap, $userId) {
             $build = Build::create([
-                'titulo'    => $requestData['name'],
+                'titulo'    => $requestData['titulo'],
                 'playstyle' => $requestData['playstyle'],
                 'user_id'   => $userId
             ]);

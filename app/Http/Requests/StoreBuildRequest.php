@@ -22,7 +22,7 @@ class StoreBuildRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'      => ['required', 'string', 'max:255'],
+            'titulo'    => ['required', 'string', 'max:255'],
             'playstyle' => ['nullable', 'string', 'max:2000'],
             
             // Validamos piezas específicas dentro del objeto decodificado
@@ -39,7 +39,7 @@ class StoreBuildRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'The build needs a name, Hunter.',
+            'titulo.required' => 'The build needs a name, Hunter.',
             // Mensajes para las piezas
             'build_data_array.weapon1.required' => 'A Hunter is nothing without a weapon.',
             'build_data_array.head.required'    => 'You forgot your helmet.',

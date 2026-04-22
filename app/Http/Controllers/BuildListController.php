@@ -152,8 +152,8 @@ class BuildListController extends Controller
 
             return DB::transaction(function () use ($request, $build, $buildData, $decoData) {
                 $build->update([
-                    'titulo'    => $request->name,
-                    'slug'      => Str::slug($request->name) . '-' . $build->id,
+                    'titulo'    => $request->titulo,
+                    'slug'      => Str::slug($request->titulo) . '-' . $build->id,
                     'playstyle' => $request->playstyle,
                 ]);
 
