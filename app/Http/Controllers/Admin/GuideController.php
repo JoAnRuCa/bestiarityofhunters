@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Guide;
 use App\Models\Tag;
+use App\Http\Requests\StoreGuideRequest;
 use Illuminate\Http\Request;
 
 class GuideController extends Controller
@@ -33,17 +34,12 @@ class GuideController extends Controller
     return view('admin.guides.edit', compact('guide', 'previous_url'));
 }
 
-public function update(Request $request, $slug) // Recibimos el slug
+public function update(StoreGuideRequest $request, $slug) // Recibimos el slug
 {
     // Buscamos la guía por slug manualmente para asegurar
     $guide = Guide::where('slug', $slug)->firstOrFail();
 
-    $request->validate([
-        // Validamos el título único ignorando el ID de esta guía
-        'titulo'    => 'required|string|max:255|unique:guides,titulo,' . $guide->id,
-        'contenido' => 'required|string',
-        'tags'      => 'nullable|array',
-    ]);
+    $validated = $request->validated();
 
     $guide->update([
         'titulo'    => $request->titulo,
@@ -57,12 +53,9 @@ public function update(Request $request, $slug) // Recibimos el slug
     return redirect($redirectUrl)->with('success', 'Guide updated successfully.');
 }
 
-    public function store(Request $request)
+    public function store(StoreGuideRequest $request)
     {
-        $request->validate([
-            'titulo'    => 'required|string|max:255|unique:guides,titulo',
-            'contenido' => 'required|string',
-        ]);
+        $validated = $request->validated();
 
         $guide = Guide::create([
             'titulo'    => $request->titulo,

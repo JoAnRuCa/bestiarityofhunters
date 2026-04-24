@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Guide;
 use App\Models\Tag;
+use App\Http\Requests\StoreGuideRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -30,19 +31,15 @@ class GuideEditorController extends Controller
     /**
      * Store a new guide.
      */
-    public function store(Request $request)
+    public function store(StoreGuideRequest $request)
     {
-        // Validación
-        $request->validate([
-            'titulo'    => 'required|string|max:255',
-            'contenido' => 'required|string',
-            'tags'      => 'array',
-        ]);
+        // Validación ya manejada por StoreGuideRequest
+        $validated = $request->validated();
 
         // Crear guía
         $guide = Guide::create([
-            'titulo'    => $request->titulo,
-            'contenido' => $request->contenido,
+            'titulo'    => $validated['titulo'],
+            'contenido' => $validated['contenido'],
             'user_id'   => Auth::id(),
         ]);
 

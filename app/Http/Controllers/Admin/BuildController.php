@@ -138,7 +138,7 @@ class BuildController extends Controller
     /**
      * Actualiza la build (Admin).
      */
-    public function update(Request $request, Build $build)
+    public function update(StoreBuildRequest $request, Build $build)
     {
         try {
             $buildData = json_decode($request->input('build_data'), true);

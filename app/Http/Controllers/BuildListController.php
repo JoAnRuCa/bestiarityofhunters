@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreBuildRequest;
 use App\Models\Build;
 use App\Services\BuildService;
 use Illuminate\Support\Facades\Auth;
@@ -136,7 +137,7 @@ class BuildListController extends Controller
     /**
      * Actualiza la build delegando el guardado al servicio.
      */
-    public function update(Request $request, $slug)
+    public function update(StoreBuildRequest $request, $slug)
     {
         try {
             $build = Build::where('slug', $slug)->firstOrFail();

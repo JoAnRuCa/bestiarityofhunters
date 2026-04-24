@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Http\Requests\StoreUserRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash; 
 
@@ -34,15 +35,9 @@ class UserController extends Controller
     /**
      * Guardar un nuevo cazador (Nombre e Email ÚNICOS).
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        $request->validate([
-            // Añadimos unique:users,name para evitar duplicados
-            'name'     => 'required|string|max:255|unique:users,name',
-            'email'    => 'required|email|unique:users,email',
-            'password' => 'required|min:8|confirmed',
-            'role'     => 'required|in:user,admin',
-        ]);
+        $validated = $request->validated();
 
         User::create([
             'name'     => $request->name,
@@ -66,14 +61,9 @@ class UserController extends Controller
     /**
      * Actualizar los datos (Validando unicidad excepto para el usuario actual).
      */
-    public function update(Request $request, User $user)
+    public function update(StoreUserRequest $request, User $user)
     {
-        $request->validate([
-            // El tercer parámetro ,'.$user->id indica que ignore el nombre de este usuario específico
-            'name'     => 'required|string|max:255|unique:users,name,' . $user->id,
-            'email'    => 'required|email|unique:users,email,' . $user->id,
-            'password' => 'nullable|min:8|confirmed',
-        ]);
+        $validated = $request->validated();
 
         $user->name = $request->name;
         $user->email = $request->email;

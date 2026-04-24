@@ -30,8 +30,10 @@
             <input type="text"
                    name="titulo"
                    value="{{ old('titulo', $guide->titulo) }}"
-                   class="w-full p-3 rounded border border-slate-300 focus:ring-2 focus:ring-[#6B8E23]"
-                   required>
+                   class="w-full p-3 rounded border @error('titulo') border-red-500 @else border-slate-300 @enderror focus:ring-2 focus:ring-[#6B8E23]">
+            @error('titulo')
+                <p class="text-red-500 text-xs mt-1 font-bold italic">{{ $message }}</p>
+            @enderror
         </div>
 
         {{-- COMPONENTE DE TAGS --}}
@@ -42,8 +44,10 @@
             <label class="block font-semibold mb-1 text-[#2F2F2F]">Content</label>
             <textarea name="contenido"
                       rows="10"
-                      class="w-full p-3 rounded border border-slate-300 focus:ring-2 focus:ring-[#6B8E23]"
-                      required>{{ old('contenido', $guide->contenido) }}</textarea>
+                      class="w-full p-3 rounded border @error('contenido') border-red-500 @else border-slate-300 @enderror focus:ring-2 focus:ring-[#6B8E23]">{{ old('contenido', $guide->contenido) }}</textarea>
+            @error('contenido')
+                <p class="text-red-500 text-xs mt-1 font-bold italic">{{ $message }}</p>
+            @enderror
         </div>
 
         <div class="flex items-center gap-4">

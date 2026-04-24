@@ -16,8 +16,8 @@
  {{-- Nombre --}}
             <div>
                 <label class="block text-xs font-black uppercase tracking-widest text-[#2F2F2F]/70 mb-2 ml-1">Hunter Name</label>
-                <input type="text" name="name" value="{{ old('name') }}" required
-                        class="w-full bg-white border-2 border-transparent focus:border-[#6B8E23] focus:ring-0 outline-none px-4 py-3 rounded-xl transition-all font-bold italic text-[#2F2F2F] shadow-sm"
+                <input type="text" name="name" value="{{ old('name') }}" 
+                        class="w-full bg-white border-2 @error('name') border-red-500 @else border-transparent @enderror focus:border-[#6B8E23] focus:ring-0 outline-none px-4 py-3 rounded-xl transition-all font-bold italic text-[#2F2F2F] shadow-sm"
                         placeholder="Fabius">
                 @error('name') <span class="text-red-600 text-xs mt-1 font-bold ml-1">{{ $message }}</span> @enderror
             </div>
@@ -25,8 +25,8 @@
             {{-- Email --}}
             <div>
                 <label class="block text-xs font-black uppercase tracking-widest text-[#2F2F2F]/70 mb-2 ml-1">Email Address</label>
-                <input type="email" name="email" value="{{ old('email') }}" required
-                       class="w-full bg-white border-2 border-transparent focus:border-[#6B8E23] focus:ring-0 outline-none px-4 py-3 rounded-xl transition-all text-[#2F2F2F] shadow-sm"
+                <input type="email" name="email" value="{{ old('email') }}" 
+                       class="w-full bg-white border-2 @error('email') border-red-500 @else border-transparent @enderror focus:border-[#6B8E23] focus:ring-0 outline-none px-4 py-3 rounded-xl transition-all text-[#2F2F2F] shadow-sm"
                        placeholder="hunter@guild.com">
                 @error('email') <span class="text-red-600 text-xs mt-1 font-bold ml-1">{{ $message }}</span> @enderror
             </div>
@@ -34,8 +34,8 @@
             {{-- Rol (Solo al crear) --}}
             <div>
                 <label class="block text-xs font-black uppercase tracking-widest text-[#2F2F2F]/70 mb-2 ml-1">Assigned Rank</label>
-                <select name="role" required
-                        class="w-full bg-white border-2 border-transparent focus:border-[#6B8E23] focus:ring-0 outline-none px-4 py-3 rounded-xl transition-all font-bold text-[#6B8E23] shadow-sm">
+                <select name="role" 
+                        class="w-full bg-white border-2 @error('role') border-red-500 @else border-transparent @enderror focus:border-[#6B8E23] focus:ring-0 outline-none px-4 py-3 rounded-xl transition-all font-bold text-[#6B8E23] shadow-sm">
                     <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>USER (Active Hunter)</option>
                     <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>ADMIN (Research Leader)</option>
                 </select>
@@ -48,13 +48,13 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-xs font-black uppercase tracking-widest text-[#2F2F2F]/70 mb-2 ml-1">Access Password</label>
-                    <input type="password" name="password" required
-                           class="w-full bg-white border-2 border-transparent focus:border-[#C67C48] focus:ring-0 outline-none px-4 py-3 rounded-xl transition-all text-[#2F2F2F] shadow-sm">
+                    <input type="password" name="password" 
+                           class="w-full bg-white border-2 @error('password') border-red-500 @else border-transparent @enderror focus:border-[#C67C48] focus:ring-0 outline-none px-4 py-3 rounded-xl transition-all text-[#2F2F2F] shadow-sm">
                     @error('password') <span class="text-red-600 text-xs mt-1 font-bold ml-1">{{ $message }}</span> @enderror
                 </div>
                 <div>
                     <label class="block text-xs font-black uppercase tracking-widest text-[#2F2F2F]/70 mb-2 ml-1">Confirm Access</label>
-                    <input type="password" name="password_confirmation" required
+                    <input type="password" name="password_confirmation" 
                            class="w-full bg-white border-2 border-transparent focus:border-[#C67C48] focus:ring-0 outline-none px-4 py-3 rounded-xl transition-all text-[#2F2F2F] shadow-sm">
                 </div>
             </div>

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Guide;
+use App\Http\Requests\StoreGuideRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -55,17 +55,13 @@ class GuideListController extends Controller
         ]);
     }
 
-    public function update(Request $request, $slug)
+    public function update(StoreGuideRequest $request, $slug)
     {
         $guide = Guide::where('slug', $slug)->firstOrFail();
 
         $this->authorize('update', $guide);
 
-        $validated = $request->validate([
-            'titulo' => 'required|string|max:255',
-            'contenido' => 'required|string',
-            'tags' => 'nullable|array',
-        ]);
+        $validated = $request->validated();
 
         $guide->update([
             'titulo' => $validated['titulo'],

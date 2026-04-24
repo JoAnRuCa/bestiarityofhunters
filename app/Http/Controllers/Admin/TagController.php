@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tag;
+use App\Http\Requests\StoreTagRequest;
 use Illuminate\Http\Request;
 
 class TagController extends Controller
@@ -20,11 +21,9 @@ class TagController extends Controller
     /**
      * Guarda una nueva etiqueta.
      */
-    public function store(Request $request)
+    public function store(StoreTagRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:50|unique:tags,name',
-        ]);
+        $validated = $request->validated();
 
         $tag = Tag::create([
             'name' => trim($request->name), 
@@ -45,11 +44,9 @@ class TagController extends Controller
     /**
      * Actualiza la etiqueta.
      */
-    public function update(Request $request, Tag $tag)
+    public function update(StoreTagRequest $request, Tag $tag)
     {
-        $request->validate([
-            'name' => 'required|string|max:50|unique:tags,name,' . $tag->id,
-        ]);
+        $validated = $request->validated();
 
         $tag->update([
             'name' => trim($request->name),
