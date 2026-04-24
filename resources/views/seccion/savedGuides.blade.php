@@ -72,7 +72,7 @@
                                 <div class="flex flex-col items-center gap-4">
                                     <div class="save-container">
                                         <button type="button" class="save-btn flex items-center justify-center w-10 h-10 rounded-full bg-[#6B8E23] text-[#2F2F2F] shadow-sm transition-all hover:scale-110"
-                                                data-url="{{ route('saved.toggle', ['type' => 'guide', 'id' => $guide->slug]) }}" data-type="guide">
+                                                data-url="{{ route('saved.toggle', ['type' => 'guide', 'id' => $guide->id]) }}" data-type="guide">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
                                                 <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
                                             </svg>
