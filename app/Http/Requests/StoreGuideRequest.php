@@ -13,9 +13,14 @@ class StoreGuideRequest extends FormRequest
 
     public function rules()
     {
-        $guideId = $this->route('guide') ? $this->route('guide')->id : null;
-        if (!$guideId && $this->route('slug')) {
-            $guideId = \App\Models\Guide::where('slug', $this->route('slug'))->first()->id ?? null;
+        $guide = $this->route('guide');
+        $guideId = null;
+
+        if (is_object($guide)) {
+            $guideId = $guide->id;
+        } elseif (is_string($guide)) {
+            $guideModel = \App\Models\Guide::where('slug', $guide)->first();
+            $guideId = $guideModel ? $guideModel->id : null;
         }
 
         return [

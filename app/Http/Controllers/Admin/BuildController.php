@@ -118,7 +118,10 @@ class BuildController extends Controller
                     'decos' => collect($eq->attached_decos)
                         ->filter(function($d) { return !$d['is_empty']; })
                         ->map(function($d) { 
-                            return ['id' => $d['id'], 'name' => $d['name']]; 
+                            return [
+                                'id' => isset($d['id']) ? $d['id'] : null,
+                                'name' => $d['name']
+                            ]; 
                         }) 
                         ->values()
                         ->toArray()

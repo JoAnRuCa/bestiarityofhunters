@@ -115,6 +115,7 @@ class BuildService
                 $decoInfo = collect($data['decos'])->firstWhere('id', $d->decoration_id);
                 if ($decoInfo) {
                     $eq->attached_decos[] = [
+                        'id' => $decoInfo['id'],
                         'name' => $decoInfo['name'],
                         'level' => isset($decoInfo['slot']) ? $decoInfo['slot'] : 1,
                         'is_empty' => false
