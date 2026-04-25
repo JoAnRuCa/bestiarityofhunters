@@ -9,6 +9,8 @@ use App\Services\BuildService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class BuildListController extends Controller
 {
@@ -177,6 +179,10 @@ class BuildListController extends Controller
                 ]);
             });
 
+        } catch (AuthorizationException $e) {
+            return response()->json(['success' => false, 'error' => 'You are not authorized to perform this action.'], 403);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['success' => false, 'error' => 'Build not found.'], 404);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
         }
@@ -187,11 +193,11 @@ class BuildListController extends Controller
      */
     public function destroy($slug) 
     {
-        $build = Build::where('slug', $slug)->firstOrFail();
-
-        $this->authorize('delete', $build);
-
         try {
+            $build = Build::where('slug', $slug)->firstOrFail();
+
+            $this->authorize('delete', $build);
+
             DB::beginTransaction();
             
             $equipmentIds = DB::table('builds_equipments')->where('build_id', $build->id)->pluck('id');
@@ -206,6 +212,12 @@ class BuildListController extends Controller
             
             DB::commit();
             return response()->json(['success' => true]);
+        } catch (AuthorizationException $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'error' => 'You are not authorized to delete this build.'], 403);
+        } catch (ModelNotFoundException $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'error' => 'Build not found.'], 404);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['success' => false, 'error' => $e->getMessage()], 500);
