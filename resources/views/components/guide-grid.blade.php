@@ -39,7 +39,7 @@
                     
                     <div class="mt-auto">
                         <p class="text-[11px] text-[#2F2F2F] font-bold tracking-wider uppercase opacity-70">
-                            By <span class="text-[#C67C48]">{{ $guide->user->name }}</span> <span class="mx-1 text-[8px]">•</span> {{ $guide->created_at->diffForHumans() }}
+                            By <span class="text-[#C67C48]">{{ $guide->user->name }}</span>
                         </p>
                     </div>
                 </div>

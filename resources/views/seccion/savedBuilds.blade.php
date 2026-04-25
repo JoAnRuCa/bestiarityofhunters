@@ -59,7 +59,7 @@
                             </div>
 
                             <p class="mt-auto text-[11px] text-[#2F2F2F] font-bold tracking-wider opacity-80 uppercase">
-                                By <span class="text-[#C67C48]">{{ $build->user->name }}</span> • {{ $build->created_at->diffForHumans() }}
+                                By <span class="text-[#C67C48]">{{ $build->user->name }}</span>
                             </p>
                         </div>
 

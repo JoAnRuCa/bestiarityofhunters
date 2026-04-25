@@ -54,7 +54,7 @@
 
                             <td class="px-6 py-4 border-y-2 border-transparent group-hover:border-[#6B8E23]/20">
                                 <span class="font-bold text-[#2F2F2F] block">{{ $comment->user->name }}</span>
-                                <span class="text-[10px] text-gray-400 font-medium italic">{{ $comment->created_at->diffForHumans() }}</span>
+
                             </td>
 
                             <td class="px-6 py-4 border-y-2 border-transparent group-hover:border-[#6B8E23]/20">

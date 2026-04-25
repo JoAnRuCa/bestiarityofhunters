@@ -17,7 +17,7 @@
                 @if($comment->user->role === 'admin')
                     <span class="text-[9px] bg-[#6B8E23] text-white px-1.5 py-0.5 rounded uppercase font-black tracking-tighter">Staff</span>
                 @endif
-                <span class="text-xs text-gray-500 italic">{{ $comment->created_at->diffForHumans() }}</span>
+
             </div>
 
             {{-- Contenido --}}

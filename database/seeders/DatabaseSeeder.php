@@ -13,7 +13,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call(TagsSeeder::class);
-        $this->call(AdminUserSeeder::class);
+        $this->call([
+            UserSeeder::class,
+            TagsSeeder::class,
+            GuideSeeder::class,
+            BuildSeeder::class,
+            GuideTagSeeder::class,
+            BuildTagSeeder::class,
+            BuildEquipmentSeeder::class,
+            BuildEquipmentDecorationSeeder::class,
+            BuildCommentSeeder::class,
+            GuideCommentSeeder::class,
+            BuildsCommentsVotesSeeder::class,
+            BuildsVotesSeeder::class,
+            GuidesVotesSeeder::class,
+            SavedBuildsSeeder::class,
+            SavedGuidesSeeder::class,
+        ]);
     }
 }
