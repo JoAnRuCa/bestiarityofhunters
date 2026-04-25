@@ -43,10 +43,12 @@ class UpdateProfileRequest extends FormRequest
     public function messages()
     {
         return [
+            'name.required' => 'A hunter needs a name to be remembered.',
+            'email.required' => 'How will we send you the bounty notices without an email?',
             'name.unique' => 'This nickname is already taken by another hunter.',
             'email.unique' => 'This email address is already registered.',
             'new_password.min' => 'The new password must be at least 8 characters.',
-            'current_password.required' => 'You must provide your current password.',
+            'current_password.required' => 'You must provide your current password to prove your identity.',
         ];
     }
 }

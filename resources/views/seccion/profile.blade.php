@@ -77,7 +77,7 @@
             </div>
         @endif
 
-        <form action="{{ route('profile.update') }}" method="POST">
+        <form action="{{ route('profile.update') }}" method="POST" novalidate>
             @csrf
             @method('PUT')
             <input type="hidden" name="type" id="modalType" value="{{ old('type') }}">

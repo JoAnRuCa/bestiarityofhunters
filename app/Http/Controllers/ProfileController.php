@@ -27,9 +27,11 @@ class ProfileController extends Controller
         } 
         
         elseif ($type === 'password') {
-            // La validación de formato ya pasó, ahora comprobamos la veracidad
+            // Comprobamos si la contraseña actual coincide
             if (!Hash::check($request->current_password, $user->password)) {
-                return back()->withErrors(['current_password' => 'The current password you entered is incorrect.']);
+                return back()
+                    ->withErrors(['current_password' => 'The current password you entered is incorrect.'])
+                    ->withInput(); // Importante para que el modal se mantenga abierto
             }
             $user->password = Hash::make($request->new_password);
         }
