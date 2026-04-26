@@ -168,9 +168,7 @@ class BuildListController extends Controller
                     $build->tags()->sync($request->tags);
                 }
 
-                $redirectUrl = (Auth::user()->role === 'admin') 
-                    ? ($request->input('previous_url') ?: route('admin.builds.index')) 
-                    : route('my.builds');
+                $redirectUrl = $request->input('previous_url') ?: (Auth::user()->role === 'admin' ? route('admin.builds.index') : route('my.builds'));
 
                 return response()->json([
                     'success' => true,
