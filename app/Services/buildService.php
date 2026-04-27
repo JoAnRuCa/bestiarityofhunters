@@ -63,11 +63,12 @@ class BuildService
     }
 
     /**
-     * Lógica para calcular todas las habilidades
+     * Lógica para calcular todas las habilidades (Corregido: No suma Arma 2)
      */
     public function getBuildDetails(Build $build)
     {
-        $equipments = DB::table('builds_equipments')->where('build_id', $build->id)->get();
+        // Importante: El orden de la consulta influye en cuál se detecta como "primera" arma
+        $equipments = DB::table('builds_equipments')->where('build_id', $build->id)->orderBy('id', 'asc')->get();
         
         $data = [
             'weapons' => json_decode(Storage::get('data/weapons.json'), true) ?: [],
@@ -87,12 +88,22 @@ class BuildService
         $totalSkillsRaw = [];
         $weaponSkills = [];
         $tipoLabels = [1 => 'Weapon', 2 => 'Armor Piece', 3 => 'Charm'];
+        
+        $weaponCount = 0; // Contador para identificar el Arma 2
 
         foreach ($equipments as $eq) {
             $isWeapon = ((int)$eq->tipo === 1);
             $eq->tipo_label = isset($tipoLabels[(int)$eq->tipo]) ? $tipoLabels[(int)$eq->tipo] : 'Equipment';
 
-            // Cambiado match por switch para compatibilidad PHP 7
+            // Lógica de exclusión: Si es un arma y ya hemos procesado una, ignoramos sus skills
+            $ignoreSkills = false;
+            if ($isWeapon) {
+                $weaponCount++;
+                if ($weaponCount > 1) {
+                    $ignoreSkills = true; 
+                }
+            }
+
             $source = [];
             switch ((int)$eq->tipo) {
                 case 1: $source = $data['weapons']; break;
@@ -105,7 +116,11 @@ class BuildService
             if ($itemData) {
                 $eq->real_name = isset($itemData['name']) ? $itemData['name'] : (isset($itemData['weaponName']) ? $itemData['weaponName'] : (isset($itemData['charmName']) ? $itemData['charmName'] : 'Unknown'));
                 $eq->total_slots = isset($itemData['slots']) ? $itemData['slots'] : [];
-                $this->extractSkills($itemData, $totalSkillsRaw, $weaponSkills, $isWeapon);
+                
+                // Solo extraemos habilidades si NO es el arma secundaria
+                if (!$ignoreSkills) {
+                    $this->extractSkills($itemData, $totalSkillsRaw, $weaponSkills, $isWeapon);
+                }
             }
 
             $savedDecos = DB::table('builds_equipments_decorations')->where('build_equipment_id', $eq->id)->get();
@@ -120,7 +135,11 @@ class BuildService
                         'level' => isset($decoInfo['slot']) ? $decoInfo['slot'] : 1,
                         'is_empty' => false
                     ];
-                    $this->extractSkills($decoInfo, $totalSkillsRaw, $weaponSkills, $isWeapon);
+                    
+                    // Solo extraemos habilidades de decoraciones si NO es el arma secundaria
+                    if (!$ignoreSkills) {
+                        $this->extractSkills($decoInfo, $totalSkillsRaw, $weaponSkills, $isWeapon);
+                    }
                 }
             }
 
@@ -152,41 +171,36 @@ class BuildService
         }
     }
 
-   private function finalizeSkills($raw, $maxLevels, $weaponSkills, $skillsData) {
-    return collect($raw)->map(function($lvl, $name) use ($maxLevels, $weaponSkills, $skillsData) {
-        $max = isset($maxLevels[$name]) ? $maxLevels[$name] : 5;
-        $currentLvl = (int)min($lvl, $max);
-        
-        $skillInfo = collect($skillsData)->firstWhere('name', $name);
-        $desc = "No desc.";
-        if ($skillInfo && isset($skillInfo['ranks'][$currentLvl - 1])) {
-            $rank = $skillInfo['ranks'][$currentLvl - 1];
-            $desc = isset($rank['description']) ? $rank['description'] : (isset($rank['desc']) ? $rank['desc'] : $desc);
-        }
+    private function finalizeSkills($raw, $maxLevels, $weaponSkills, $skillsData) {
+        return collect($raw)->map(function($lvl, $name) use ($maxLevels, $weaponSkills, $skillsData) {
+            $max = isset($maxLevels[$name]) ? $maxLevels[$name] : 5;
+            $currentLvl = (int)min($lvl, $max);
+            
+            $skillInfo = collect($skillsData)->firstWhere('name', $name);
+            $desc = "No desc.";
+            if ($skillInfo && isset($skillInfo['ranks'][$currentLvl - 1])) {
+                $rank = $skillInfo['ranks'][$currentLvl - 1];
+                $desc = isset($rank['description']) ? $rank['description'] : (isset($rank['desc']) ? $rank['desc'] : $desc);
+            }
 
-        return [
-            'name'      => $name, 
-            'lvl'       => $currentLvl, 
-            'max'       => $max,
-            'percent'   => ($max > 0) ? ($currentLvl / $max) * 100 : 0,
-            'desc'      => $desc, 
-            'is_weapon' => isset($weaponSkills[$name]) ? 1 : 0 // Aquí detectamos si es de arma
-        ];
-    })->sort(function($a, $b) {
-        // 1. Prioridad: Si una es de arma y la otra no, la de arma va primero
-        if ($a['is_weapon'] !== $b['is_weapon']) {
-            return $b['is_weapon'] <=> $a['is_weapon'];
-        }
-        
-        // 2. Si ambas son del mismo tipo (ambas de arma o ambas de armadura), ordena por nivel
-        if ($b['lvl'] !== $a['lvl']) {
-            return $b['lvl'] <=> $a['lvl'];
-        }
-
-        // 3. Si hasta el nivel es igual, ordena por nombre alfabético
-        return strcmp($a['name'], $b['name']);
-    })->values()->toArray();
-}
+            return [
+                'name'      => $name, 
+                'lvl'       => $currentLvl, 
+                'max'       => $max,
+                'percent'   => ($max > 0) ? ($currentLvl / $max) * 100 : 0,
+                'desc'      => $desc, 
+                'is_weapon' => isset($weaponSkills[$name]) ? 1 : 0 
+            ];
+        })->sort(function($a, $b) {
+            if ($a['is_weapon'] !== $b['is_weapon']) {
+                return $b['is_weapon'] <=> $a['is_weapon'];
+            }
+            if ($b['lvl'] !== $a['lvl']) {
+                return $b['lvl'] <=> $a['lvl'];
+            }
+            return strcmp($a['name'], $b['name']);
+        })->values()->toArray();
+    }
 
     private function getNormalizedCharms() {
         $charmsRaw = json_decode(Storage::get('data/charms.json'), true) ?: [];
@@ -234,55 +248,47 @@ class BuildService
         return $query;
     }
 
-    /**
- * Busca el tipo de pieza (head, chest, etc) por ID
- */
-public function getArmorKind($id)
-{
-    $armors = json_decode(Storage::get('data/armors.json'), true) ?: [];
-    foreach($armors as $a) {
-        if($a['id'] == $id) return $a['kind'];
+    public function getArmorKind($id)
+    {
+        $armors = json_decode(Storage::get('data/armors.json'), true) ?: [];
+        foreach($armors as $a) {
+            if($a['id'] == $id) return $a['kind'];
+        }
+        return null;
     }
-    return null;
-}
 
-/**
- * Lógica común para insertar equipos y decoraciones (reutilizable en store y update)
- */
-public function saveBuildEquipment($buildId, array $buildData, array $decoData)
-{
-    $categoryMap = [
-        'weapon1' => 1, 'weapon2' => 1,
-        'head'    => 2, 'chest'   => 2, 'arms' => 2, 'waist' => 2, 'legs' => 2,
-        'charm'   => 3
-    ];
+    public function saveBuildEquipment($buildId, array $buildData, array $decoData)
+    {
+        $categoryMap = [
+            'weapon1' => 1, 'weapon2' => 1,
+            'head'    => 2, 'chest'   => 2, 'arms' => 2, 'waist' => 2, 'legs' => 2,
+            'charm'   => 3
+        ];
 
-    foreach ($buildData as $slot => $item) {
-        if (!$item || !isset($item['id'])) continue;
-        $tipo = isset($categoryMap[$slot]) ? $categoryMap[$slot] : 0;
+        foreach ($buildData as $slot => $item) {
+            if (!$item || !isset($item['id'])) continue;
+            $tipo = isset($categoryMap[$slot]) ? $categoryMap[$slot] : 0;
 
-        $buildEquipmentId = DB::table('builds_equipments')->insertGetId([
-            'build_id'     => $buildId,
-            'equipment_id' => $item['id'],
-            'tipo'         => $tipo,
-            'created_at'   => now(),
-            'updated_at'   => now(),
-        ]);
+            $buildEquipmentId = DB::table('builds_equipments')->insertGetId([
+                'build_id'     => $buildId,
+                'equipment_id' => $item['id'],
+                'tipo'         => $tipo,
+                'created_at'   => now(),
+                'updated_at'   => now(),
+            ]);
 
-        if (isset($decoData[$slot]) && is_array($decoData[$slot])) {
-            foreach ($decoData[$slot] as $deco) {
-                if ($deco && isset($deco['id'])) {
-                    DB::table('builds_equipments_decorations')->insert([
-                        'build_equipment_id' => $buildEquipmentId,
-                        'decoration_id'      => $deco['id'],
-                        'created_at'         => now(),
-                        'updated_at'         => now(),
-                    ]);
+            if (isset($decoData[$slot]) && is_array($decoData[$slot])) {
+                foreach ($decoData[$slot] as $deco) {
+                    if ($deco && isset($deco['id'])) {
+                        DB::table('builds_equipments_decorations')->insert([
+                            'build_equipment_id' => $buildEquipmentId,
+                            'decoration_id'      => $deco['id'],
+                            'created_at'         => now(),
+                            'updated_at'         => now(),
+                        ]);
+                    }
                 }
             }
         }
     }
-}
-
-
 }
