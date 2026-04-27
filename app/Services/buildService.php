@@ -63,7 +63,7 @@ class BuildService
     }
 
     /**
-     * Lógica para calcular todas las habilidades (Corregido: No suma Arma 2)
+     * Lógica para calcular todas las habilidades
      */
     public function getBuildDetails(Build $build)
     {
