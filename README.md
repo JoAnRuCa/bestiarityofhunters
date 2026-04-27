@@ -251,3 +251,41 @@ Contraseña: contrasena
 Rol: Usuario
 
 Con estas cuentas podrás probar todas las funcionalidades de la plataforma.
+
+## Decisiones técnicas
+
+### Uso de JSON para Datos Maestros del Juego
+En lugar de depender de una base de datos masiva o de peticiones constantes a una API externa para los datos estáticos (armas, armaduras, joyas y habilidades), opté por usar archivos JSON locales para los datos del juego, pero el resto de datos (usuarios, builds, comentarios, etc.) se guardan en la base de datos.
+
+Justificación: esta decisión elimina la dependencia de la API original, asegurando que la aplicación sea 100% funcional en entornos sin conexión.
+
+### Implementación de una Capa de Servicios (BuildService)
+Decidí extraer la lógica de procesamiento de los controladores y moverla a una clase de servicio especializada.
+
+Justificación: el cálculo de habilidades acumuladas y la normalización de piezas de equipo es una tarea compleja. Al centralizarla en un Service, el código es más limpio, fácil de testear y se evita la duplicación de lógica entre el editor de builds y la visualización pública.
+
+### Estrategia de Comunicación Asíncrona
+Para la búsqueda de contenido y el filtrado de la lista de builds, implementé JavaScript con la API fetch para realizar peticiones asíncronas al servidor.
+
+Justificación: Esto permite que el usuario filtre cientos de builds por arma o etiqueta de forma instantánea. Al devolver solo fragmentos de HTML en lugar de recargar la página entera, se consigue una experiencia de usuario mucho más fluida y cercana a una aplicación moderna.
+
+## Capturas de pantalla
+
+### Home
+![home](public/images/Home.png)
+
+### Editor de Builds
+![build editor](public/images/BuildEditor.png)
+
+### Detalle de Build
+![build show](public/images/BuildShow.png)
+
+### Lista de Armaduras
+![armors](public/images/Armors.png)
+
+### Detalles Armadura 
+![armor details](public/images/ArmorShow.png)
+
+
+El resto de capturas de pantalla se pueden visualizar en el siguiente enlace: [Capturas de pantalla](https://drive.google.com/drive/folders/1vIRdumc8Nphqum3webvwcmwzOp2Wvvh0?usp=drive_link)
+
