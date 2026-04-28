@@ -68,7 +68,7 @@ Base del sistema de gestión de usuarios.
 
 Justificación: Breeze proporciona un punto de partida limpio para el registro y login, integrándose de forma nativa con Tailwind. Por su parte, Sanctum asegura la autenticación mediante tokens de forma segura, permitiendo que la aplicación sea escalable para futuras integraciones o aplicaciones móviles.
 
-### Base de Datos: MySQL / MariaDB
+### Base de Datos: MySQL
 Sistema de gestión de base de datos relacional.
 
 Justificación: es el estándar de fiabilidad para aplicaciones Laravel. Su capacidad para gestionar relaciones complejas es el pilar fundamental sobre el que se construye la lógica de Bestiarity of Hunters.
